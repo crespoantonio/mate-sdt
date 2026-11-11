@@ -1,0 +1,58 @@
+{
+  "name": "mate-sdt",
+  "version": "1.0.0",
+  "description": "M.A.T.E. Method — Spec-Driven Testing (SDT) Framework & AI Agent Skills for the Agentic Coding Era (Model, Assert, Threat, Explore).",
+  "keywords": [
+    "mate-method",
+    "mate-sdt",
+    "spec-driven-testing",
+    "sdt",
+    "qa",
+    "quality-engineering",
+    "testing",
+    "playwright",
+    "mutation-testing",
+    "stryker",
+    "podman",
+    "ai-agents",
+    "antigravity",
+    "claude-code",
+    "cursor",
+    "windsurf",
+    "copilot"
+  ],
+  "homepage": "https://github.com/crespoantonio/mate-sdt#readme",
+  "bugs": {
+    "url": "https://github.com/crespoantonio/mate-sdt/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crespoantonio/mate-sdt.git"
+  },
+  "license": "MIT",
+  "author": "Antonio \"Tony\" Crespo (Un Junior En Apuros)",
+  "type": "commonjs",
+  "bin": {
+    "mate-sdt": "./bin/mate-sdt.js",
+    "mate": "./bin/mate-sdt.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "skills/",
+    "templates/",
+    "docs/",
+    "MANIFESTO.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node scripts/build-check.js",
+    "test": "node --test tests/cli.test.js",
+    "validate:examples": "node ./bin/mate-sdt.js validate skills/mate-model/examples/sample-order-lifecycle.mate-spec.md",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

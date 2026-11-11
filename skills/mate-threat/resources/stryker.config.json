@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/stryker-mutator/stryker-js/master/packages/api/schema/stryker-core.json",
+  "_comment": "M.A.T.E. Method - Mutation Testing Governance with Stryker Mutator",
+  "mutate": [
+    "src/**/*.ts",
+    "!src/**/*.spec.ts",
+    "!src/**/*.test.ts",
+    "!src/models/**/*.ts"
+  ],
+  "testRunner": "playwright",
+  "reporters": [
+    "html",
+    "clear-text",
+    "progress"
+  ],
+  "coverageAnalysis": "perTest",
+  "thresholds": {
+    "high": 85,
+    "low": 75,
+    "break": 85
+  },
+  "timeoutMS": 10000,
+  "concurrency": 2
+}

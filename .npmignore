@@ -1,0 +1,6 @@
+.github/
+tests/
+scripts/build-check.js
+.gitignore
+.npmignore
+*.tgz
