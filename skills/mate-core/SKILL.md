@@ -2,12 +2,12 @@
 name: mate-core
 description: >-
   Master orchestrator of the M.A.T.E. Spec-Driven Testing (SDT) Framework by Tony Crespo (Un Junior En Apuros).
-  USE WHEN: Starting any QA/Testing task, reading or updating `MATE-PROJECT-MAP.md`, deciding which of the 13 M.A.T.E.
-  skills or 6 E2E workflows to activate, enforcing OOP/SOLID architecture, applying the Handling Uncertainty Protocol,
+  USE WHEN: Starting any QA/Testing task, reading or updating `MATE-PROJECT-MAP.md`, deciding which of the 14 M.A.T.E.
+  skills or 7 E2E workflows to activate, enforcing OOP/SOLID architecture, applying the Handling Uncertainty Protocol,
   or enforcing the Anti-Greenwashing Mandate.
-  SYNERGY: Orchestrates and routes tasks across all 13 M.A.T.E. skills (`mate-story-testcases`, `mate-model`,
-  `mate-pw-recon`, `mate-assert-playwright`, `mate-pw-codegen`, `mate-pw-forensics`, `mate-assert-api`, `mate-threat`,
-  `mate-performance-k6`, `mate-explore`, `mate-triage`, and `mate-maintenance`).
+  SYNERGY: Orchestrates and routes tasks across all 14 M.A.T.E. skills (`mate-strategy`, `mate-story-testcases`,
+  `mate-model`, `mate-pw-recon`, `mate-assert-playwright`, `mate-pw-codegen`, `mate-pw-forensics`, `mate-assert-api`,
+  `mate-threat`, `mate-performance-k6`, `mate-explore`, `mate-triage`, and `mate-maintenance`).
 ---
 
 # 🧉 Master Skill: M.A.T.E. Core (`mate-core`)
@@ -35,16 +35,17 @@ Its purpose is to ensure that any software project implements a quality architec
    - **Never Assume:** Do not invent SLAs, authentication flows, or undocumented business rules.
    - **Ask First or Mark `[TBD]`:** When critical context is missing, ask targeted clarifying questions or mark `[TBD: needs input on X]` with explicit confidence levels (`Observed` vs. `Inferred`). See [`references/handling-uncertainty.md`](./references/handling-uncertainty.md).
 5. **Skill Synergy & Lifecycle Routing:**  
-   Orchestrates the **13 M.A.T.E. Skills** and **6 End-to-End Workflows** so the exact right skill activates at the exact right moment.
+   Orchestrates the **14 M.A.T.E. Skills** and **7 End-to-End Workflows** so the exact right skill activates at the exact right moment.
 
 ---
 
-## 🧩 The 13 M.A.T.E. Skills & Synergy Routing Matrix
+## 🧩 The 14 M.A.T.E. Skills & Synergy Routing Matrix
 
 | Skill | Pillar / Phase | Exact Moment to Activate (`USE WHEN`) | Companion / Synergy Skills |
 | :--- | :--- | :--- | :--- |
-| **`mate-core`** | **Orchestrator** | Reading/updating `MATE-PROJECT-MAP.md`, routing tasks, enforcing SOLID & Anti-Greenwashing rules. | Routes to all 12 skills below |
-| **`mate-story-testcases`** | **Ingestion & TC Design** | Tester provides a User Story (Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text) to design Happy, Border, Negative & State Test Cases (`tests/cases/TC-*.md` & `.csv`). | `mate-model` ➔ `mate-pw-recon` ➔ `mate-assert-playwright` |
+| **`mate-core`** | **Orchestrator** | Reading/updating `MATE-PROJECT-MAP.md`, routing tasks, enforcing SOLID & Anti-Greenwashing rules. | Routes to all 13 skills below |
+| **`mate-strategy`** | **Phase 0 (Strategy & Plan)** | QA team starts from zero on a live app (Standalone QA Repo), needs `docs/TEST-STRATEGY.md`, `docs/test-plans/TP-*.md`, a `P0/P1/P2` Risk Matrix, a 2-Wave Smoke-First plan, or manual suite migration. | `mate-pw-recon` ➔ `mate-story-testcases` + `mate-model` |
+| **`mate-story-testcases`** | **Ingestion & TC Design** | Tester provides a User Story (Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text) or legacy manual cases to design Happy, Border, Negative & State Test Cases (`tests/cases/TC-*.md` & `.csv`). | `mate-model` ➔ `mate-pw-recon` ➔ `mate-assert-playwright` |
 | **`mate-model`** | **Pillar M (Model)** | Authoring or validating `specs/*.mate-spec.md`, Finite State Machines, and **Explicit Forbidden Transitions**. | `mate-story-testcases` + `mate-pw-recon` |
 | **`mate-pw-recon`** | **Pillar M/A (Live CLI Recon)** | Opening live URLs (`playwright-cli open/snapshot`), verifying User Story & border cases live in the browser, and mapping semantic DOM/ARIA locators before coding. | `mate-story-testcases` + `mate-model` ➔ `mate-pw-codegen` |
 | **`mate-assert-playwright`** | **Pillar A (SOLID UI Rules)** | Designing or reviewing `BasePage`, `BaseComponent`, `MateFixtures`, zero-sleep assertions, and applying `test.fail()` on real app bugs. | `mate-pw-codegen` + `mate-story-testcases` |

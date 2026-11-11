@@ -33,12 +33,16 @@ This skill is responsible for **Pillar T (Threat & Trash)** of the M.A.T.E. Meth
     - **Concurrency & Race Conditions:** Simultaneous user actions, concurrent transactions executed in the exact same millisecond.
     - **Idempotency:** Automated network retries and duplicate webhooks (ensuring operations process exactly ONCE).
     - **Data Trash & Fuzzing:** Massive payloads, SQL/NoSQL/XSS injections, negative balances, non-standard Unicode strings, and corrupted ISO timestamp formats.
-2.  **Mandatory Mutation Testing (Stryker Mutator):**  
-    To guarantee that AI-authored test suites are not merely cosmetic checks that pass blindly, this skill mutates production code systematically:
-    - Mutating boundary operators (`>` to `>=`, `&&` to `||`).
-    - Stripping critical business validation statements.
-    - Flipping boolean returns.
-    - **M.A.T.E. Quality Threshold:** **Mutation Score >= 85%**. If surviving mutants exceed 15%, the pull request is rejected.
+2.  **Dual-Mode Pillar T Governance (White-Box Monorepo vs. Black-Box Standalone QA Repo):**  
+    - **Mode A — White-Box / Integrated Repository (App source code present):**  
+      Executes **Stryker Mutator** against production business logic (`>= 85%` Mutation Score threshold) inside rootless **Podman** containers (`npx mate-sdt mutate`) to guarantee that automated tests catch subtle boundary and boolean mutations.
+    - **Mode B — Black-Box / Standalone QA Repository (QA sits in a separate folder outside Front/Back):**  
+      When application source code is not in the QA repository, Pillar T enforces **Black-Box Adversarial & Chaos Verification** (`npm run test:threats`):
+      - Multi-actor concurrent browser sessions (`playwright-cli -s=actor1`, `-s=actor2` via `mate-pw-forensics`).
+      - Parallel API race-condition bursts (`Promise.all` with `BaseApiClient`).
+      - Double-submit & webhook idempotency verification.
+      - Boundary & payload fuzzing (`SQLi`, `XSS`, negative numbers, Unicode overflow, malformed JSON).
+      - *(Optional)* If the frontend/backend repo is cloned in a sibling folder on disk, mount it into Stryker via `npx mate-sdt mutate --dir ../backend-repo`.
 3.  **Isolated Execution in Ephemeral Podman Containers:**  
     All destructive tests, stress scenarios, and mutation test runs must execute inside a rootless, isolated **Podman** container:
     ```bash

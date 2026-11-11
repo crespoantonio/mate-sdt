@@ -34,7 +34,7 @@ Its mission is two-fold:
 
 ## 🔌 1. Source-Agnostic Requirement Ingestion Protocol
 
-Never assume a single tool. Detect how the tester provided the User Story and use the matching ingestion path (see [`references/mcp-and-file-ingestion.md`](./references/mcp-and-file-ingestion.md)):
+Never assume a single tool. Detect how the tester provided the User Story or existing manual test suite and use the matching ingestion path (see [`references/mcp-and-file-ingestion.md`](./references/mcp-and-file-ingestion.md) and [`references/legacy-manual-migration.md`](./references/legacy-manual-migration.md)):
 
 1. **Atlassian MCP (Jira / Confluence / Xray / Zephyr):**
    - When the tester mentions a Jira key (e.g., `PROJ-142`) or Confluence URL and an Atlassian MCP server is available, call the MCP tool to read the issue summary, description, acceptance criteria, linked subtasks, and comments.

@@ -1,0 +1,63 @@
+name: 🧉 M.A.T.E. Spec-Driven Quality Gate
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Test suite to run (smoke, e2e, api, threats, all)'
+        required: false
+        default: 'smoke'
+  schedule:
+    # Daily P0 Smoke check at 08:00 UTC
+    - cron: '0 8 * * *'
+
+jobs:
+  mate-quality-gate:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout QA Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: 1. Validate M.A.T.E. Specifications (Pillar M)
+        run: npx mate-sdt validate
+
+      - name: 2. Audit Test Suite SOLID & Zero-Sleep Health (Grade A Gate)
+        run: npx mate-sdt audit
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: 3. Execute P0 Smoke & Invariant Suites (Pillar A)
+        env:
+          BASE_URL: ${{ secrets.BASE_URL || 'http://localhost:3000' }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL || 'http://localhost:3000' }}
+        run: |
+          if [ "${{ github.event.inputs.suite }}" = "all" ]; then
+            npx playwright test
+          else
+            npx playwright test --project=smoke --project=api
+          fi
+
+      - name: Upload Playwright Forensic Report & Traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mate-playwright-report
+          path: |
+            playwright-report/
+            test-results/
+            tests/bugs/
+          retention-days: 14

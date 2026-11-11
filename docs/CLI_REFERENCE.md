@@ -21,7 +21,7 @@ npx mate status
 ## Commands
 
 ### 1. `install` (Default Command)
-Launches the interactive installer to scaffold directories, templates, **13 synergistic AI agent skills**, and **6 E2E workflows**, with optional automatic installation of `@playwright/cli` and `@playwright/test`.
+Launches the interactive installer to scaffold directories, templates, ready-to-run Playwright/TypeScript harness files (`playwright.config.ts`, `tsconfig.json`, `.env.example`, `.github/workflows/mate-qa.yml`), **14 synergistic AI agent skills**, and **7 E2E workflows**, with optional automatic installation of `@playwright/cli` and `@playwright/test`.
 
 ```bash
 npx mate-sdt install [options]
@@ -29,7 +29,7 @@ npx mate-sdt install [options]
 
 **Options:**
 *   `-y, --yes`: Skip interactive prompts and use defaults.
-*   `--mode <greenfield|brownfield|skills-only>`: Specify lifecycle mode.
+*   `--mode <standalone-qa|greenfield|brownfield|skills-only>`: Specify lifecycle mode.
 *   `--ide <list>`: Comma-separated list of IDEs (`antigravity`, `claude`, `cursor`, `windsurf`, `copilot`, or `all`).
 *   `--dir <path>`: Target directory (defaults to `.`).
 *   `--with-playwright-cli`: Automatically install `@playwright/cli@latest` and `@playwright/test@latest` via npm.
@@ -38,7 +38,7 @@ npx mate-sdt install [options]
 ---
 
 ### 2. `init [target-dir]`
-Quickly scaffolds the standard M.A.T.E. folders, `MATE-PROJECT-MAP.md`, `specs/TEMPLATE_MATE_SPEC.md`, and `stryker.config.json` without prompting for IDE rules.
+Quickly scaffolds the standard M.A.T.E. folders, `MATE-PROJECT-MAP.md`, `docs/TEST-STRATEGY.md`, `specs/TEMPLATE_MATE_SPEC.md`, and `stryker.config.json` without prompting for IDE rules.
 
 ```bash
 npx mate-sdt init
@@ -51,6 +51,24 @@ Installs `@playwright/cli@latest` and `@playwright/test@latest` into the target 
 
 ```bash
 npx mate-sdt setup-playwright
+```
+
+---
+
+### 2c. `strategy [project-name]`
+Generates the Master Test Strategy & Business Risk Matrix (`docs/TEST-STRATEGY.md`).
+
+```bash
+npx mate-sdt strategy "Acme E-Commerce"
+```
+
+---
+
+### 2d. `plan <release-or-sprint-scope>` (Alias: `testplan`)
+Generates a dated Release / Sprint Test Plan in `docs/test-plans/TP-YYYYMMDD-<scope>.md`.
+
+```bash
+npx mate-sdt plan q4-checkout-release
 ```
 
 ---

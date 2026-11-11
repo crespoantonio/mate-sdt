@@ -18,6 +18,8 @@ const {
   initMateProject,
   installMate,
   installPlaywrightCliPackages,
+  generateTestStrategy,
+  generateTestPlan,
   generateTestCases,
   generateCharter,
   generateWaiver,
@@ -85,13 +87,19 @@ function printHelp() {
   console.log('    npx mate-sdt <command> [options]\n');
   console.log(color('  COMMANDS:', COLORS.bold, COLORS.cyan));
   console.log(
-    `    ${color('install', COLORS.brightGreen, COLORS.bold)}              Interactive installer (13 AI skills, 6 E2E workflows, IDE rules & SDT layout)`
+    `    ${color('install', COLORS.brightGreen, COLORS.bold)}              Interactive installer (14 AI skills, 7 E2E workflows, IDE rules & SDT layout)`
   );
   console.log(
     `    ${color('init [dir]', COLORS.brightGreen, COLORS.bold)}           Quick-scaffold M.A.T.E. directories, Living Map & templates`
   );
   console.log(
     `    ${color('setup-playwright [dir]', COLORS.brightGreen, COLORS.bold)} Install @playwright/cli & @playwright/test in the target project`
+  );
+  console.log(
+    `    ${color('strategy [name]', COLORS.brightGreen, COLORS.bold)}      Generate Master Test Strategy & Risk Matrix in docs/TEST-STRATEGY.md`
+  );
+  console.log(
+    `    ${color('plan <scope>', COLORS.brightGreen, COLORS.bold)}         Generate a Release / Sprint Test Plan in docs/test-plans/`
   );
   console.log(
     `    ${color('validate [path]', COLORS.brightGreen, COLORS.bold)}      Validate one or all *.mate-spec.md files (defaults to ./specs)`
@@ -158,7 +166,12 @@ async function handleInstall(flags) {
         'Select your project lifecycle mode:',
         [
           {
-            label: 'Greenfield (Full SDT Architecture + 13 AI Skills + 6 Workflows + SOLID Templates)',
+            label: 'Standalone QA Repository (Separate QA Folder for a Live App — Zero-to-One Harness)',
+            description: 'Best when QA works in a dedicated folder outside Front/Back with playwright.config.ts, TEST-STRATEGY.md & Smoke-First setup.',
+            value: 'standalone-qa',
+          },
+          {
+            label: 'Greenfield (Full SDT Architecture + 14 AI Skills + 7 Workflows + SOLID Templates)',
             description: 'Best for new projects or establishing a complete UI, API, k6 & SDT harness.',
             value: 'greenfield',
           },
@@ -224,7 +237,7 @@ async function handleInstall(flags) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
   }
 
-  console.log(color('\n  🤖 Installed 13 Synergistic AI Skills, 6 E2E Workflows & IDE Rules:', COLORS.bold, COLORS.cyan));
+  console.log(color('\n  🤖 Installed 14 Synergistic AI Skills, 7 E2E Workflows & IDE Rules:', COLORS.bold, COLORS.cyan));
   for (const item of result.ideFiles) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
   }
@@ -337,6 +350,24 @@ function handleAudit(flags) {
     );
     process.exit(1);
   }
+}
+
+function handleStrategy(flags) {
+  const projectName = flags.positional[1] || '';
+  const dest = generateTestStrategy(projectName, flags.dir || '.');
+  console.log(color(`\n♟️  Created Master Test Strategy & Risk Matrix:`, COLORS.brightGreen, COLORS.bold));
+  console.log(`   ${dest}\n`);
+}
+
+function handlePlan(flags) {
+  const scopeName = flags.positional[1];
+  if (!scopeName) {
+    console.error(color('❌ Usage: npx mate-sdt plan <release-or-sprint-name>', COLORS.red, COLORS.bold));
+    process.exit(1);
+  }
+  const dest = generateTestPlan(scopeName, flags.dir || '.');
+  console.log(color(`\n📅 Created M.A.T.E. Release / Sprint Test Plan:`, COLORS.brightGreen, COLORS.bold));
+  console.log(`   ${dest}\n`);
 }
 
 function handleCases(flags) {
@@ -471,6 +502,13 @@ async function main() {
       break;
     case 'k6':
       process.exit(runPodmanK6(flags.positional[1] || 'tests/nfr/order-load.k6.js', flags.dir || '.'));
+      break;
+    case 'strategy':
+      handleStrategy(flags);
+      break;
+    case 'plan':
+    case 'testplan':
+      handlePlan(flags);
       break;
     case 'cases':
     case 'testcases':

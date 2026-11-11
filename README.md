@@ -1,6 +1,6 @@
 # 🧉 M.A.T.E. Method (`mate-sdt`)
 
-### Spec-Driven Testing (SDT) Framework, 13 Synergistic AI Agent Skills & 6 E2E Workflows for the Agentic Coding Era
+### Spec-Driven Testing (SDT) Framework, 14 Synergistic AI Agent Skills & 7 E2E Workflows for the Agentic Coding Era
 
 [![npm version](https://img.shields.io/npm/v/mate-sdt.svg?style=flat-square&color=2ea44f)](https://www.npmjs.com/package/mate-sdt)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
@@ -38,7 +38,7 @@ In the Agentic Era (2026+), autonomous AI agents write thousands of lines of cod
 *   **BDD (Behavior-Driven Development)** drowns engineering teams in brittle Gherkin (`Given/When/Then`) step-definition bureaucracy that gets abandoned within three sprints.
 *   **"Vibe Coding" + AI-Generated Tests** produce cosmetic "happy-path" checks (`expect(res).toBeDefined()`) that paint the CI pipeline green while silently shipping race conditions, security exploits, and broken business invariants to production.
 
-**The M.A.T.E. Method** is a **Spec-Driven Testing (SDT)** framework that flips the paradigm: **the specification belongs to the Quality Engineer**. It equips both human engineers and AI coding agents (Google Antigravity, Claude Code, Cursor, Windsurf, GitHub Copilot) with a rigorous, token-efficient architecture governed by four pillars, **13 specialized & synergistic AI skills** (including source-agnostic User Story ingestion, 3 modular `@playwright/cli` skills, and a strict **Anti-Greenwashing Mandate**), and **6 end-to-end workflows**.
+**The M.A.T.E. Method** is a **Spec-Driven Testing (SDT)** framework that flips the paradigm: **the specification belongs to the Quality Engineer**. Whether your QA team sits inside a monorepo or works in a **standalone Black-Box QA folder** on a live production app with zero existing tests, `mate-sdt` equips both human engineers and AI coding agents (Google Antigravity, Claude Code, Cursor, Windsurf, GitHub Copilot) with a rigorous, token-efficient architecture governed by four pillars, **14 specialized & synergistic AI skills**, and **7 end-to-end workflows**.
 
 ---
 
@@ -60,30 +60,32 @@ flowchart LR
 
 ---
 
-## 🧩 The 13 Synergistic AI Agent Skills & 6 End-to-End Workflows
+## 🧩 The 14 Synergistic AI Agent Skills & 7 End-to-End Workflows
 
-When you run `npx mate-sdt install`, your AI agents gain **13 specialized skills** (each with exact `USE WHEN:` triggers and `SYNERGY:` handoff protocols) and **6 orchestrated E2E workflows**:
+When you run `npx mate-sdt install`, your AI agents gain **14 specialized skills** (each with exact `USE WHEN:` triggers and `SYNERGY:` handoff protocols) and **7 orchestrated E2E workflows**:
 
-### 1. The 13 M.A.T.E. Skills (`skills/`)
+### 1. The 14 M.A.T.E. Skills (`skills/`)
 | Skill | Scope | Exact Responsibility & Synergy |
 | :--- | :--- | :--- |
-| **`mate-core`** | **Orchestrator** | Manages `MATE-PROJECT-MAP.md`, SOLID/OOP rules, Anti-Greenwashing Mandate, Handling Uncertainty Protocol (`[OBSERVED]` vs `[INFERRED]`), and routes tasks across all 13 skills. |
-| **`mate-story-testcases`** | **Ingestion & TC Design** | Ingests User Stories from **Atlassian/Jira MCP, Notion MCP, GitHub/Linear MCP, Excel/CSV, or text** and generates 4-Quadrant Test Case Matrices (`tests/cases/TC-*.md` & `.csv`: Happy, Border, Negative, State). |
+| **`mate-core`** | **Orchestrator** | Manages `MATE-PROJECT-MAP.md`, SOLID/OOP rules, Anti-Greenwashing Mandate, Handling Uncertainty Protocol (`[OBSERVED]` vs `[INFERRED]`), and routes tasks across all 14 skills. |
+| **`mate-strategy`** | **Phase 0 (Strategy & Plan)** | Authors `docs/TEST-STRATEGY.md` and `docs/test-plans/TP-*.md`, builds the `P0/P1/P2` Business Risk Matrix, orchestrates the **2-Wave Smoke-First Rollout** for live apps without testing, and guides manual suite migration. |
+| **`mate-story-testcases`** | **Ingestion & TC Design** | Ingests User Stories from **Atlassian/Jira MCP, Notion MCP, GitHub/Linear MCP, Excel/CSV, or text** (or audits legacy manual cases) and generates 4-Quadrant Test Case Matrices (`tests/cases/TC-*.md` & `.csv`). |
 | **`mate-model`** | **Pillar M** | Authors `*.mate-spec.md`, Finite State Machines, **Explicit Forbidden Transitions**, and `<invariants>`. |
-| **`mate-pw-recon`** | **Pillar M/A (CLI Recon)** | Uses `@playwright/cli` (`open`, `snapshot`, `eval`) to verify User Story acceptance criteria and border cases live in the browser and map semantic DOM/ARIA locators before writing code. |
+| **`mate-pw-recon`** | **Pillar M/A (CLI Recon)** | Uses `@playwright/cli` (`open`, `snapshot`, `network`, `eval`) to verify User Stories live in the browser, map semantic DOM/ARIA locators, and **reverse-engineer hidden backend APIs** when no Swagger exists. |
 | **`mate-assert-playwright`** | **Pillar A (UI Rules)** | Governs SOLID Page Objects (`BasePage`), Component Objects (`BaseComponent`), DIP fixtures, zero arbitrary sleeps, and the **Anti-Greenwashing Mandate** (`test.fail()` on real product bugs). |
 | **`mate-pw-codegen`** | **Pillar A (CLI Codegen)** | Translates `playwright-cli` locators, `state-save` auth, and `route` network mocks into SOLID Page/Component Objects, `src/mocks/`, and `tests/e2e/*.spec.ts`. |
 | **`mate-pw-forensics`** | **Pillar T/E & Triage (CLI)** | Multi-actor sessions (`playwright-cli -s=actor1`, `-s=actor2`), `tracing-start`/`stop`, 60fps `video-start` recordings with chapters, and PR/Jira visual attachments. |
-| **`mate-assert-api`** | **Pillar A (API)** | Generates OpenAPI/Swagger contract test matrices (`2xx`, `400/422`, `401/403` BOLA, `409` FSM) and typed API clients. |
-| **`mate-threat`** | **Pillar T (Chaos)** | Concurrency, race conditions, webhook idempotency, fuzzing, and Stryker Mutation (`>= 85%`) in Podman. |
+| **`mate-assert-api`** | **Pillar A (API)** | Generates OpenAPI/Swagger or network-observed contract test matrices (`2xx`, `400/422`, `401/403` BOLA, `409` FSM) and typed API clients. |
+| **`mate-threat`** | **Pillar T (Chaos)** | Dual-mode Pillar T: Black-Box concurrency, idempotency & payload fuzzing (`tests/threats/`), plus White-Box Stryker Mutation (`>= 85%`) in Podman. |
 | **`mate-performance-k6`** | **Pillar A/T (NFR)** | Designs Smoke, Load, Stress, Spike, and Soak profiles in Grafana k6 enforcing `<performance_oracles>` in Podman. |
 | **`mate-explore`** | **Pillar E** | Designs human SBTM exploratory charters, WCAG 2.1 AA audits, Release Waivers, and Release Verdicts. |
 | **`mate-triage`** | **Day-2 Ops** | Triages failures (`Real Bug` vs `Flaky` vs `Infra` vs `Drift`), tracks `test.fail()` known bugs, and generates spec-linked Bug Reports (`npx mate-sdt bug`). |
 | **`mate-maintenance`** | **Day-2 Ops** | Audits test codebase health (`A`–`F`), detecting `waitForTimeout`/sleeps, `.only` locks, and DIP violations (`npx mate-sdt audit`). |
 
-### 2. The 6 End-to-End Workflows (`workflows/`)
+### 2. The 7 End-to-End Workflows (`workflows/`)
 | Workflow Command | End-to-End Pipeline |
 | :--- | :--- |
+| **`/mate-flow-zero-to-one`** | **Zero Testing + Live App in Prod (Standalone QA Folder)** ➔ Global Live Recon (`mate-pw-recon`) ➔ `TEST-STRATEGY.md` & Risk Matrix (`mate-strategy`) ➔ **Wave 1: 72h P0 Smoke Shield** ➔ **Wave 2: 4-Quadrant Deepening** |
 | **`/mate-flow-user-story`** | **User Story (Jira/Notion MCP, Excel/CSV, or Text)** ➔ Spec & 4-Quadrant Test Cases (`.md` + `.csv`) ➔ Live Verification with `playwright-cli` (`mate-pw-recon`) ➔ SOLID Automation (`mate-pw-codegen` + `mate-assert-playwright`) ➔ Anti-Greenwashing Report (`test.fail()` + `BUG-*.md`) |
 | **`/mate-flow-greenfield`** | Idea/Requirement ➔ `*.mate-spec.md` ➔ `validate` ➔ UI/API SOLID Tests ➔ Podman Mutation (`>=85%`) ➔ Human Charter & Verdict |
 | **`/mate-flow-brownfield`** | Legacy Code / Live URL Recon (`mate-pw-recon`) ➔ `MATE-PROJECT-MAP.md` ➔ Reverse-Spec (`REVIEW`) ➔ Freeze P0 Invariants |
@@ -131,6 +133,8 @@ your-project/
 | `npx mate-sdt install` | Launch the interactive installer (choose Greenfield/Brownfield mode, target AI IDEs, starter templates, and `@playwright/cli` installation). |
 | `npx mate-sdt init [dir]` | Quickly scaffold the M.A.T.E. directory structure, `MATE-PROJECT-MAP.md`, and `stryker.config.json`. |
 | `npx mate-sdt setup-playwright [dir]` | Install `@playwright/cli@latest` and `@playwright/test@latest` in the target project and configure `.gitignore`. |
+| `npx mate-sdt strategy [name]` | Generate the Master Test Strategy & Business Risk Matrix (`docs/TEST-STRATEGY.md`). |
+| `npx mate-sdt plan <scope>` | Generate a Release / Sprint Test Plan (`docs/test-plans/TP-YYYYMMDD-<scope>.md`). |
 | `npx mate-sdt validate [path]` | Lint one or all `*.mate-spec.md` files (verifies YAML frontmatter, 4 XML blocks, explicit Forbidden Transitions, and `INV-XX` IDs). |
 | `npx mate-sdt cases <module>` | Generate a 4-Quadrant Test Case Matrix (`tests/cases/TC-<module>.md` & `.csv` ready for Jira/Xray/Zephyr/Excel/Notion). |
 | `npx mate-sdt audit [dir]` | Scan test codebase for M.A.T.E. anti-patterns (`waitForTimeout`, `sleep`, `.only`, DIP violations) and compute Health Score (`A`–`F`). |

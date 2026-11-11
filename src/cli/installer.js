@@ -10,6 +10,8 @@ const { auditTestSuite } = require('./auditor');
 const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 
 const STANDARD_DIRECTORIES = [
+  'docs',
+  'docs/test-plans',
   'specs',
   'specs/waivers',
   'tests/cases',
@@ -29,6 +31,7 @@ const STANDARD_DIRECTORIES = [
 
 const SKILL_NAMES = [
   'mate-core',
+  'mate-strategy',
   'mate-story-testcases',
   'mate-model',
   'mate-pw-recon',
@@ -44,6 +47,7 @@ const SKILL_NAMES = [
 ];
 
 const WORKFLOW_NAMES = [
+  'mate-flow-zero-to-one',
   'mate-flow-user-story',
   'mate-flow-greenfield',
   'mate-flow-brownfield',
@@ -204,6 +208,7 @@ function installCursor(targetDir) {
 
   const globsMap = {
     'mate-core': '**/*',
+    'mate-strategy': 'docs/**/*.md,MATE-PROJECT-MAP.md',
     'mate-story-testcases': 'tests/cases/**/*,specs/**/*.mate-spec.md',
     'mate-model': 'specs/**/*.mate-spec.md,MATE-PROJECT-MAP.md',
     'mate-pw-recon': 'specs/**/*.mate-spec.md,tests/cases/**/*,src/pages/**/*.ts,src/components/**/*.ts',
@@ -378,6 +383,29 @@ function initMateProject(targetDir, options = {}) {
     created.push('specs/TEMPLATE_MATE_SPEC.md');
   }
 
+  // Copy docs/TEST-STRATEGY.md
+  if (mode !== 'skills-only') {
+    const strategyTemplate = path.join(
+      PACKAGE_ROOT,
+      'skills',
+      'mate-strategy',
+      'resources',
+      'test-strategy.template.md'
+    );
+    const strategyDest = path.join(resolved, 'docs', 'TEST-STRATEGY.md');
+    if (!fs.existsSync(strategyDest) && fs.existsSync(strategyTemplate)) {
+      fs.mkdirSync(path.dirname(strategyDest), { recursive: true });
+      const today = new Date().toISOString().slice(0, 10);
+      const text = fs
+        .readFileSync(strategyTemplate, 'utf8')
+        .replace(/YYYY-MM-DD/g, today)
+        .replace(/\[Project \/ Product Name\]/g, path.basename(resolved) || 'Project')
+        .replace(/\[Project Name\]/g, path.basename(resolved) || 'Project');
+      fs.writeFileSync(strategyDest, text, 'utf8');
+      created.push('docs/TEST-STRATEGY.md');
+    }
+  }
+
   // Copy stryker.config.json
   if (mode !== 'skills-only') {
     const strykerSrc = path.join(
@@ -454,6 +482,79 @@ function initMateProject(targetDir, options = {}) {
         }
         writeFileIfMissing(d, text, false);
         created.push(item.dest.replace(/\\/g, '/'));
+      }
+    }
+
+    // Standalone & Ready-to-Run QA Harness files (playwright.config.ts, tsconfig.json, .env.example, CI workflow)
+    const standaloneTemplatesDir = path.join(PACKAGE_ROOT, 'templates', 'standalone');
+    const harnessFiles = [
+      {
+        src: path.join(standaloneTemplatesDir, 'playwright.config.template.ts'),
+        dest: 'playwright.config.ts',
+      },
+      {
+        src: path.join(standaloneTemplatesDir, 'tsconfig.template.json'),
+        dest: 'tsconfig.json',
+      },
+      {
+        src: path.join(standaloneTemplatesDir, 'env.example.template'),
+        dest: '.env.example',
+      },
+      {
+        src: path.join(standaloneTemplatesDir, 'github-workflow.template.yml'),
+        dest: path.join('.github', 'workflows', 'mate-qa.yml'),
+      },
+    ];
+
+    for (const hf of harnessFiles) {
+      const destFull = path.join(resolved, hf.dest);
+      if (!fs.existsSync(destFull) && fs.existsSync(hf.src)) {
+        writeFileIfMissing(destFull, fs.readFileSync(hf.src, 'utf8'), false);
+        created.push(hf.dest.replace(/\\/g, '/'));
+      }
+    }
+
+    // Ensure package.json has standard M.A.T.E. & Playwright scripts in standalone/target QA folders
+    const pkgPath = path.join(resolved, 'package.json');
+    const qaScripts = {
+      'test:smoke': 'playwright test --project=smoke',
+      'test:e2e': 'playwright test --project=e2e',
+      'test:api': 'playwright test --project=api',
+      'test:threats': 'playwright test --project=threats',
+      'mate:validate': 'mate-sdt validate',
+      'mate:audit': 'mate-sdt audit',
+      'mate:status': 'mate-sdt status',
+    };
+
+    if (!fs.existsSync(pkgPath)) {
+      const newPkg = {
+        name: `${(path.basename(resolved) || 'qa-suite').toLowerCase().replace(/[^a-z0-9-_]/g, '-')}`,
+        version: '1.0.0',
+        private: true,
+        description: 'M.A.T.E. Method Spec-Driven QA & Automation Suite',
+        scripts: qaScripts,
+      };
+      fs.writeFileSync(pkgPath, `${JSON.stringify(newPkg, null, 2)}\n`, 'utf8');
+      created.push('package.json (with M.A.T.E. & Playwright scripts)');
+    } else {
+      try {
+        const existingPkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        if (existingPkg.name !== 'mate-sdt') {
+          existingPkg.scripts = existingPkg.scripts || {};
+          let addedScript = false;
+          for (const [k, v] of Object.entries(qaScripts)) {
+            if (!existingPkg.scripts[k]) {
+              existingPkg.scripts[k] = v;
+              addedScript = true;
+            }
+          }
+          if (addedScript) {
+            fs.writeFileSync(pkgPath, `${JSON.stringify(existingPkg, null, 2)}\n`, 'utf8');
+            created.push('package.json (updated with M.A.T.E. & Playwright scripts)');
+          }
+        }
+      } catch {
+        // Ignore malformed package.json
       }
     }
   }
@@ -577,6 +678,65 @@ function installMate(options = {}) {
     ideFiles,
     playwrightCliInstalled,
   };
+}
+
+/**
+ * Generates Master Test Strategy (docs/TEST-STRATEGY.md) from template
+ */
+function generateTestStrategy(projectName, targetDir = '.') {
+  const resolved = path.resolve(targetDir);
+  const destPath = path.join(resolved, 'docs', 'TEST-STRATEGY.md');
+  const templatePath = path.join(
+    PACKAGE_ROOT,
+    'skills',
+    'mate-strategy',
+    'resources',
+    'test-strategy.template.md'
+  );
+  const today = new Date().toISOString().slice(0, 10);
+  const title = projectName || path.basename(resolved) || 'Project';
+  const content = fs
+    .readFileSync(templatePath, 'utf8')
+    .replace(/\[Project \/ Product Name\]/g, title)
+    .replace(/\[Project Name\]/g, title)
+    .replace(/YYYY-MM-DD/g, today);
+
+  fs.mkdirSync(path.dirname(destPath), { recursive: true });
+  fs.writeFileSync(destPath, content, 'utf8');
+  return destPath;
+}
+
+/**
+ * Generates a Release / Sprint Test Plan (docs/test-plans/TP-<scope>.md) from template
+ */
+function generateTestPlan(scopeName, targetDir = '.') {
+  const resolved = path.resolve(targetDir);
+  const safeName = (scopeName || 'release')
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]+/g, '-')
+    .replace(/^-|-$/g, '');
+  const today = new Date().toISOString().slice(0, 10);
+  const dateStr = today.replace(/-/g, '');
+  const destPath = path.join(resolved, 'docs', 'test-plans', `TP-${dateStr}-${safeName}.md`);
+
+  const templatePath = path.join(
+    PACKAGE_ROOT,
+    'skills',
+    'mate-strategy',
+    'resources',
+    'test-plan.template.md'
+  );
+  const content = fs
+    .readFileSync(templatePath, 'utf8')
+    .replace(/\[Release \/ Sprint \/ Epic Name\]/g, scopeName || 'Release Cycle')
+    .replace(/\[SCOPE\]/g, safeName.toUpperCase())
+    .replace(/\[scope\]/g, safeName)
+    .replace(/YYYY-MM-DD/g, today)
+    .replace(/YYYYMMDD/g, dateStr);
+
+  fs.mkdirSync(path.dirname(destPath), { recursive: true });
+  fs.writeFileSync(destPath, content, 'utf8');
+  return destPath;
 }
 
 /**
@@ -950,6 +1110,8 @@ module.exports = {
   initMateProject,
   installMate,
   installPlaywrightCliPackages,
+  generateTestStrategy,
+  generateTestPlan,
   generateTestCases,
   generateCharter,
   generateWaiver,

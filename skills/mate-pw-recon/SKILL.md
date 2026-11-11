@@ -90,7 +90,8 @@ As you explore with `playwright-cli snapshot`, classify every UI element into th
 
 ## 📚 Deep-Dive Reference Guides
 
-Load these references on demand when inspecting complex DOM properties or browser APIs:
+Load these references on demand when inspecting complex DOM properties, reverse-engineering APIs, or probing browser APIs:
 * **[Live Story Verification & Locator Mapping](./references/live-story-verification.md)** — Step-by-step protocol for validating Jira/Notion/Excel User Stories in `playwright-cli` and classifying pass/fail results.
+* **[Black-Box Network API Reverse-Engineering](./references/network-api-discovery.md)** — Using `playwright-cli network` and `run-code` to discover hidden backend API endpoints, headers, and JSON schemas when Backend has no Swagger/OpenAPI docs.
 * **[DOM Attributes, Computed Styles & WCAG Inspection](./references/element-attributes.md)** — Using `playwright-cli eval` to inspect attributes, bounding boxes, and accessibility states.
 * **[Running Custom Playwright Code (`run-code`)](./references/running-code.md)** — Probing geolocation, clipboard, permissions, file downloads, and WebSockets during live recon.

@@ -13,6 +13,8 @@ const {
   SKILL_NAMES,
   WORKFLOW_NAMES,
   installMate,
+  generateTestStrategy,
+  generateTestPlan,
   generateTestCases,
   generateCharter,
   generateWaiver,
@@ -77,20 +79,27 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
     }
   });
 
-  test('3. installMate scaffolds Greenfield project, 13 synergistic skills, and 6 E2E workflows across all 5 IDEs', () => {
+  test('3. installMate scaffolds Standalone/Greenfield project, 14 synergistic skills, 7 E2E workflows, and ready-to-run Playwright harness', () => {
     const tmpDir = createTempDir();
     try {
-      assert.equal(SKILL_NAMES.length, 13);
-      assert.equal(WORKFLOW_NAMES.length, 6);
+      assert.equal(SKILL_NAMES.length, 14);
+      assert.equal(WORKFLOW_NAMES.length, 7);
 
       installMate({
         targetDir: tmpDir,
-        mode: 'greenfield',
+        mode: 'standalone-qa',
         ides: ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'],
         includeStarterFiles: true,
       });
 
       assert.ok(fs.existsSync(path.join(tmpDir, 'MATE-PROJECT-MAP.md')));
+      assert.ok(fs.existsSync(path.join(tmpDir, 'docs', 'TEST-STRATEGY.md')));
+      assert.ok(fs.existsSync(path.join(tmpDir, 'playwright.config.ts')));
+      assert.ok(fs.existsSync(path.join(tmpDir, 'tsconfig.json')));
+      assert.ok(fs.existsSync(path.join(tmpDir, '.env.example')));
+      assert.ok(fs.existsSync(path.join(tmpDir, 'package.json')));
+      assert.ok(fs.readFileSync(path.join(tmpDir, 'package.json'), 'utf8').includes('test:smoke'));
+      assert.ok(fs.existsSync(path.join(tmpDir, '.github', 'workflows', 'mate-qa.yml')));
       assert.ok(fs.existsSync(path.join(tmpDir, '.gitignore')));
       assert.ok(fs.readFileSync(path.join(tmpDir, '.gitignore'), 'utf8').includes('.playwright-cli/'));
       assert.ok(fs.existsSync(path.join(tmpDir, 'specs', 'TEMPLATE_MATE_SPEC.md')));
@@ -102,7 +111,7 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
       assert.ok(fs.existsSync(path.join(tmpDir, 'src', 'fixtures', 'mate.fixtures.ts')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'tests', 'nfr', 'order-load.k6.js')));
 
-      // Verify all 13 skills installed in Antigravity, Claude, and Cursor, with USE WHEN & SYNERGY in descriptions
+      // Verify all 14 skills installed in Antigravity, Claude, and Cursor, with USE WHEN & SYNERGY in descriptions
       for (const skill of SKILL_NAMES) {
         const skillPath = path.join(tmpDir, '.agents', 'skills', skill, 'SKILL.md');
         assert.ok(fs.existsSync(skillPath));
@@ -152,9 +161,17 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
     }
   });
 
-  test('4. generateTestCases, generateCharter, generateBugReport, and generateWaiver create formatted artifacts', () => {
+  test('4. generateTestStrategy, generateTestPlan, generateTestCases, generateCharter, generateBugReport, and generateWaiver create formatted artifacts', () => {
     const tmpDir = createTempDir();
     try {
+      const strategyFile = generateTestStrategy('Acme E-Commerce', tmpDir);
+      assert.ok(fs.existsSync(strategyFile));
+      assert.ok(fs.readFileSync(strategyFile, 'utf8').includes('Acme E-Commerce'));
+
+      const planFile = generateTestPlan('sprint-42', tmpDir);
+      assert.ok(fs.existsSync(planFile));
+      assert.ok(fs.readFileSync(planFile, 'utf8').includes('SPRINT-42'));
+
       const { mdDest, csvDest } = generateTestCases('checkout-payment', tmpDir);
       assert.ok(fs.existsSync(mdDest));
       assert.ok(fs.existsSync(csvDest));
@@ -248,6 +265,13 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
       assert.equal(casesRun.status, 0, `CLI cases failed: ${casesRun.stderr}`);
       assert.ok(fs.existsSync(path.join(tmpDir, 'tests', 'cases', 'TC-order-service.md')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'tests', 'cases', 'TC-order-service.csv')));
+
+      const planRun = spawnSync(
+        process.execPath,
+        [CLI_BIN, 'plan', 'q4-release', '--dir', tmpDir],
+        { encoding: 'utf8' }
+      );
+      assert.equal(planRun.status, 0, `CLI plan failed: ${planRun.stderr}`);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
