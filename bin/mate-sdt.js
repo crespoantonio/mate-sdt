@@ -13,13 +13,16 @@ const {
   promptConfirm,
 } = require('../src/cli/ui');
 const { validateTarget } = require('../src/cli/validator');
+const { auditTestSuite } = require('../src/cli/auditor');
 const {
   initMateProject,
   installMate,
   generateCharter,
   generateWaiver,
+  generateBugReport,
   checkStatus,
   runPodmanMutation,
+  runPodmanK6,
 } = require('../src/cli/installer');
 
 function parseFlags(args) {
@@ -75,7 +78,7 @@ function printHelp() {
   console.log('    npx mate-sdt <command> [options]\n');
   console.log(color('  COMMANDS:', COLORS.bold, COLORS.cyan));
   console.log(
-    `    ${color('install', COLORS.brightGreen, COLORS.bold)}              Interactive installer (AI agent skills, IDE rules & SDT structure)`
+    `    ${color('install', COLORS.brightGreen, COLORS.bold)}              Interactive installer (9 AI skills, 5 E2E workflows, IDE rules & SDT layout)`
   );
   console.log(
     `    ${color('init [dir]', COLORS.brightGreen, COLORS.bold)}           Quick-scaffold M.A.T.E. directories, Living Map & templates`
@@ -84,16 +87,25 @@ function printHelp() {
     `    ${color('validate [path]', COLORS.brightGreen, COLORS.bold)}      Validate one or all *.mate-spec.md files (defaults to ./specs)`
   );
   console.log(
+    `    ${color('audit [dir]', COLORS.brightGreen, COLORS.bold)}          Scan test codebase for anti-patterns & compute Health Score (A-F)`
+  );
+  console.log(
     `    ${color('mutate [dir]', COLORS.brightGreen, COLORS.bold)}         Execute Stryker Mutator (>=85%) inside a rootless Podman container`
+  );
+  console.log(
+    `    ${color('k6 [script]', COLORS.brightGreen, COLORS.bold)}          Execute Grafana k6 performance suite inside a rootless Podman container`
   );
   console.log(
     `    ${color('charter <module>', COLORS.brightGreen, COLORS.bold)}     Create a human Exploratory Testing Charter (SBTM) in tests/charters/`
   );
   console.log(
+    `    ${color('bug <module>', COLORS.brightGreen, COLORS.bold)}         Create a Structured Bug Report linked to spec invariants in tests/bugs/`
+  );
+  console.log(
     `    ${color('waiver <module>', COLORS.brightGreen, COLORS.bold)}      Create a Formal Release Waiver in specs/waivers/`
   );
   console.log(
-    `    ${color('status [dir]', COLORS.brightGreen, COLORS.bold)}         Audit M.A.T.E. compliance, specs, IDE skills & Podman readiness`
+    `    ${color('status [dir]', COLORS.brightGreen, COLORS.bold)}         Audit M.A.T.E. compliance, specs, Health Score, IDE skills & Podman`
   );
   console.log(
     `    ${color('help', COLORS.brightGreen, COLORS.bold)}                 Display this help message\n`
@@ -103,12 +115,13 @@ function printHelp() {
   console.log('    --mode <mode>            Project mode: greenfield | brownfield | skills-only');
   console.log('    --ide <list>             Target IDEs: antigravity,claude,cursor,windsurf,copilot,all');
   console.log('    --dir <path>             Target project directory (default: current directory)');
-  console.log('    --no-starter             Skip sample spec & Playwright SOLID starter templates\n');
+  console.log('    --no-starter             Skip sample spec & Playwright/API/k6 starter templates\n');
   console.log(color('  EXAMPLES:', COLORS.bold, COLORS.cyan));
   console.log('    npx mate-sdt install');
-  console.log('    npx mate-sdt install --yes --ide antigravity,claude,cursor');
   console.log('    npx mate-sdt validate specs/laundry-orders.mate-spec.md');
-  console.log('    npx mate-sdt charter checkout-flow');
+  console.log('    npx mate-sdt audit');
+  console.log('    npx mate-sdt bug checkout-flow');
+  console.log('    npx mate-sdt k6 tests/nfr/order-load.k6.js');
   console.log('    npx mate-sdt mutate\n');
 }
 
@@ -130,18 +143,18 @@ async function handleInstall(flags) {
         'Select your project lifecycle mode:',
         [
           {
-            label: 'Greenfield (Full SDT Architecture + AI Skills + SOLID Boilerplates)',
-            description: 'Best for new projects or establishing a complete Playwright & SDT harness.',
+            label: 'Greenfield (Full SDT Architecture + 9 AI Skills + 5 Workflows + SOLID Templates)',
+            description: 'Best for new projects or establishing a complete UI, API, k6 & SDT harness.',
             value: 'greenfield',
           },
           {
-            label: 'Brownfield / Existing Project (AI Skills + Living Map + Spec Governance)',
+            label: 'Brownfield / Existing Project (AI Skills + Workflows + Living Map + Spec Governance)',
             description: 'Best for existing repositories where you want to reverse-engineer specs.',
             value: 'brownfield',
           },
           {
-            label: 'AI Skills & IDE Rules Only (No test folder scaffolding)',
-            description: 'Installs M.A.T.E. skills/rules and specs/ folder without touching src/ or tests/.',
+            label: 'AI Skills, Workflows & IDE Rules Only (No test folder scaffolding)',
+            description: 'Installs M.A.T.E. skills/workflows and specs/ folder without touching src/ or tests/.',
             value: 'skills-only',
           },
         ],
@@ -152,10 +165,10 @@ async function handleInstall(flags) {
         rl,
         'Which AI Coding Agents / IDEs do you want to configure?',
         [
-          { label: 'Google Antigravity IDE & agy CLI (.agents/skills + .agent/skills.json)', value: 'antigravity' },
+          { label: 'Google Antigravity IDE & agy CLI (.agents/skills + .agent/workflows/mate)', value: 'antigravity' },
           { label: 'Claude Code (.claude/commands + CLAUDE.md)', value: 'claude' },
           { label: 'Cursor (.cursor/rules/*.mdc)', value: 'cursor' },
-          { label: 'Windsurf (.windsurf/rules/mate-sdt.md)', value: 'windsurf' },
+          { label: 'Windsurf (.windsurf/rules + .windsurf/workflows)', value: 'windsurf' },
           { label: 'GitHub Copilot (.github/copilot-instructions.md + .github/prompts)', value: 'copilot' },
         ],
         [0, 1, 2]
@@ -164,7 +177,7 @@ async function handleInstall(flags) {
       if (mode !== 'skills-only') {
         includeStarterFiles = await promptConfirm(
           rl,
-          'Include Golden Sample Spec and SOLID Playwright starter templates (BasePage, Component, Fixtures)?',
+          'Include Golden Sample Spec and SOLID starter templates (BasePage, Component, BaseApiClient, Fixtures, k6)?',
           true
         );
       } else {
@@ -189,7 +202,7 @@ async function handleInstall(flags) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
   }
 
-  console.log(color('\n  🤖 Installed AI Agent Skills & IDE Rules:', COLORS.bold, COLORS.cyan));
+  console.log(color('\n  🤖 Installed 9 AI Skills, 5 E2E Workflows & IDE Rules:', COLORS.bold, COLORS.cyan));
   for (const item of result.ideFiles) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
   }
@@ -198,7 +211,8 @@ async function handleInstall(flags) {
   console.log(color('\n👉 Next Steps:', COLORS.bold, COLORS.yellow));
   console.log('   1. Review MATE-PROJECT-MAP.md at the root of your repository.');
   console.log('   2. Draft or inspect your first spec in specs/ and run: npx mate-sdt validate');
-  console.log('   3. Check overall project compliance anytime with:       npx mate-sdt status\n');
+  console.log('   3. Audit test suite health anytime with:               npx mate-sdt audit');
+  console.log('   4. Check overall project compliance with:              npx mate-sdt status\n');
 }
 
 function handleInit(flags) {
@@ -248,6 +262,57 @@ function handleValidate(flags) {
   }
 }
 
+function handleAudit(flags) {
+  const targetDir = flags.dir || flags.positional[1] || '.';
+  const result = auditTestSuite(targetDir);
+
+  const gradeColor =
+    result.grade === 'A'
+      ? COLORS.brightGreen
+      : result.grade === 'B' || result.grade === 'C'
+      ? COLORS.yellow
+      : COLORS.red;
+
+  console.log(color(`\n🧹 M.A.T.E. Test Codebase Health Audit: ${result.targetDir}`, COLORS.bold, COLORS.cyan));
+  console.log(`   Files Scanned: ${result.filesScanned}`);
+  console.log(
+    `   Health Score:  ${color(`${result.grade} (${result.score}/100)`, gradeColor, COLORS.bold)}\n`
+  );
+
+  if (result.findings.length === 0) {
+    console.log(
+      color(
+        '✅ Zero M.A.T.E. anti-patterns detected! Suite adheres to SOLID/DIP and zero-sleep rules.\n',
+        COLORS.brightGreen,
+        COLORS.bold
+      )
+    );
+    return;
+  }
+
+  console.log(color(`⚠️  Detected ${result.findings.length} M.A.T.E. Anti-Pattern(s):`, COLORS.yellow, COLORS.bold));
+  for (const f of result.findings) {
+    const sevColor = f.severity === 'CRITICAL' ? COLORS.red : COLORS.yellow;
+    console.log(
+      `  • ${color(`[${f.code} | ${f.severity}]`, sevColor, COLORS.bold)} ${f.file}:${f.line} — ${f.name}`
+    );
+    console.log(`    ${color(`Code: ${f.snippet}`, COLORS.gray)}`);
+    console.log(`    ${color(`Fix:  ${f.remediation}`, COLORS.cyan)}`);
+  }
+  console.log('');
+
+  if (result.findings.some((f) => f.severity === 'CRITICAL')) {
+    console.error(
+      color(
+        '❌ Critical M.A.T.E. anti-patterns (arbitrary sleeps or .only locks) detected!',
+        COLORS.red,
+        COLORS.bold
+      )
+    );
+    process.exit(1);
+  }
+}
+
 function handleCharter(flags) {
   const moduleName = flags.positional[1];
   if (!moduleName) {
@@ -256,6 +321,17 @@ function handleCharter(flags) {
   }
   const dest = generateCharter(moduleName, flags.dir || '.');
   console.log(color(`\n🧭 Created Exploratory Testing Charter (SBTM):`, COLORS.brightGreen, COLORS.bold));
+  console.log(`   ${dest}\n`);
+}
+
+function handleBug(flags) {
+  const moduleName = flags.positional[1];
+  if (!moduleName) {
+    console.error(color('❌ Usage: npx mate-sdt bug <module-name>', COLORS.red, COLORS.bold));
+    process.exit(1);
+  }
+  const dest = generateBugReport(moduleName, flags.dir || '.');
+  console.log(color(`\n🐛 Created Spec-Linked M.A.T.E. Bug Report:`, COLORS.brightGreen, COLORS.bold));
   console.log(`   ${dest}\n`);
 }
 
@@ -284,6 +360,13 @@ function handleStatus(flags) {
   console.log(`  • Antigravity Skills (.agents/skills/mate-*):    ${checkMark(status.hasAntigravitySkills)}`);
   console.log(`  • Claude Code Commands (.claude/commands/):      ${checkMark(status.hasClaudeCommands)}`);
   console.log(`  • Cursor Rules (.cursor/rules/):                 ${checkMark(status.hasCursorRules)}`);
+  console.log(
+    `  • Test Suite Health Score (npx mate-sdt audit):  ${color(
+      `${status.auditResult.grade} (${status.auditResult.score}/100 across ${status.auditResult.filesScanned} files)`,
+      COLORS.brightGreen,
+      COLORS.bold
+    )}`
+  );
   console.log(
     `  • Rootless Podman Engine:                        ${
       status.podmanAvailable
@@ -329,11 +412,20 @@ async function main() {
     case 'lint':
       handleValidate(flags);
       break;
+    case 'audit':
+      handleAudit(flags);
+      break;
     case 'mutate':
       process.exit(runPodmanMutation(flags.dir || flags.positional[1] || '.', flags.config));
       break;
+    case 'k6':
+      process.exit(runPodmanK6(flags.positional[1] || 'tests/nfr/order-load.k6.js', flags.dir || '.'));
+      break;
     case 'charter':
       handleCharter(flags);
+      break;
+    case 'bug':
+      handleBug(flags);
       break;
     case 'waiver':
       handleWaiver(flags);

@@ -1,6 +1,6 @@
 # 🧉 M.A.T.E. Method (`mate-sdt`)
 
-### Spec-Driven Testing (SDT) Framework & AI Agent Governance for the Agentic Coding Era
+### Spec-Driven Testing (SDT) Framework, 9 AI Agent Skills & 5 E2E Workflows for the Agentic Coding Era
 
 [![npm version](https://img.shields.io/npm/v/mate-sdt.svg?style=flat-square&color=2ea44f)](https://www.npmjs.com/package/mate-sdt)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
@@ -38,7 +38,7 @@ In the Agentic Era (2026+), autonomous AI agents write thousands of lines of cod
 *   **BDD (Behavior-Driven Development)** drowns engineering teams in brittle Gherkin (`Given/When/Then`) step-definition bureaucracy that gets abandoned within three sprints.
 *   **"Vibe Coding" + AI-Generated Tests** produce cosmetic "happy-path" checks (`expect(res).toBeDefined()`) that paint the CI pipeline green while silently shipping race conditions, security exploits, and broken business invariants to production.
 
-**The M.A.T.E. Method** is a **Spec-Driven Testing (SDT)** framework that flips the paradigm: **the specification belongs to the Quality Engineer**. It equips both human engineers and AI coding agents (Google Antigravity, Claude Code, Cursor, Windsurf, GitHub Copilot) with a rigorous, token-efficient architecture governed by four pillars.
+**The M.A.T.E. Method** is a **Spec-Driven Testing (SDT)** framework that flips the paradigm: **the specification belongs to the Quality Engineer**. It equips both human engineers and AI coding agents (Google Antigravity, Claude Code, Cursor, Windsurf, GitHub Copilot) with a rigorous, token-efficient architecture governed by four pillars, **9 specialized AI skills**, and **5 end-to-end workflows**.
 
 ---
 
@@ -46,40 +46,70 @@ In the Agentic Era (2026+), autonomous AI agents write thousands of lines of cod
 
 ```mermaid
 flowchart LR
-    M["🗺️ M — Model<br/>Intent, FSM & Forbidden Transitions"] --> A["🎯 A — Assert<br/>SOLID Playwright & Sacred Invariants"]
-    A --> T["💣 T — Threat & Trash<br/>Concurrency, Fuzzing & >=85% Mutation"]
+    M["🗺️ M — Model<br/>Intent, FSM & Forbidden Transitions"] --> A["🎯 A — Assert<br/>SOLID UI/API & Sacred Invariants"]
+    A --> T["💣 T — Threat & Trash<br/>Concurrency, k6 SLAs & >=85% Mutation"]
     T --> E["🧭 E — Explore<br/>Human SBTM Charters & Release Verdict"]
 ```
 
 | Pillar | Name | Core Responsibility | Key Artifact / Enforcement |
 | :---: | :--- | :--- | :--- |
-| **M** | **Model** | Eradicate ambiguity before code exists. Model Finite State Machines (FSM), **Explicit Forbidden Transitions**, and strict TypeScript/JSON contracts. | `specs/[module].mate-spec.md` (`<intent_model>`) |
-| **A** | **Assert** | Translate mathematical invariants into OOP/SOLID Playwright suites (Page & Component Object Models, Dependency Inversion fixtures, **zero arbitrary sleeps**). | `specs/[module].mate-spec.md` (`<invariants>`) + `src/pages/`, `src/fixtures/` |
-| **T** | **Threat & Trash** | Shatter the happy-path illusion: race conditions, double-click idempotency, payload fuzzing, and **Stryker Mutation Testing (>= 85%)** inside rootless **Podman** containers. | `specs/[module].mate-spec.md` (`<threat_scenarios>`) + `stryker.config.json` |
+| **M** | **Model** | Eradicate ambiguity before code exists. Model Finite State Machines (FSM), **Explicit Forbidden Transitions**, strict contracts, and Live Page Reconnaissance (`page-explorer`). | `specs/[module].mate-spec.md` (`<intent_model>`) |
+| **A** | **Assert** | Translate mathematical invariants into OOP/SOLID Playwright UI & API suites (`BasePage`, `ComponentObject`, `BaseApiClient`, Dependency Inversion fixtures, **zero arbitrary sleeps**). | `specs/[module].mate-spec.md` (`<invariants>`) + `src/pages/`, `src/api/`, `src/fixtures/` |
+| **T** | **Threat & Trash** | Shatter the happy-path illusion: race conditions, double-click idempotency, payload fuzzing, **k6 Performance SLAs**, and **Stryker Mutation Testing (>= 85%)** inside rootless **Podman** containers. | `specs/[module].mate-spec.md` (`<threat_scenarios>`) + `stryker.config.json` + `tests/nfr/*.k6.js` |
 | **E** | **Explore** | Safeguard human quality via Session-Based Test Management (SBTM) charters (ergonomics, WCAG 2.1 AA accessibility, trust) and issue the formal release verdict: `PASS`, `CONCERNS` (with signed waiver), or `FAIL`. | `tests/charters/CHR-*.md` & `specs/waivers/WVR-*.md` |
+
+---
+
+## 🧩 The 9 AI Agent Skills & 5 End-to-End Workflows
+
+When you run `npx mate-sdt install`, your AI agents gain **9 specialized skills** and **5 orchestrated E2E workflows**:
+
+### 1. The 9 M.A.T.E. Skills (`skills/`)
+| Skill | Scope | Description |
+| :--- | :--- | :--- |
+| **`mate-core`** | **Orchestrator** | Manages `MATE-PROJECT-MAP.md`, SOLID/OOP rules, Handling Uncertainty Protocol (`[OBSERVED]` vs `[INFERRED]`), and Java/Python polyglot adapters. |
+| **`mate-model`** | **Pillar M** | Authors `*.mate-spec.md`, Finite State Machines, Forbidden Transitions, and **Live Page Reconnaissance** via Playwright MCP. |
+| **`mate-assert-playwright`** | **Pillar A (UI)** | Generates SOLID Page Objects, Component Objects, and DIP fixtures with zero arbitrary sleeps. |
+| **`mate-assert-api`** | **Pillar A (API)** | Generates OpenAPI/Swagger contract test matrices (`2xx`, `400/422`, `401/403` BOLA, `409` FSM) and typed API clients. |
+| **`mate-threat`** | **Pillar T (Chaos)** | Concurrency, race conditions, webhook idempotency, fuzzing, and Stryker Mutation (`>= 85%`) in Podman. |
+| **`mate-performance-k6`** | **Pillar A/T (NFR)** | Designs Smoke, Load, Stress, Spike, and Soak profiles in Grafana k6 enforcing `<performance_oracles>` in Podman. |
+| **`mate-explore`** | **Pillar E** | Designs human SBTM exploratory charters, WCAG 2.1 AA audits, Release Waivers, and Release Verdicts. |
+| **`mate-triage`** | **Day-2 Ops** | Triages CI failures (`Bug` vs `Flaky` vs `Infra` vs `Data`) and generates spec-linked Bug Reports (`npx mate-sdt bug`). |
+| **`mate-maintenance`** | **Day-2 Ops** | Audits test codebase health (`A`–`F`), detecting `waitForTimeout`/sleeps, `.only` locks, and DIP violations (`npx mate-sdt audit`). |
+
+### 2. The 5 End-to-End Workflows (`workflows/`)
+| Workflow Command | End-to-End Pipeline |
+| :--- | :--- |
+| **`/mate-flow-greenfield`** | Idea/Requirement ➔ `*.mate-spec.md` ➔ `validate` ➔ UI/API SOLID Tests ➔ Podman Mutation (`>=85%`) ➔ Human Charter & Verdict |
+| **`/mate-flow-brownfield`** | Legacy Code / Live URL Recon (`page-explorer`) ➔ `MATE-PROJECT-MAP.md` ➔ Reverse-Spec (`REVIEW`) ➔ Freeze P0 Invariants |
+| **`/mate-flow-api-contract`** | OpenAPI/Swagger ➔ Contract Spec & Forbidden Transitions ➔ Typed `BaseApiClient` + Contract & Fuzzing Suite |
+| **`/mate-flow-performance`** | `<performance_oracles>` SLAs ➔ k6 Load Profile Design ➔ Rootless Podman Execution (`npx mate-sdt k6`) |
+| **`/mate-flow-triage`** | CI Failure Logs ➔ Root-Cause Triage ➔ Spec-Linked Bug Report (`npx mate-sdt bug`) or Suite Refactor (`npx mate-sdt audit`) |
 
 ---
 
 ## 🧠 Token-Efficient AI Architecture (`MATE-PROJECT-MAP.md`)
 
-Instead of forcing AI agents to burn 100k+ tokens scanning your entire repository on every prompt, `mate-sdt` maintains a **Living Architecture Index** (`MATE-PROJECT-MAP.md`) at the root of your project:
+Instead of forcing AI agents to burn 100k+ tokens scanning your entire repository on every prompt, `mate-sdt` maintains a **Living Architecture & QA Context Index** (`MATE-PROJECT-MAP.md`) at the root of your project:
 
 ```text
 your-project/
-├── MATE-PROJECT-MAP.md          <-- [CRITICAL] Living architecture index for AI agents & humans
+├── MATE-PROJECT-MAP.md          <-- [CRITICAL] Living architecture & QA context index
 ├── specs/                       <-- M.A.T.E. specifications & release waivers
 │   ├── TEMPLATE_MATE_SPEC.md
 │   ├── waivers/
 │   └── sample-order-lifecycle.mate-spec.md
 ├── tests/
-│   ├── e2e/                     <-- P0/P1 end-to-end user workflows
+│   ├── e2e/                     <-- P0/P1 end-to-end UI workflows
 │   ├── api/                     <-- Contract and API integration suites
 │   ├── threats/                 <-- Concurrency, idempotency, race conditions & fuzzing
-│   ├── charters/                <-- Human exploratory testing sessions (SBTM)
-│   └── nfr/                     <-- Performance (k6) and resilience tests
+│   ├── nfr/                     <-- Performance (k6) and resilience scripts (*.k6.js)
+│   ├── charters/                <-- Human exploratory testing sessions (CHR-*.md)
+│   └── bugs/                    <-- Structured bug reports linked to invariants (BUG-*.md)
 ├── src/
 │   ├── pages/                   <-- SOLID Page Object Model (SRP / OCP)
 │   ├── components/              <-- Reusable UI Component Objects
+│   ├── api/                     <-- Typed API Clients & Request Builders
 │   ├── fixtures/                <-- Dependency Inversion (DIP) Playwright fixtures
 │   └── models/                  <-- Strict TypeScript contracts (zero `any`)
 └── stryker.config.json          <-- Mutation testing governance (>= 85% break threshold)
@@ -87,52 +117,22 @@ your-project/
 
 ---
 
-## 🤖 Supported AI Coding Agents & IDEs
-
-When you run `npx mate-sdt install`, the installer configures specialized skills, slash commands, and context rules for your chosen tools:
-
-| AI Agent / IDE | Installed Artifacts | How to Invoke |
-| :--- | :--- | :--- |
-| **Google Antigravity (`agy`)** | `.agents/skills/mate-*` + `.agent/skills.json` | Automatically discovered skills: `mate-core`, `mate-model`, `mate-assert-playwright`, `mate-threat`, `mate-explore` |
-| **Claude Code** | `.claude/commands/mate-*.md` + `CLAUDE.md` | Slash commands: `/mate-core`, `/mate-model`, `/mate-assert-playwright`, `/mate-threat`, `/mate-explore` |
-| **Cursor** | `.cursor/rules/mate-*.mdc` | Context-aware `.mdc` rules automatically attached by file glob |
-| **Windsurf** | `.windsurf/rules/mate-sdt.md` | Workspace-level Cascade Spec-Driven Testing rules |
-| **GitHub Copilot** | `.github/copilot-instructions.md` + `.github/prompts/*.prompt.md` | Repository instructions + reusable prompt files |
-
----
-
 ## 🛠️ CLI Commands Reference
 
-`mate-sdt` provides a zero-dependency CLI for scaffolding, linting specifications, managing exploratory charters, and running containerized mutation tests:
+`mate-sdt` provides a zero-dependency CLI for scaffolding, linting specifications, auditing test health, managing charters/bugs/waivers, and running containerized mutation & k6 suites:
 
 | Command | Description |
 | :--- | :--- |
 | `npx mate-sdt install` | Launch the interactive installer (choose Greenfield/Brownfield mode, target AI IDEs, and starter templates). |
 | `npx mate-sdt init [dir]` | Quickly scaffold the M.A.T.E. directory structure, `MATE-PROJECT-MAP.md`, and `stryker.config.json`. |
 | `npx mate-sdt validate [path]` | Lint one or all `*.mate-spec.md` files (verifies YAML frontmatter, 4 XML blocks, explicit Forbidden Transitions, and `INV-XX` IDs). |
+| `npx mate-sdt audit [dir]` | Scan test codebase for M.A.T.E. anti-patterns (`waitForTimeout`, `sleep`, `.only`, DIP violations) and compute Health Score (`A`–`F`). |
 | `npx mate-sdt mutate [dir]` | Execute Stryker Mutator inside an isolated, rootless **Podman** container enforcing the `>= 85%` mutation score threshold. |
+| `npx mate-sdt k6 [script]` | Execute Grafana k6 performance suite inside an isolated, rootless **Podman** container validating `<performance_oracles>`. |
 | `npx mate-sdt charter <module>` | Generate a timestamped human Exploratory Testing Charter (SBTM) in `tests/charters/`. |
+| `npx mate-sdt bug <module>` | Generate a Structured Bug Report linked to broken spec invariants in `tests/bugs/`. |
 | `npx mate-sdt waiver <module>` | Generate a Formal Release Waiver in `specs/waivers/` when a release verdict is `[CONCERNS]`. |
-| `npx mate-sdt status [dir]` | Run a complete governance audit (checks Living Map, IDE skills, spec validity, and Podman availability). |
-
----
-
-## 🔄 Greenfield vs. Brownfield Workflows
-
-### 🌱 Greenfield Mode (Building New Features from Scratch)
-1. **Model (`mate-model`):** Co-design `specs/<feature>.mate-spec.md` with your Product Owner or AI agent, explicitly declaring legal and **forbidden state transitions**.
-2. **Validate:** Run `npx mate-sdt validate` to ensure structural compliance.
-3. **Assert (`mate-assert-playwright`):** Generate SOLID Page Objects, Component Objects, DIP fixtures, and invariant tests before writing application code.
-4. **Build:** Let your coding agent implement the feature until all deterministic assertions turn green.
-5. **Threat (`mate-threat`):** Execute adversarial race-condition suites and run `npx mate-sdt mutate` inside Podman to verify a Mutation Score `>= 85%`.
-6. **Explore (`mate-explore`):** Generate a human charter (`npx mate-sdt charter <feature>`), perform exploratory & accessibility testing, and sign the release verdict (`PASS`, `CONCERNS`, or `FAIL`).
-
-### 🏭 Brownfield Mode (Legacy / Existing Codebases)
-1. **Install:** Run `npx mate-sdt install` and select **Brownfield Mode**.
-2. **Surface Scan (`mate-core` & `mate-model`):** Have your AI agent inspect existing API routes, controllers, and database schemas to infer the current state machine.
-3. **Freeze Invariants:** Draft `specs/<legacy-module>.mate-spec.md` with status `REVIEW`, flagging accidental edge-case transitions as **Forbidden Transitions**.
-4. **Index in `MATE-PROJECT-MAP.md`:** Map the legacy architecture so future agent sessions operate with surgical context.
-5. **Armor Before Refactoring:** Lock P0 invariant tests in Playwright before allowing any refactoring of legacy code.
+| `npx mate-sdt status [dir]` | Run a complete governance audit (checks Living Map, IDE skills, spec validity, Health Score, and Podman availability). |
 
 ---
 
@@ -143,18 +143,6 @@ When you run `npx mate-sdt install`, the installer configures specialized skills
 *   📐 [**Specification Standard (`docs/SPEC_STANDARD.md`)**](./docs/SPEC_STANDARD.md) — Complete reference for authoring `*.mate-spec.md` files.
 *   💻 [**CLI Reference (`docs/CLI_REFERENCE.md`)**](./docs/CLI_REFERENCE.md) — Detailed options, flags, and CI/CD integration examples.
 *   📦 [**Publishing & Maintainer Guide (`docs/PUBLISHING.md`)**](./docs/PUBLISHING.md) — How to publish and update `mate-sdt` on NPM.
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Please review [`CONTRIBUTING.md`](./CONTRIBUTING.md) before submitting a Pull Request.
-
-```bash
-# Run package integrity check and test suite
-npm run build
-npm test
-```
 
 ---
 

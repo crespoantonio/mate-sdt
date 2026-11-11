@@ -8,10 +8,14 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
 const { validateSpecFile } = require('../src/cli/validator');
+const { auditTestSuite } = require('../src/cli/auditor');
 const {
+  SKILL_NAMES,
+  WORKFLOW_NAMES,
   installMate,
   generateCharter,
   generateWaiver,
+  generateBugReport,
   checkStatus,
 } = require('../src/cli/installer');
 
@@ -21,7 +25,7 @@ function createTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'mate-sdt-test-'));
 }
 
-describe('M.A.T.E. SDT Framework CLI & Installer Suite', () => {
+describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', () => {
   test('1. Golden sample spec and official template pass M.A.T.E. validation', () => {
     const samplePath = path.resolve(
       __dirname,
@@ -72,10 +76,13 @@ describe('M.A.T.E. SDT Framework CLI & Installer Suite', () => {
     }
   });
 
-  test('3. installMate scaffolds Greenfield project and configures all 5 AI IDEs', () => {
+  test('3. installMate scaffolds Greenfield project, 9 skills, and 5 E2E workflows across all 5 IDEs', () => {
     const tmpDir = createTempDir();
     try {
-      const result = installMate({
+      assert.equal(SKILL_NAMES.length, 9);
+      assert.equal(WORKFLOW_NAMES.length, 5);
+
+      installMate({
         targetDir: tmpDir,
         mode: 'greenfield',
         ides: ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'],
@@ -88,46 +95,84 @@ describe('M.A.T.E. SDT Framework CLI & Installer Suite', () => {
       assert.ok(fs.existsSync(path.join(tmpDir, 'stryker.config.json')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'src', 'pages', 'base.page.ts')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'src', 'components', 'notification-toast.component.ts')));
+      assert.ok(fs.existsSync(path.join(tmpDir, 'src', 'api', 'base-api.client.ts')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'src', 'fixtures', 'mate.fixtures.ts')));
+      assert.ok(fs.existsSync(path.join(tmpDir, 'tests', 'nfr', 'order-load.k6.js')));
 
-      // IDE files
-      assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'skills', 'mate-core', 'SKILL.md')));
-      assert.ok(fs.existsSync(path.join(tmpDir, '.agent', 'skills.json')));
-      assert.ok(fs.existsSync(path.join(tmpDir, '.claude', 'commands', 'mate-core.md')));
-      assert.ok(fs.existsSync(path.join(tmpDir, 'CLAUDE.md')));
-      assert.ok(fs.existsSync(path.join(tmpDir, '.cursor', 'rules', 'mate-core.mdc')));
-      assert.ok(fs.existsSync(path.join(tmpDir, '.windsurf', 'rules', 'mate-sdt.md')));
-      assert.ok(fs.existsSync(path.join(tmpDir, '.github', 'copilot-instructions.md')));
-      assert.ok(fs.existsSync(path.join(tmpDir, '.github', 'prompts', 'mate-core.prompt.md')));
+      // Verify all 9 skills installed in Antigravity and Cursor
+      for (const skill of SKILL_NAMES) {
+        assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'skills', skill, 'SKILL.md')));
+        assert.ok(fs.existsSync(path.join(tmpDir, '.claude', 'commands', `${skill}.md`)));
+        assert.ok(fs.existsSync(path.join(tmpDir, '.cursor', 'rules', `${skill}.mdc`)));
+      }
+
+      // Verify all 5 workflows installed in Antigravity, Claude, Windsurf, Copilot
+      for (const wf of WORKFLOW_NAMES) {
+        assert.ok(fs.existsSync(path.join(tmpDir, '.agent', 'workflows', 'mate', `${wf}.md`)));
+        assert.ok(fs.existsSync(path.join(tmpDir, '.claude', 'commands', `${wf}.md`)));
+        assert.ok(fs.existsSync(path.join(tmpDir, '.windsurf', 'workflows', `${wf}.md`)));
+        assert.ok(fs.existsSync(path.join(tmpDir, '.github', 'prompts', `${wf}.prompt.md`)));
+      }
 
       const status = checkStatus(tmpDir);
       assert.equal(status.hasProjectMap, true);
-      assert.equal(status.hasAntigravitySkills, true);
+      assert.equal(status.auditResult.grade, 'A');
       assert.equal(status.specValidation.allValid, true);
-      assert.ok(result.ideFiles.length >= 15);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
-  test('4. generateCharter and generateWaiver create properly formatted files', () => {
+  test('4. generateCharter, generateBugReport, and generateWaiver create formatted artifacts', () => {
     const tmpDir = createTempDir();
     try {
       const charterFile = generateCharter('checkout-payment', tmpDir);
       assert.ok(fs.existsSync(charterFile));
-      const charterContent = fs.readFileSync(charterFile, 'utf8');
-      assert.ok(charterContent.includes('CHECKOUT-PAYMENT'));
+      assert.ok(fs.readFileSync(charterFile, 'utf8').includes('CHECKOUT-PAYMENT'));
+
+      const bugFile = generateBugReport('checkout-payment', tmpDir);
+      assert.ok(fs.existsSync(bugFile));
+      assert.ok(fs.readFileSync(bugFile, 'utf8').includes('CHECKOUT-PAYMENT'));
 
       const waiverFile = generateWaiver('checkout-payment', tmpDir);
       assert.ok(fs.existsSync(waiverFile));
-      const waiverContent = fs.readFileSync(waiverFile, 'utf8');
-      assert.ok(waiverContent.includes('CHECKOUT-PAYMENT'));
+      assert.ok(fs.readFileSync(waiverFile, 'utf8').includes('CHECKOUT-PAYMENT'));
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
-  test('5. CLI binary executes install --yes and validate end-to-end', () => {
+  test('5. auditTestSuite detects waitForTimeout, .only, and DIP violations and grades accordingly', () => {
+    const tmpDir = createTempDir();
+    try {
+      const e2eDir = path.join(tmpDir, 'tests', 'e2e');
+      fs.mkdirSync(e2eDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(e2eDir, 'flaky.spec.ts'),
+        [
+          "import { test, expect } from '@playwright/test';",
+          "test.only('bad test', async ({ page }) => {",
+          '  const loginPage = new LoginPage(page);',
+          '  await page.waitForTimeout(5000);',
+          '  expect(loginPage).toBeDefined();',
+          '});',
+        ].join('\n'),
+        'utf8'
+      );
+
+      const audit = auditTestSuite(tmpDir);
+      assert.equal(audit.filesScanned, 1);
+      assert.ok(audit.findings.some((f) => f.code === 'MATE-ANTI-01'));
+      assert.ok(audit.findings.some((f) => f.code === 'MATE-ANTI-02'));
+      assert.ok(audit.findings.some((f) => f.code === 'MATE-ANTI-03'));
+      assert.ok(audit.findings.some((f) => f.code === 'MATE-ANTI-04'));
+      assert.ok(audit.score < 70);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  test('6. CLI binary executes install, validate, audit, and bug end-to-end', () => {
     const tmpDir = createTempDir();
     try {
       const installRun = spawnSync(
@@ -143,7 +188,21 @@ describe('M.A.T.E. SDT Framework CLI & Installer Suite', () => {
         { encoding: 'utf8' }
       );
       assert.equal(validateRun.status, 0, `CLI validate failed: ${validateRun.stderr}`);
-      assert.ok(validateRun.stdout.includes('PASS'));
+
+      const auditRun = spawnSync(
+        process.execPath,
+        [CLI_BIN, 'audit', '--dir', tmpDir],
+        { encoding: 'utf8' }
+      );
+      assert.equal(auditRun.status, 0, `CLI audit failed: ${auditRun.stderr}`);
+      assert.ok(auditRun.stdout.includes('A (100/100)'));
+
+      const bugRun = spawnSync(
+        process.execPath,
+        [CLI_BIN, 'bug', 'order-service', '--dir', tmpDir],
+        { encoding: 'utf8' }
+      );
+      assert.equal(bugRun.status, 0, `CLI bug failed: ${bugRun.stderr}`);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }

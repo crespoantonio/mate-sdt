@@ -5,6 +5,7 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { COLORS, color } = require('./ui');
 const { validateTarget } = require('./validator');
+const { auditTestSuite } = require('./auditor');
 
 const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 
@@ -16,8 +17,10 @@ const STANDARD_DIRECTORIES = [
   'tests/threats',
   'tests/charters',
   'tests/nfr',
+  'tests/bugs',
   'src/pages',
   'src/components',
+  'src/api',
   'src/fixtures',
   'src/models',
 ];
@@ -26,8 +29,20 @@ const SKILL_NAMES = [
   'mate-core',
   'mate-model',
   'mate-assert-playwright',
+  'mate-assert-api',
   'mate-threat',
+  'mate-performance-k6',
   'mate-explore',
+  'mate-triage',
+  'mate-maintenance',
+];
+
+const WORKFLOW_NAMES = [
+  'mate-flow-greenfield',
+  'mate-flow-brownfield',
+  'mate-flow-api-contract',
+  'mate-flow-performance',
+  'mate-flow-triage',
 ];
 
 function copyDirRecursive(src, dest) {
@@ -54,17 +69,30 @@ function writeFileIfMissing(targetPath, content, overwrite = false) {
 }
 
 /**
- * Installs M.A.T.E. skills and configurations for Google Antigravity IDE / agy CLI
+ * Installs M.A.T.E. skills, workflows, and configurations for Google Antigravity IDE / agy CLI
  */
 function installAntigravity(targetDir) {
   const skillsDestRoot = path.join(targetDir, '.agents', 'skills');
   fs.mkdirSync(skillsDestRoot, { recursive: true });
+  const installed = [];
 
   for (const skillName of SKILL_NAMES) {
     const srcSkillDir = path.join(PACKAGE_ROOT, 'skills', skillName);
     const destSkillDir = path.join(skillsDestRoot, skillName);
     if (fs.existsSync(srcSkillDir)) {
       copyDirRecursive(srcSkillDir, destSkillDir);
+      installed.push(`.agents/skills/${skillName}`);
+    }
+  }
+
+  // Install E2E Workflows into .agent/workflows/mate/
+  const workflowsDest = path.join(targetDir, '.agent', 'workflows', 'mate');
+  fs.mkdirSync(workflowsDest, { recursive: true });
+  for (const wfName of WORKFLOW_NAMES) {
+    const wfSrc = path.join(PACKAGE_ROOT, 'workflows', `${wfName}.md`);
+    if (fs.existsSync(wfSrc)) {
+      fs.copyFileSync(wfSrc, path.join(workflowsDest, `${wfName}.md`));
+      installed.push(`.agent/workflows/mate/${wfName}.md`);
     }
   }
 
@@ -87,19 +115,13 @@ function installAntigravity(targetDir) {
     config.entries.push({ path: '.agents/skills' });
     fs.writeFileSync(agentConfigPath, `${JSON.stringify(config, null, 2)}\n`, 'utf8');
   }
+  installed.push('.agent/skills.json');
 
-  return [
-    '.agents/skills/mate-core',
-    '.agents/skills/mate-model',
-    '.agents/skills/mate-assert-playwright',
-    '.agents/skills/mate-threat',
-    '.agents/skills/mate-explore',
-    '.agent/skills.json',
-  ];
+  return installed;
 }
 
 /**
- * Installs M.A.T.E. slash commands and CLAUDE.md rules for Anthropic Claude Code
+ * Installs M.A.T.E. slash commands (skills + workflows) and CLAUDE.md rules for Anthropic Claude Code
  */
 function installClaudeCode(targetDir) {
   const commandsDir = path.join(targetDir, '.claude', 'commands');
@@ -116,6 +138,16 @@ function installClaudeCode(targetDir) {
     }
   }
 
+  for (const wfName of WORKFLOW_NAMES) {
+    const wfSrc = path.join(PACKAGE_ROOT, 'workflows', `${wfName}.md`);
+    if (fs.existsSync(wfSrc)) {
+      const content = fs.readFileSync(wfSrc, 'utf8');
+      const cmdFile = path.join(commandsDir, `${wfName}.md`);
+      fs.writeFileSync(cmdFile, content, 'utf8');
+      installed.push(`.claude/commands/${wfName}.md`);
+    }
+  }
+
   const claudeMdPath = path.join(targetDir, 'CLAUDE.md');
   const mateSection = [
     '',
@@ -124,10 +156,11 @@ function installClaudeCode(targetDir) {
     '',
     'This repository is governed by the **M.A.T.E. Method** (`mate-sdt`):',
     '- **Living Architecture Map:** Always read and update `MATE-PROJECT-MAP.md` before scanning the entire repository.',
+    '- **Handling Uncertainty:** Never guess SLAs, auth mechanisms, or undocumented contracts. Ask the user or mark `[TBD]` with confidence tags (`[OBSERVED]` vs `[INFERRED]`).',
     '- **Pillar M (Model):** Specifications live in `specs/*.mate-spec.md`. Validate specs via `npx mate-sdt validate`. Every state machine must declare **Explicit Forbidden Transitions**.',
-    '- **Pillar A (Assert):** Follow OOP & SOLID principles in Playwright (`src/pages/`, `src/components/`, `src/fixtures/`). Zero arbitrary sleeps (`waitForTimeout` is strictly forbidden).',
-    '- **Pillar T (Threat & Trash):** Test concurrency, idempotency, and fuzzing. Enforce Mutation Score >= 85% with Stryker inside rootless Podman (`npx mate-sdt mutate`).',
-    '- **Pillar E (Explore):** Reserve human exploratory charters (`tests/charters/`) and enforce formal release verdicts (`PASS`, `CONCERNS` with waiver, or `FAIL`).',
+    '- **Pillar A (Assert - UI & API):** Follow OOP & SOLID principles (`src/pages/`, `src/components/`, `src/api/`, `src/fixtures/`). Zero arbitrary sleeps (`waitForTimeout` is strictly forbidden). Audit anytime via `npx mate-sdt audit`.',
+    '- **Pillar T (Threat, Mutation & k6 NFRs):** Test concurrency, idempotency, and fuzzing. Enforce Mutation Score >= 85% via Stryker in Podman (`npx mate-sdt mutate`) and verify latency SLAs with k6 in Podman (`npx mate-sdt k6`).',
+    '- **Pillar E & Day-2 Operations:** Reserve human exploratory charters (`npx mate-sdt charter <mod>`), file spec-linked bug reports (`npx mate-sdt bug <mod>`), and issue formal release verdicts (`PASS`, `CONCERNS` with `npx mate-sdt waiver <mod>`, or `FAIL`).',
     '<!-- MATE-SDT-END -->',
     '',
   ].join('\n');
@@ -156,9 +189,13 @@ function installCursor(targetDir) {
   const globsMap = {
     'mate-core': '**/*',
     'mate-model': 'specs/**/*.mate-spec.md,MATE-PROJECT-MAP.md',
-    'mate-assert-playwright': 'tests/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/fixtures/**/*.ts',
+    'mate-assert-playwright': 'tests/e2e/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/fixtures/**/*.ts',
+    'mate-assert-api': 'tests/api/**/*.ts,src/api/**/*.ts,src/models/**/*.ts',
     'mate-threat': 'tests/threats/**/*.ts,stryker.config.json',
+    'mate-performance-k6': 'tests/nfr/**/*.js,tests/nfr/**/*.ts',
     'mate-explore': 'tests/charters/**/*.md,specs/waivers/**/*.md',
+    'mate-triage': 'tests/bugs/**/*.md,MATE-PROJECT-MAP.md',
+    'mate-maintenance': 'tests/**/*.ts,src/**/*.ts',
   };
 
   for (const skillName of SKILL_NAMES) {
@@ -186,11 +223,14 @@ function installCursor(targetDir) {
 }
 
 /**
- * Installs M.A.T.E. rules for Windsurf IDE
+ * Installs M.A.T.E. rules and workflows for Windsurf IDE
  */
 function installWindsurf(targetDir) {
   const rulesDir = path.join(targetDir, '.windsurf', 'rules');
+  const workflowsDir = path.join(targetDir, '.windsurf', 'workflows');
   fs.mkdirSync(rulesDir, { recursive: true });
+  fs.mkdirSync(workflowsDir, { recursive: true });
+  const installed = [];
 
   const combined = SKILL_NAMES.map((skillName) => {
     const p = path.join(PACKAGE_ROOT, 'skills', skillName, 'SKILL.md');
@@ -202,7 +242,17 @@ function installWindsurf(targetDir) {
 
   const dest = path.join(rulesDir, 'mate-sdt.md');
   fs.writeFileSync(dest, combined + '\n', 'utf8');
-  return ['.windsurf/rules/mate-sdt.md'];
+  installed.push('.windsurf/rules/mate-sdt.md');
+
+  for (const wfName of WORKFLOW_NAMES) {
+    const wfSrc = path.join(PACKAGE_ROOT, 'workflows', `${wfName}.md`);
+    if (fs.existsSync(wfSrc)) {
+      fs.copyFileSync(wfSrc, path.join(workflowsDir, `${wfName}.md`));
+      installed.push(`.windsurf/workflows/${wfName}.md`);
+    }
+  }
+
+  return installed;
 }
 
 /**
@@ -223,16 +273,25 @@ function installCopilot(targetDir) {
     installed.push(`.github/prompts/${skillName}.prompt.md`);
   }
 
+  for (const wfName of WORKFLOW_NAMES) {
+    const wfSrc = path.join(PACKAGE_ROOT, 'workflows', `${wfName}.md`);
+    if (!fs.existsSync(wfSrc)) continue;
+    const body = fs.readFileSync(wfSrc, 'utf8').replace(/^---[\s\S]*?---\r?\n/, '').trim();
+    const promptFile = path.join(promptsDir, `${wfName}.prompt.md`);
+    fs.writeFileSync(promptFile, body + '\n', 'utf8');
+    installed.push(`.github/prompts/${wfName}.prompt.md`);
+  }
+
   const copilotInstructionsPath = path.join(githubDir, 'copilot-instructions.md');
   const block = [
     '',
     '<!-- MATE-SDT-START -->',
     '## 🧉 M.A.T.E. Method — Spec-Driven Testing (SDT) Instructions',
     '',
-    '1. Consult `MATE-PROJECT-MAP.md` first to understand modules, state machines, invariants, and fixtures.',
+    '1. Consult `MATE-PROJECT-MAP.md` first to understand modules, state machines, invariants, conventions, and fixtures.',
     '2. Every feature requires a validated specification in `specs/[module].mate-spec.md` (`npx mate-sdt validate`).',
-    '3. Enforce OOP and SOLID principles in Playwright tests (`src/pages`, `src/components`, `src/fixtures`). Never use `waitForTimeout()`.',
-    '4. Enforce Mutation Testing >= 85% via Stryker in rootless Podman (`npx mate-sdt mutate`).',
+    '3. Enforce OOP and SOLID principles in Playwright UI/API tests (`src/pages`, `src/components`, `src/api`, `src/fixtures`). Never use `waitForTimeout()`. Audit with `npx mate-sdt audit`.',
+    '4. Enforce Mutation Testing >= 85% via Stryker in rootless Podman (`npx mate-sdt mutate`) and k6 SLAs (`npx mate-sdt k6`).',
     '<!-- MATE-SDT-END -->',
     '',
   ].join('\n');
@@ -315,7 +374,7 @@ function initMateProject(targetDir, options = {}) {
     }
   }
 
-  // Optional starter files (Golden sample spec + SOLID Playwright templates)
+  // Optional starter files (Golden sample spec + SOLID Playwright UI/API + k6 templates)
   if (includeStarterFiles && mode !== 'skills-only') {
     const sampleSpecSrc = path.join(
       PACKAGE_ROOT,
@@ -332,20 +391,45 @@ function initMateProject(targetDir, options = {}) {
 
     const assertResDir = path.join(PACKAGE_ROOT, 'skills', 'mate-assert-playwright', 'resources');
     const boilerplates = [
-      { src: 'base-page.template.ts', dest: path.join('src', 'pages', 'base.page.ts') },
       {
-        src: 'component.template.ts',
+        src: path.join(assertResDir, 'base-page.template.ts'),
+        dest: path.join('src', 'pages', 'base.page.ts'),
+      },
+      {
+        src: path.join(assertResDir, 'component.template.ts'),
         dest: path.join('src', 'components', 'notification-toast.component.ts'),
       },
-      { src: 'fixtures.template.ts', dest: path.join('src', 'fixtures', 'mate.fixtures.ts') },
+      {
+        src: path.join(assertResDir, 'fixtures.template.ts'),
+        dest: path.join('src', 'fixtures', 'mate.fixtures.ts'),
+      },
+      {
+        src: path.join(
+          PACKAGE_ROOT,
+          'skills',
+          'mate-assert-api',
+          'resources',
+          'base-api-client.template.ts'
+        ),
+        dest: path.join('src', 'api', 'base-api.client.ts'),
+      },
+      {
+        src: path.join(
+          PACKAGE_ROOT,
+          'skills',
+          'mate-performance-k6',
+          'resources',
+          'k6-load.template.js'
+        ),
+        dest: path.join('tests', 'nfr', 'order-load.k6.js'),
+      },
     ];
 
     for (const item of boilerplates) {
-      const s = path.join(assertResDir, item.src);
       const d = path.join(resolved, item.dest);
-      if (!fs.existsSync(d) && fs.existsSync(s)) {
-        let text = fs.readFileSync(s, 'utf8');
-        if (item.src === 'fixtures.template.ts') {
+      if (!fs.existsSync(d) && fs.existsSync(item.src)) {
+        let text = fs.readFileSync(item.src, 'utf8');
+        if (item.src.endsWith('fixtures.template.ts')) {
           text = text.replace('./base-page.template', '../pages/base.page');
         }
         writeFileIfMissing(d, text, false);
@@ -459,6 +543,39 @@ function generateWaiver(moduleName, targetDir = '.') {
 }
 
 /**
+ * Generates a Structured Bug Report linked to M.A.T.E. Invariants
+ */
+function generateBugReport(moduleName, targetDir = '.') {
+  const resolved = path.resolve(targetDir);
+  const safeName = (moduleName || 'feature')
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]+/g, '-')
+    .replace(/^-|-$/g, '');
+  const today = new Date().toISOString().slice(0, 10);
+  const dateStr = today.replace(/-/g, '');
+  const fileName = `BUG-${dateStr}-${safeName}.md`;
+  const destPath = path.join(resolved, 'tests', 'bugs', fileName);
+
+  const templatePath = path.join(
+    PACKAGE_ROOT,
+    'skills',
+    'mate-triage',
+    'resources',
+    'bug-report.template.md'
+  );
+  let content = fs.readFileSync(templatePath, 'utf8');
+  content = content
+    .replace('BUG-[YYYYMMDD]-[MODULE]-[##]', `BUG-${dateStr}-${safeName.toUpperCase()}-01`)
+    .replace(/\[module\]/g, safeName)
+    .replace(/\[Module\]/g, moduleName || 'Module')
+    .replace(/YYYY-MM-DD/g, today);
+
+  fs.mkdirSync(path.dirname(destPath), { recursive: true });
+  fs.writeFileSync(destPath, content, 'utf8');
+  return destPath;
+}
+
+/**
  * Runs M.A.T.E. Doctor / Status check on the target directory
  */
 function checkStatus(targetDir = '.') {
@@ -479,7 +596,6 @@ function checkStatus(targetDir = '.') {
   let specValidation = { allValid: true, results: [] };
   if (hasSpecsDir) {
     specValidation = validateTarget(path.join(resolved, 'specs'));
-    // If no *.mate-spec.md files exist yet, don't treat as syntax failure in status summary
     if (
       specValidation.results.length === 1 &&
       specValidation.results[0].errors[0]?.startsWith('No *.mate-spec.md files found')
@@ -487,6 +603,8 @@ function checkStatus(targetDir = '.') {
       specValidation = { allValid: true, results: [] };
     }
   }
+
+  const auditResult = auditTestSuite(resolved);
 
   let podmanAvailable = false;
   let podmanVersion = null;
@@ -509,6 +627,7 @@ function checkStatus(targetDir = '.') {
     hasClaudeCommands,
     hasCursorRules,
     specValidation,
+    auditResult,
     podmanAvailable,
     podmanVersion,
   };
@@ -578,13 +697,84 @@ function runPodmanMutation(targetDir = '.', configFile = 'stryker.config.json') 
   return run.status ?? 1;
 }
 
+/**
+ * Runs Grafana k6 performance script inside an isolated rootless Podman container
+ */
+function runPodmanK6(scriptPath = 'tests/nfr/order-load.k6.js', targetDir = '.') {
+  const resolved = path.resolve(targetDir);
+  const relScript = path.isAbsolute(scriptPath)
+    ? path.relative(resolved, scriptPath).replace(/\\/g, '/')
+    : scriptPath.replace(/\\/g, '/');
+
+  console.log(
+    color(
+      '\n⚡ [M.A.T.E. Performance Oracles] Launching Grafana k6 Suite via Rootless Podman...',
+      COLORS.bold,
+      COLORS.brightGreen
+    )
+  );
+  console.log(`   📁 Target Project: ${resolved}`);
+  console.log(`   📈 k6 Script:      ${relScript}\n`);
+
+  const check = spawnSync('podman', ['--version'], { encoding: 'utf8' });
+  if (check.status !== 0) {
+    console.error(
+      color(
+        "❌ Error: 'podman' is not installed or not in PATH. Rootless Podman is required by M.A.T.E. k6 runner.",
+        COLORS.red,
+        COLORS.bold
+      )
+    );
+    return 1;
+  }
+
+  console.log(color(`   🐳 Container Engine: ${check.stdout.trim()}`, COLORS.cyan));
+
+  const podmanArgs = [
+    'run',
+    '--rm',
+    '-i',
+    '-v',
+    `${resolved}:/app:Z`,
+    '-w',
+    '/app',
+    'grafana/k6:latest',
+    'run',
+    relScript,
+  ];
+
+  console.log(color(`   🚀 Executing: podman ${podmanArgs.join(' ')}\n`, COLORS.gray));
+  const run = spawnSync('podman', podmanArgs, { stdio: 'inherit' });
+  if (run.status === 0) {
+    console.log(
+      color(
+        '\n✅ [Performance Oracles Passed] All k6 SLA thresholds satisfied!',
+        COLORS.brightGreen,
+        COLORS.bold
+      )
+    );
+  } else {
+    console.error(
+      color(
+        '\n❌ [Performance Oracles Failed] k6 run failed or violated SLA thresholds.',
+        COLORS.red,
+        COLORS.bold
+      )
+    );
+  }
+  return run.status ?? 1;
+}
+
 module.exports = {
   STANDARD_DIRECTORIES,
   SKILL_NAMES,
+  WORKFLOW_NAMES,
   initMateProject,
   installMate,
   generateCharter,
   generateWaiver,
+  generateBugReport,
   checkStatus,
   runPodmanMutation,
+  runPodmanK6,
 };
