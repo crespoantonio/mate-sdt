@@ -1,51 +1,61 @@
 ---
 name: mate-core
 description: >-
-  Master methodology of Spec-Driven Testing (SDT) M.A.T.E. created by Tony Crespo (Un Junior En Apuros).
-  Governs the quality lifecycle in both Greenfield and Brownfield projects across all 10 M.A.T.E. skills
-  and 5 E2E workflows, enforcing OOP/SOLID principles, Living Documentation (MATE-PROJECT-MAP.md),
-  and the Handling Uncertainty Protocol.
+  Master orchestrator of the M.A.T.E. Spec-Driven Testing (SDT) Framework by Tony Crespo (Un Junior En Apuros).
+  USE WHEN: Starting any QA/Testing task, reading or updating `MATE-PROJECT-MAP.md`, deciding which of the 13 M.A.T.E.
+  skills or 6 E2E workflows to activate, enforcing OOP/SOLID architecture, applying the Handling Uncertainty Protocol,
+  or enforcing the Anti-Greenwashing Mandate.
+  SYNERGY: Orchestrates and routes tasks across all 13 M.A.T.E. skills (`mate-story-testcases`, `mate-model`,
+  `mate-pw-recon`, `mate-assert-playwright`, `mate-pw-codegen`, `mate-pw-forensics`, `mate-assert-api`, `mate-threat`,
+  `mate-performance-k6`, `mate-explore`, `mate-triage`, and `mate-maintenance`).
 ---
 
 # 🧉 Master Skill: M.A.T.E. Core (`mate-core`)
 
-This skill serves as the operational engine of the **M.A.T.E. Method** (*Spec-Driven Testing Framework*).  
-Its purpose is to ensure that any software project (from a greenfield startup to an inherited enterprise repository) implements a quality architecture that is **scalable, Object-Oriented (OOP), adheres to SOLID principles, and is optimized for AI consumption without context window saturation**.
+This skill serves as the operational brain and router of the **M.A.T.E. Method** (*Spec-Driven Testing Framework*).  
+Its purpose is to ensure that any software project implements a quality architecture that is **scalable, Object-Oriented (OOP), adheres to SOLID principles, covers Happy + Border + Negative paths, never hides real application bugs, and is optimized for AI consumption without context window saturation**.
 
 ---
 
-## 🎯 The 4 Core Operational Objectives of `mate-core`
+## 🎯 The 5 Core Operational Mandates of `mate-core`
 
-1.  **AI-Friendly Architecture with Living Documentation (`MATE-PROJECT-MAP.md`):**  
-    Prevent LLMs from burning 100k+ tokens reading the entire repository. Maintain an up-to-date living index in the root directory that maps project stack, naming conventions, business modules, specs, invariants, injectable fixtures, execution commands, and quality gaps.
-2.  **Object-Oriented Design and SOLID Principles in Testing:**  
-    - **Single Responsibility (SRP):** Atomic Page Objects, dedicated Component Objects, and typed API Clients.
-    - **Open/Closed (OCP):** Extensible base classes and fixtures that allow extending behavior without modifying existing code.
-    - **Liskov Substitution (LSP):** Base page abstractions and API clients must be substitutable by their derivatives without breaking test contracts.
-    - **Interface Segregation (ISP):** Lean, specific interfaces for test data and contract models (zero `any` types).
-    - **Dependency Inversion (DIP):** Dependency injection via Playwright fixtures (`test.extend()`) rather than hard-coupled `new PageObject(page)` instantiation inside test files.
-3.  **Strict Handling Uncertainty Protocol:**  
-    - **Never Assume:** Do not invent SLAs, authentication flows, or undocumented business rules.
-    - **Ask First or Mark `[TBD]`:** When critical context is missing, ask targeted clarifying questions or mark `[TBD: needs input on X]` with explicit confidence levels (`Observed` vs. `Inferred`). See [`references/handling-uncertainty.md`](./references/handling-uncertainty.md).
-4.  **Full Lifecycle Governance (Greenfield, Brownfield & Day-2 Operations):**  
-    Orchestrates the **10 M.A.T.E. Skills** and **5 End-to-End Workflows** from initial intent modeling through post-execution failure triage and test suite maintenance.
+1. **AI-Friendly Architecture with Living Documentation (`MATE-PROJECT-MAP.md`):**  
+   Prevent LLMs from burning 100k+ tokens reading the entire repository. Maintain an up-to-date living index in the root directory that maps project stack, naming conventions, business modules, specs, test case matrices, invariants, injectable fixtures, and quality gaps.
+2. **Object-Oriented Design and SOLID Principles in Testing:**  
+   - **Single Responsibility (SRP):** Atomic Page Objects (`BasePage`), dedicated Component Objects (`BaseComponent`), and typed API Clients (`BaseApiClient`).
+   - **Open/Closed (OCP):** Extensible base classes and fixtures that allow extending behavior without modifying existing code.
+   - **Liskov Substitution (LSP):** Base page abstractions and API clients must be substitutable by their derivatives without breaking test contracts.
+   - **Interface Segregation (ISP):** Lean, specific interfaces for test data and contract models (zero `any` types).
+   - **Dependency Inversion (DIP):** Dependency injection via Playwright fixtures (`test.extend()`) rather than hard-coupled `new PageObject(page)` instantiation inside test files.
+3. **The Anti-Greenwashing Mandate (Never Only Write Tests That Pass):**  
+   - **Specification Over Implementation:** The User Story and `*.mate-spec.md` are the source of truth—never the potentially buggy application.
+   - **4-Quadrant Coverage:** Every feature must have Test Cases and Automated Tests covering **Happy Paths, Border/Boundary Cases, Negative Paths, and Forbidden State Transitions**.
+   - **Keep & Flag Failing Tests:** If a test that *should* pass according to the User Story / Spec **fails** against the live app, **NEVER delete the test or weaken the assertion** to make the suite green. Keep the test with its real assertion, annotate it with `test.fail(true, 'BUG-XXX: violates INV-YY / TC-ZZ')` (or `test.fixme()`), generate `tests/bugs/BUG-*.md` (`npx mate-sdt bug`), and report it clearly to the tester.
+4. **Strict Handling Uncertainty Protocol:**  
+   - **Never Assume:** Do not invent SLAs, authentication flows, or undocumented business rules.
+   - **Ask First or Mark `[TBD]`:** When critical context is missing, ask targeted clarifying questions or mark `[TBD: needs input on X]` with explicit confidence levels (`Observed` vs. `Inferred`). See [`references/handling-uncertainty.md`](./references/handling-uncertainty.md).
+5. **Skill Synergy & Lifecycle Routing:**  
+   Orchestrates the **13 M.A.T.E. Skills** and **6 End-to-End Workflows** so the exact right skill activates at the exact right moment.
 
 ---
 
-## 🧩 The 10 M.A.T.E. Skills Ecosystem
+## 🧩 The 13 M.A.T.E. Skills & Synergy Routing Matrix
 
-| Skill | Pillar / Phase | Core Responsibility |
-| :--- | :--- | :--- |
-| **`mate-core`** | **Orchestrator** | Living Architecture Map (`MATE-PROJECT-MAP.md`), SOLID rules, uncertainty protocol, polyglot references. |
-| **`mate-model`** | **Pillar M (Model)** | Authors `specs/*.mate-spec.md`, Finite State Machines, **Explicit Forbidden Transitions**, and Live Page Reconnaissance (`page-explorer`). |
-| **`mate-assert-playwright`** | **Pillar A (Assert - UI)** | SOLID Playwright UI automation (`BasePage`, `ComponentObject`, DIP fixtures, zero arbitrary sleeps). |
-| **`mate-playwright-cli`** | **Pillar M/A/T/E (Browser CLI)** | M.A.T.E.-engineered `@playwright/cli` integration (DOM snapshots, SOLID POM/COM codegen, storageState DIP, network mocking, multi-actor sessions, traces & video). |
-| **`mate-assert-api`** | **Pillar A (Assert - API)** | Contract-driven API testing from OpenAPI/Swagger, schema validation, auth & status matrices. |
-| **`mate-threat`** | **Pillar T (Threat & Trash)** | Concurrency, race conditions, idempotency, payload fuzzing, and Stryker Mutation (`>= 85%`) in Podman. |
-| **`mate-performance-k6`** | **Pillar A/T (NFR - k6)** | Translates `<performance_oracles>` SLAs into k6 load/stress/spike scripts executed in rootless Podman. |
-| **`mate-explore`** | **Pillar E (Explore)** | Human Session-Based Test Management (SBTM) charters, WCAG 2.1 AA audits, Release Waivers, and Release Verdict. |
-| **`mate-triage`** | **Day-2 Operations** | Triages CI failures (Bug vs. Flaky vs. Env vs. Data), detects flakiness, and generates spec-linked Bug Reports. |
-| **`mate-maintenance`** | **Day-2 Operations** | Audits test codebase health (`A`–`F`), detects `waitForTimeout`/sleeps, duplication, and DIP violations. |
+| Skill | Pillar / Phase | Exact Moment to Activate (`USE WHEN`) | Companion / Synergy Skills |
+| :--- | :--- | :--- | :--- |
+| **`mate-core`** | **Orchestrator** | Reading/updating `MATE-PROJECT-MAP.md`, routing tasks, enforcing SOLID & Anti-Greenwashing rules. | Routes to all 12 skills below |
+| **`mate-story-testcases`** | **Ingestion & TC Design** | Tester provides a User Story (Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text) to design Happy, Border, Negative & State Test Cases (`tests/cases/TC-*.md` & `.csv`). | `mate-model` ➔ `mate-pw-recon` ➔ `mate-assert-playwright` |
+| **`mate-model`** | **Pillar M (Model)** | Authoring or validating `specs/*.mate-spec.md`, Finite State Machines, and **Explicit Forbidden Transitions**. | `mate-story-testcases` + `mate-pw-recon` |
+| **`mate-pw-recon`** | **Pillar M/A (Live CLI Recon)** | Opening live URLs (`playwright-cli open/snapshot`), verifying User Story & border cases live in the browser, and mapping semantic DOM/ARIA locators before coding. | `mate-story-testcases` + `mate-model` ➔ `mate-pw-codegen` |
+| **`mate-assert-playwright`** | **Pillar A (SOLID UI Rules)** | Designing or reviewing `BasePage`, `BaseComponent`, `MateFixtures`, zero-sleep assertions, and applying `test.fail()` on real app bugs. | `mate-pw-codegen` + `mate-story-testcases` |
+| **`mate-pw-codegen`** | **Pillar A (CLI Codegen)** | Translating `playwright-cli` locators, `state-save` auth, and `route` network mocks into SOLID Page/Component Objects and running/debugging Playwright specs. | `mate-assert-playwright` + `mate-pw-recon` |
+| **`mate-pw-forensics`** | **Pillar T/E & Triage (CLI)** | Multi-actor sessions (`-s=actor1`, `-s=actor2`), `tracing-start`/`stop`, 60fps `video-start` recordings, and PR/Jira visual attachments. | `mate-threat` + `mate-explore` + `mate-triage` |
+| **`mate-assert-api`** | **Pillar A (API Contracts)** | Translating OpenAPI/Swagger or spec contracts into typed `BaseApiClient` classes and schema/status/auth matrices. | `mate-model` + `mate-threat` |
+| **`mate-threat`** | **Pillar T (Chaos & Mutation)** | Concurrency, race conditions, idempotency, fuzzing, and Stryker Mutation (`>= 85%`) in rootless Podman (`npx mate-sdt mutate`). | `mate-pw-forensics` + `mate-assert-api` |
+| **`mate-performance-k6`** | **Pillar A/T (NFR - k6)** | Translating `<performance_oracles>` SLAs into Grafana k6 scripts executed in rootless Podman (`npx mate-sdt k6`). | `mate-model` + `mate-threat` |
+| **`mate-explore`** | **Pillar E (Explore)** | Human SBTM exploratory charters (`npx mate-sdt charter`), WCAG 2.1 AA audits, Release Waivers (`npx mate-sdt waiver`), and Release Verdicts. | `mate-pw-forensics` + `mate-triage` |
+| **`mate-triage`** | **Day-2 Operations** | Classifying CI or live test failures (Real Bug vs. Flaky vs. Env vs. Drift) and generating spec-linked Bug Reports (`npx mate-sdt bug`). | `mate-pw-forensics` + `mate-maintenance` |
+| **`mate-maintenance`** | **Day-2 Operations** | Auditing test codebase health (`A`–`F`) via `npx mate-sdt audit` to eliminate `waitForTimeout`, `.only`, and DIP violations. | `mate-assert-playwright` + `mate-triage` |
 
 ---
 
@@ -59,39 +69,31 @@ project-root/
 │   ├── waivers/                 <-- Formal Release Waivers (WVR-*.md)
 │   └── [module].mate-spec.md
 ├── tests/
-│   ├── e2e/                     <-- P0/P1 end-to-end UI workflows
+│   ├── cases/                   <-- Test Case Matrices (TC-[module].md & .csv for Jira/Xray/Excel/Notion)
+│   ├── e2e/                     <-- P0/P1 UI workflows (Happy + Border + Negative; real bugs marked test.fail)
 │   ├── api/                     <-- Contract and API integration tests
 │   ├── threats/                 <-- Concurrency, race conditions, idempotency, fuzzing
 │   ├── nfr/                     <-- Performance (k6) and resilience scripts (*.k6.js)
 │   ├── charters/                <-- Human exploratory testing sessions (CHR-*.md)
 │   └── bugs/                    <-- Structured bug reports linked to invariants (BUG-*.md)
 ├── src/
-│   ├── pages/                   <-- Page Object Model (OOP / SOLID)
-│   ├── components/              <-- Reusable UI Component Objects
+│   ├── pages/                   <-- Page Object Model extending BasePage (OOP / SOLID)
+│   ├── components/              <-- Reusable UI Component Objects extending BaseComponent
 │   ├── api/                     <-- Typed API Clients & Request Builders
-│   ├── fixtures/                <-- Dependency Inversion (DIP) fixtures
+│   ├── mocks/                   <-- Reusable Network Route Mocks
+│   ├── fixtures/                <-- Dependency Inversion (DIP) Playwright fixtures
 │   └── models/                  <-- Strict TypeScript types and schemas
 └── stryker.config.json          <-- Mutation testing governance (>=85% threshold)
 ```
 
 ---
 
-## 🔒 Agent Permissions Matrix on `MATE-PROJECT-MAP.md`
-
-| Skill / Agent | Read First | Create / Update Sections |
-| :--- | :---: | :--- |
-| **`mate-core` / `mate-model`** | ✅ Mandatory | Creates file; updates *System Modules*, *Invariants*, and *Stack*. |
-| **`mate-assert-playwright` / `mate-assert-api`** | ✅ Mandatory | Updates *Injectable Fixtures, Page Objects & API Clients*. |
-| **`mate-threat` / `mate-performance-k6`** | ✅ Mandatory | Updates *Mutation Score* and *NFR Oracles Status*. |
-| **`mate-explore`** | ✅ Mandatory | Updates *Latest Release Verdict* and *Active Release Waivers*. |
-| **`mate-triage` / `mate-maintenance`** | ✅ Mandatory | Updates *Test Suite Health Score* and *Identified Gaps & Flakiness Radar*. |
-
----
-
 ## ⚡ CLI Commands & Reference Resources
 
-- **Interactive Installer:** `npx mate-sdt install`
+- **Interactive Installer:** `npx mate-sdt install` (or `--with-playwright-cli`)
+- **Install `@playwright/cli`:** `npx mate-sdt setup-playwright`
 - **Validate Specs:** `npx mate-sdt validate`
+- **Generate Test Case Matrix (`.md` + `.csv`):** `npx mate-sdt cases <module>`
 - **Audit Test Suite Health (`A`–`F`):** `npx mate-sdt audit`
 - **Run Podman Mutation (`>=85%`):** `npx mate-sdt mutate`
 - **Run Podman k6 Performance:** `npx mate-sdt k6 tests/nfr/load.k6.js`

@@ -21,7 +21,7 @@ npx mate status
 ## Commands
 
 ### 1. `install` (Default Command)
-Launches the interactive installer to scaffold directories, templates, **10 AI agent skills** (including `mate-playwright-cli`), and **5 E2E workflows**, with optional automatic installation of `@playwright/cli` and `@playwright/test`.
+Launches the interactive installer to scaffold directories, templates, **13 synergistic AI agent skills**, and **6 E2E workflows**, with optional automatic installation of `@playwright/cli` and `@playwright/test`.
 
 ```bash
 npx mate-sdt install [options]
@@ -61,6 +61,15 @@ Validates a single `*.mate-spec.md` file or recursively validates all `*.mate-sp
 ```bash
 npx mate-sdt validate
 npx mate-sdt validate specs/laundry-orders.mate-spec.md
+```
+
+---
+
+### 3b. `cases <module-name>` (Aliases: `testcases`, `tc`)
+Generates a 4-Quadrant Test Case Matrix (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) in both Markdown (`tests/cases/TC-<module>.md`) and CSV (`tests/cases/TC-<module>.csv`) ready for Jira/Xray/Zephyr, TestRail, Notion, or Excel import.
+
+```bash
+npx mate-sdt cases checkout-flow
 ```
 
 ---

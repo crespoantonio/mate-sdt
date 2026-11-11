@@ -13,6 +13,7 @@ const {
   SKILL_NAMES,
   WORKFLOW_NAMES,
   installMate,
+  generateTestCases,
   generateCharter,
   generateWaiver,
   generateBugReport,
@@ -76,11 +77,11 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
     }
   });
 
-  test('3. installMate scaffolds Greenfield project, 10 skills (with mate-playwright-cli references), and 5 E2E workflows across all 5 IDEs', () => {
+  test('3. installMate scaffolds Greenfield project, 13 synergistic skills, and 6 E2E workflows across all 5 IDEs', () => {
     const tmpDir = createTempDir();
     try {
-      assert.equal(SKILL_NAMES.length, 10);
-      assert.equal(WORKFLOW_NAMES.length, 5);
+      assert.equal(SKILL_NAMES.length, 13);
+      assert.equal(WORKFLOW_NAMES.length, 6);
 
       installMate({
         targetDir: tmpDir,
@@ -101,38 +102,38 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
       assert.ok(fs.existsSync(path.join(tmpDir, 'src', 'fixtures', 'mate.fixtures.ts')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'tests', 'nfr', 'order-load.k6.js')));
 
-      // Verify all 10 skills installed in Antigravity, Claude, and Cursor
+      // Verify all 13 skills installed in Antigravity, Claude, and Cursor, with USE WHEN & SYNERGY in descriptions
       for (const skill of SKILL_NAMES) {
-        assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'skills', skill, 'SKILL.md')));
+        const skillPath = path.join(tmpDir, '.agents', 'skills', skill, 'SKILL.md');
+        assert.ok(fs.existsSync(skillPath));
+        const rawSkill = fs.readFileSync(skillPath, 'utf8');
+        assert.ok(rawSkill.includes('USE WHEN:'), `Expected ${skill} to have USE WHEN trigger`);
+        assert.ok(rawSkill.includes('SYNERGY:'), `Expected ${skill} to have SYNERGY declaration`);
         assert.ok(fs.existsSync(path.join(tmpDir, '.claude', 'commands', `${skill}.md`)));
         assert.ok(fs.existsSync(path.join(tmpDir, '.cursor', 'rules', `${skill}.mdc`)));
       }
 
-      // Verify all 10 reference docs of mate-playwright-cli are copied into .agents/skills and .claude/skills
-      const pwRefs = [
-        'element-attributes.md',
-        'playwright-tests.md',
-        'pr-attachments.md',
-        'request-mocking.md',
-        'running-code.md',
-        'session-management.md',
-        'storage-state.md',
-        'test-generation.md',
-        'tracing.md',
-        'video-recording.md',
-      ];
-      for (const refFile of pwRefs) {
-        assert.ok(
-          fs.existsSync(
-            path.join(tmpDir, '.agents', 'skills', 'mate-playwright-cli', 'references', refFile)
-          )
-        );
-        assert.ok(
-          fs.existsSync(
-            path.join(tmpDir, '.claude', 'skills', 'mate-playwright-cli', 'references', refFile)
-          )
-        );
-      }
+      // Verify specialized @playwright/cli skills and mate-story-testcases references are copied
+      assert.ok(
+        fs.existsSync(
+          path.join(tmpDir, '.agents', 'skills', 'mate-story-testcases', 'references', 'mcp-and-file-ingestion.md')
+        )
+      );
+      assert.ok(
+        fs.existsSync(
+          path.join(tmpDir, '.agents', 'skills', 'mate-pw-recon', 'references', 'live-story-verification.md')
+        )
+      );
+      assert.ok(
+        fs.existsSync(
+          path.join(tmpDir, '.agents', 'skills', 'mate-pw-codegen', 'references', 'test-generation.md')
+        )
+      );
+      assert.ok(
+        fs.existsSync(
+          path.join(tmpDir, '.agents', 'skills', 'mate-pw-forensics', 'references', 'tracing.md')
+        )
+      );
 
       // Verify all 5 workflows installed in Antigravity, Claude, Windsurf, Copilot
       for (const wf of WORKFLOW_NAMES) {
@@ -151,9 +152,16 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
     }
   });
 
-  test('4. generateCharter, generateBugReport, and generateWaiver create formatted artifacts', () => {
+  test('4. generateTestCases, generateCharter, generateBugReport, and generateWaiver create formatted artifacts', () => {
     const tmpDir = createTempDir();
     try {
+      const { mdDest, csvDest } = generateTestCases('checkout-payment', tmpDir);
+      assert.ok(fs.existsSync(mdDest));
+      assert.ok(fs.existsSync(csvDest));
+      assert.ok(fs.readFileSync(mdDest, 'utf8').includes('HAPPY_PATH'));
+      assert.ok(fs.readFileSync(mdDest, 'utf8').includes('BORDER_CASE'));
+      assert.ok(fs.readFileSync(csvDest, 'utf8').includes('TC_ID,Story_Key,Category'));
+
       const charterFile = generateCharter('checkout-payment', tmpDir);
       assert.ok(fs.existsSync(charterFile));
       assert.ok(fs.readFileSync(charterFile, 'utf8').includes('CHECKOUT-PAYMENT'));
@@ -231,6 +239,15 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
         { encoding: 'utf8' }
       );
       assert.equal(bugRun.status, 0, `CLI bug failed: ${bugRun.stderr}`);
+
+      const casesRun = spawnSync(
+        process.execPath,
+        [CLI_BIN, 'cases', 'order-service', '--dir', tmpDir],
+        { encoding: 'utf8' }
+      );
+      assert.equal(casesRun.status, 0, `CLI cases failed: ${casesRun.stderr}`);
+      assert.ok(fs.existsSync(path.join(tmpDir, 'tests', 'cases', 'TC-order-service.md')));
+      assert.ok(fs.existsSync(path.join(tmpDir, 'tests', 'cases', 'TC-order-service.csv')));
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }

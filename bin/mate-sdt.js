@@ -18,6 +18,7 @@ const {
   initMateProject,
   installMate,
   installPlaywrightCliPackages,
+  generateTestCases,
   generateCharter,
   generateWaiver,
   generateBugReport,
@@ -84,7 +85,7 @@ function printHelp() {
   console.log('    npx mate-sdt <command> [options]\n');
   console.log(color('  COMMANDS:', COLORS.bold, COLORS.cyan));
   console.log(
-    `    ${color('install', COLORS.brightGreen, COLORS.bold)}              Interactive installer (10 AI skills, 5 E2E workflows, IDE rules & SDT layout)`
+    `    ${color('install', COLORS.brightGreen, COLORS.bold)}              Interactive installer (13 AI skills, 6 E2E workflows, IDE rules & SDT layout)`
   );
   console.log(
     `    ${color('init [dir]', COLORS.brightGreen, COLORS.bold)}           Quick-scaffold M.A.T.E. directories, Living Map & templates`
@@ -94,6 +95,9 @@ function printHelp() {
   );
   console.log(
     `    ${color('validate [path]', COLORS.brightGreen, COLORS.bold)}      Validate one or all *.mate-spec.md files (defaults to ./specs)`
+  );
+  console.log(
+    `    ${color('cases <module>', COLORS.brightGreen, COLORS.bold)}       Create a 4-Quadrant Test Case Matrix (.md & .csv) in tests/cases/`
   );
   console.log(
     `    ${color('audit [dir]', COLORS.brightGreen, COLORS.bold)}          Scan test codebase for anti-patterns & compute Health Score (A-F)`
@@ -154,7 +158,7 @@ async function handleInstall(flags) {
         'Select your project lifecycle mode:',
         [
           {
-            label: 'Greenfield (Full SDT Architecture + 10 AI Skills + 5 Workflows + SOLID Templates)',
+            label: 'Greenfield (Full SDT Architecture + 13 AI Skills + 6 Workflows + SOLID Templates)',
             description: 'Best for new projects or establishing a complete UI, API, k6 & SDT harness.',
             value: 'greenfield',
           },
@@ -220,7 +224,7 @@ async function handleInstall(flags) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
   }
 
-  console.log(color('\n  🤖 Installed 10 AI Skills (incl. mate-playwright-cli), 5 E2E Workflows & IDE Rules:', COLORS.bold, COLORS.cyan));
+  console.log(color('\n  🤖 Installed 13 Synergistic AI Skills, 6 E2E Workflows & IDE Rules:', COLORS.bold, COLORS.cyan));
   for (const item of result.ideFiles) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
   }
@@ -333,6 +337,18 @@ function handleAudit(flags) {
     );
     process.exit(1);
   }
+}
+
+function handleCases(flags) {
+  const moduleName = flags.positional[1];
+  if (!moduleName) {
+    console.error(color('❌ Usage: npx mate-sdt cases <module-name>', COLORS.red, COLORS.bold));
+    process.exit(1);
+  }
+  const { mdDest, csvDest } = generateTestCases(moduleName, flags.dir || '.');
+  console.log(color(`\n📋 Created 4-Quadrant M.A.T.E. Test Case Matrix (.md & .csv):`, COLORS.brightGreen, COLORS.bold));
+  console.log(`   • Markdown Matrix: ${mdDest}`);
+  console.log(`   • CSV Export:      ${csvDest}\n`);
 }
 
 function handleCharter(flags) {
@@ -455,6 +471,11 @@ async function main() {
       break;
     case 'k6':
       process.exit(runPodmanK6(flags.positional[1] || 'tests/nfr/order-load.k6.js', flags.dir || '.'));
+      break;
+    case 'cases':
+    case 'testcases':
+    case 'tc':
+      handleCases(flags);
       break;
     case 'charter':
       handleCharter(flags);

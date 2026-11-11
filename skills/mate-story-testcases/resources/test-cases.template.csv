@@ -1,0 +1,6 @@
+TC_ID,Story_Key,Category,Priority,Title,Preconditions,Steps,Expected_Result,Invariant_ID,Live_CLI_Status,Automation_Status,Bug_ID
+TC-01,STORY-01,HAPPY_PATH,P0,"Valid end-to-end submission","User authenticated; valid test data","1. Navigate to module; 2. Enter valid payload; 3. Submit","State transitions to CONFIRMED and invariant holds",INV-01,PASS,AUTOMATED_PASS,
+TC-02,STORY-01,BORDER_CASE,P1,"Boundary value at exact minimum/maximum limit","User authenticated","1. Enter boundary value (min/max/unicode); 2. Submit","Boundary accepted/rejected deterministically per spec",INV-02,PASS,AUTOMATED_PASS,
+TC-03,STORY-01,BORDER_CASE,P1,"Edge case calculation floor/ceiling","User authenticated","1. Trigger edge calculation; 2. Inspect total","Value never violates domain floor/ceiling",INV-01,FAIL,AUTOMATED_KNOWN_FAIL,BUG-001
+TC-04,STORY-01,NEGATIVE_PATH,P0,"Reject invalid or empty required fields","User on module screen","1. Submit empty/malformed payload","Validation error alert shown; mutation blocked",INV-03,PASS,AUTOMATED_PASS,
+TC-05,STORY-01,STATE_TRANSITION,P0,"Block forbidden state transition / double submit","Entity in initial state","1. Trigger forbidden transition or rapid double-click","HTTP 409 Conflict or idempotent single execution",INV-04,PASS,AUTOMATED_PASS,

@@ -12,6 +12,7 @@ const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 const STANDARD_DIRECTORIES = [
   'specs',
   'specs/waivers',
+  'tests/cases',
   'tests/e2e',
   'tests/api',
   'tests/threats',
@@ -21,15 +22,19 @@ const STANDARD_DIRECTORIES = [
   'src/pages',
   'src/components',
   'src/api',
+  'src/mocks',
   'src/fixtures',
   'src/models',
 ];
 
 const SKILL_NAMES = [
   'mate-core',
+  'mate-story-testcases',
   'mate-model',
+  'mate-pw-recon',
   'mate-assert-playwright',
-  'mate-playwright-cli',
+  'mate-pw-codegen',
+  'mate-pw-forensics',
   'mate-assert-api',
   'mate-threat',
   'mate-performance-k6',
@@ -39,6 +44,7 @@ const SKILL_NAMES = [
 ];
 
 const WORKFLOW_NAMES = [
+  'mate-flow-user-story',
   'mate-flow-greenfield',
   'mate-flow-brownfield',
   'mate-flow-api-contract',
@@ -162,13 +168,15 @@ function installClaudeCode(targetDir) {
     '<!-- MATE-SDT-START -->',
     '## 🧉 M.A.T.E. Method — Spec-Driven Testing (SDT) Governance',
     '',
-    'This repository is governed by the **M.A.T.E. Method** (`mate-sdt`):',
+    'This repository is governed by the **M.A.T.E. Method** (`mate-sdt` — 13 Synergistic Skills & 6 E2E Workflows):',
     '- **Living Architecture Map:** Always read and update `MATE-PROJECT-MAP.md` before scanning the entire repository.',
+    '- **User Story Ingestion & 4-Quadrant Test Cases (`mate-story-testcases`):** Ingest stories from Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text. Design Test Cases (`tests/cases/TC-*.md` & `.csv`) covering Happy Paths, Border/Boundary Cases, Negative Paths, and State Transitions (`npx mate-sdt cases <mod>`).',
+    '- **Anti-Greenwashing Mandate:** Never only write tests that pass! Automate all 4 quadrants. If a test that should pass per the User Story/Spec fails against the app, KEEP the test with its real assertion, mark it with `test.fail(true, "BUG-XXX: ...")`, generate `npx mate-sdt bug <mod>`, and alert the tester.',
     '- **Handling Uncertainty:** Never guess SLAs, auth mechanisms, or undocumented contracts. Ask the user or mark `[TBD]` with confidence tags (`[OBSERVED]` vs `[INFERRED]`).',
-    '- **Pillar M (Model):** Specifications live in `specs/*.mate-spec.md`. Validate specs via `npx mate-sdt validate`. Every state machine must declare **Explicit Forbidden Transitions**.',
-    '- **Pillar A (Assert - UI & API):** Follow OOP & SOLID principles (`src/pages/`, `src/components/`, `src/api/`, `src/fixtures/`). Zero arbitrary sleeps (`waitForTimeout` is strictly forbidden). Audit anytime via `npx mate-sdt audit`.',
-    '- **Pillar T (Threat, Mutation & k6 NFRs):** Test concurrency, idempotency, and fuzzing. Enforce Mutation Score >= 85% via Stryker in Podman (`npx mate-sdt mutate`) and verify latency SLAs with k6 in Podman (`npx mate-sdt k6`).',
-    '- **Pillar E & Day-2 Operations:** Reserve human exploratory charters (`npx mate-sdt charter <mod>`), file spec-linked bug reports (`npx mate-sdt bug <mod>`), and issue formal release verdicts (`PASS`, `CONCERNS` with `npx mate-sdt waiver <mod>`, or `FAIL`).',
+    '- **Pillar M (`mate-model` + `mate-pw-recon`):** Specifications live in `specs/*.mate-spec.md` (`npx mate-sdt validate`). Verify live behavior and extract semantic locators via `@playwright/cli` (`playwright-cli open/snapshot`).',
+    '- **Pillar A (`mate-assert-playwright` + `mate-pw-codegen` + `mate-assert-api`):** Follow OOP & SOLID principles (`src/pages/`, `src/components/`, `src/api/`, `src/mocks/`, `src/fixtures/`). Zero arbitrary sleeps (`waitForTimeout` is strictly forbidden). Audit anytime via `npx mate-sdt audit`.',
+    '- **Pillar T (`mate-threat` + `mate-pw-forensics` + `mate-performance-k6`):** Test multi-actor concurrency (`playwright-cli -s=actor1`), idempotency, and fuzzing. Enforce Mutation Score >= 85% via Stryker in Podman (`npx mate-sdt mutate`) and verify latency SLAs with k6 in Podman (`npx mate-sdt k6`).',
+    '- **Pillar E & Day-2 Operations (`mate-explore` + `mate-triage` + `mate-maintenance`):** Reserve human exploratory charters (`npx mate-sdt charter <mod>`), capture traces/videos (`mate-pw-forensics`), file spec-linked bug reports (`npx mate-sdt bug <mod>`), and issue formal release verdicts (`PASS`, `CONCERNS` with `npx mate-sdt waiver <mod>`, or `FAIL`).',
     '<!-- MATE-SDT-END -->',
     '',
   ].join('\n');
@@ -196,9 +204,12 @@ function installCursor(targetDir) {
 
   const globsMap = {
     'mate-core': '**/*',
+    'mate-story-testcases': 'tests/cases/**/*,specs/**/*.mate-spec.md',
     'mate-model': 'specs/**/*.mate-spec.md,MATE-PROJECT-MAP.md',
+    'mate-pw-recon': 'specs/**/*.mate-spec.md,tests/cases/**/*,src/pages/**/*.ts,src/components/**/*.ts',
     'mate-assert-playwright': 'tests/e2e/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/fixtures/**/*.ts',
-    'mate-playwright-cli': 'tests/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/fixtures/**/*.ts',
+    'mate-pw-codegen': 'tests/e2e/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/mocks/**/*.ts,src/fixtures/**/*.ts',
+    'mate-pw-forensics': 'tests/threats/**/*.ts,tests/charters/**/*.md,tests/bugs/**/*.md',
     'mate-assert-api': 'tests/api/**/*.ts,src/api/**/*.ts,src/models/**/*.ts',
     'mate-threat': 'tests/threats/**/*.ts,stryker.config.json',
     'mate-performance-k6': 'tests/nfr/**/*.js,tests/nfr/**/*.ts',
@@ -569,6 +580,54 @@ function installMate(options = {}) {
 }
 
 /**
+ * Generates a 4-Quadrant Test Case Matrix (.md + .csv) from template
+ */
+function generateTestCases(moduleName, targetDir = '.') {
+  const resolved = path.resolve(targetDir);
+  const safeName = (moduleName || 'feature')
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]+/g, '-')
+    .replace(/^-|-$/g, '');
+  const today = new Date().toISOString().slice(0, 10);
+  const dateStr = today.replace(/-/g, '');
+
+  const casesDir = path.join(resolved, 'tests', 'cases');
+  fs.mkdirSync(casesDir, { recursive: true });
+
+  const mdDest = path.join(casesDir, `TC-${safeName}.md`);
+  const csvDest = path.join(casesDir, `TC-${safeName}.csv`);
+
+  const mdTemplatePath = path.join(
+    PACKAGE_ROOT,
+    'skills',
+    'mate-story-testcases',
+    'resources',
+    'test-cases.template.md'
+  );
+  const csvTemplatePath = path.join(
+    PACKAGE_ROOT,
+    'skills',
+    'mate-story-testcases',
+    'resources',
+    'test-cases.template.csv'
+  );
+
+  let mdContent = fs.readFileSync(mdTemplatePath, 'utf8');
+  mdContent = mdContent
+    .replace(/\[Module Name\]/g, moduleName || 'Feature Module')
+    .replace(/\[module\]/g, safeName)
+    .replace(/YYYY-MM-DD/g, today)
+    .replace(/YYYYMMDD/g, dateStr);
+
+  const csvContent = fs.readFileSync(csvTemplatePath, 'utf8');
+
+  fs.writeFileSync(mdDest, mdContent, 'utf8');
+  fs.writeFileSync(csvDest, csvContent, 'utf8');
+
+  return { mdDest, csvDest };
+}
+
+/**
  * Generates an Exploratory Testing Charter (SBTM) from template
  */
 function generateCharter(moduleName, targetDir = '.') {
@@ -891,6 +950,7 @@ module.exports = {
   initMateProject,
   installMate,
   installPlaywrightCliPackages,
+  generateTestCases,
   generateCharter,
   generateWaiver,
   generateBugReport,

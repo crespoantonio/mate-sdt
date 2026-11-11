@@ -1,7 +1,7 @@
 {
   "name": "mate-sdt",
-  "version": "1.2.0",
-  "description": "M.A.T.E. Method — Spec-Driven Testing (SDT) Framework, 10 AI Agent Skills (incl. @playwright/cli SOLID integration) & 5 E2E Workflows for the Agentic Coding Era.",
+  "version": "1.3.0",
+  "description": "M.A.T.E. Method — Spec-Driven Testing (SDT) Framework, 13 Synergistic AI Agent Skills (incl. User Story Ingestion, @playwright/cli Recon/Codegen/Forensics & Anti-Greenwashing) & 6 E2E Workflows.",
   "keywords": [
     "mate-method",
     "mate-sdt",

@@ -1,9 +1,12 @@
 ---
 name: mate-threat
 description: >-
-  Specialist in Pillar T (Threat & Trash) of the M.A.T.E. Method. Designs and executes
-  adversarial tests, fuzzing, race conditions, concurrency and idempotency suites, and
-  governs Mutation Testing (Stryker Mutator) within ephemeral Podman containers.
+  Specialist in Pillar T (Threat, Concurrency, Fuzzing & Mutation Testing) of the M.A.T.E. Method.
+  USE WHEN: Designing or executing adversarial tests in `tests/threats/` (race conditions, double-spend
+  concurrency, webhook idempotency, payload fuzzing, SQLi/XSS), or running Stryker Mutator (`>= 85%` mutation
+  score) inside rootless Podman containers (`npx mate-sdt mutate`).
+  SYNERGY: Pairs with `mate-pw-forensics` (for multi-actor browser sessions `-s=actor1`, `-s=actor2`), receives
+  `<threat_scenarios>` from `mate-model`, and hands off uncovered vulnerabilities to `mate-triage`.
 ---
 
 # 💣 Pillar T Skill: Threat, Trash & Mutation Testing (`mate-threat`)
@@ -12,9 +15,20 @@ This skill is responsible for **Pillar T (Threat & Trash)** of the M.A.T.E. Meth
 
 ---
 
+## 🔗 Skill Synergy & Handoff Protocol
+
+| Direction | Skill | How They Work Together |
+| :--- | :--- | :--- |
+| **Upstream** | **`mate-model` & `mate-story-testcases`** | Supplies `<threat_scenarios>` (`THR-01..THR-NN`) and `STATE_TRANSITION` / concurrency test cases. |
+| **Companion (Multi-Actor CLI)** | **`mate-pw-forensics`** | Launches simultaneous isolated browser sessions (`playwright-cli -s=buyer-a`, `-s=buyer-b`) to probe UI race conditions and stale-state overwrites interactively. |
+| **Companion (API Layer)** | **`mate-assert-api`** | Uses `Promise.all()` with typed `BaseApiClient` instances to fire parallel HTTP mutations in the exact same millisecond. |
+| **Downstream (Defects)** | **`mate-triage`** | Any vulnerability or surviving mutant that exposes a security/integrity flaw is logged via `npx mate-sdt bug` and kept in `tests/threats/` with `test.fail()`. |
+
+---
+
 ## 📋 Responsibilities of `mate-threat`
 
-1.  **Threat Modeling and Adversarial Scenarios:**  
+1.  **Threat Modeling and Adversarial Scenarios (`tests/threats/`):**  
     Inspects module specifications and discovers critical failure vectors:
     - **Concurrency & Race Conditions:** Simultaneous user actions, concurrent transactions executed in the exact same millisecond.
     - **Idempotency:** Automated network retries and duplicate webhooks (ensuring operations process exactly ONCE).

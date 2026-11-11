@@ -1,15 +1,29 @@
 ---
 name: mate-model
 description: >-
-  Specialist in Pillar M (Model) of the M.A.T.E. Method. Models business intent,
-  diagrams Finite State Machines (FSM) with explicit forbidden transitions, defines
-  strict technical contracts, performs Live Page Reconnaissance (via Playwright MCP/CLI),
-  and authors MATE-SPEC.md files for both Greenfield and Brownfield projects.
+  Specialist in Pillar M (Model) of the M.A.T.E. Method.
+  USE WHEN: You need to author or validate `specs/*.mate-spec.md`, model Finite State Machines (FSM) with
+  Explicit Forbidden Transitions, define mathematical invariants (`INV-XX`), or reverse-engineer a spec from
+  legacy code or a live web app.
+  SYNERGY: Receives ingested User Stories and Test Case quadrants from `mate-story-testcases`, pairs with
+  `mate-pw-recon` for live browser discovery, and feeds validated specs into `mate-assert-playwright`,
+  `mate-pw-codegen`, `mate-assert-api`, `mate-threat`, and `mate-performance-k6`.
 ---
 
-# 🗺️ Pillar M Skill: Intent Modeling & Live Reconnaissance (`mate-model`)
+# 🗺️ Pillar M Skill: Intent Modeling & Spec Governance (`mate-model`)
 
 This skill is responsible for **Pillar M (Model)** of the M.A.T.E. Method. Its purpose is to eradicate ambiguity before application source code or automated tests are written.
+
+---
+
+## 🔗 Skill Synergy & Handoff Protocol
+
+| Direction | Skill | How They Work Together |
+| :--- | :--- | :--- |
+| **Upstream** | **`mate-core` & `mate-story-testcases`** | Receives ingested User Stories (from Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text) and existing domain context from `MATE-PROJECT-MAP.md`. |
+| **Companion (Live Recon)** | **`mate-pw-recon`** | Uses `@playwright/cli` (`open`, `snapshot`) to inspect the live application and verify state transitions empirically (`[OBSERVED]` vs `[INFERRED]`). |
+| **Downstream (Pillar A)** | **`mate-assert-playwright`, `mate-pw-codegen` & `mate-assert-api`** | Translates `<invariants>` and `<intent_model>` contracts into SOLID UI and API test suites. |
+| **Downstream (Pillar T & E)** | **`mate-threat`, `mate-performance-k6` & `mate-explore`** | Translates `<threat_scenarios>`, `<performance_oracles>`, and `<exploratory_charters>` into adversarial tests, k6 load scripts, and SBTM charters. |
 
 ---
 
@@ -25,7 +39,7 @@ This skill is responsible for **Pillar M (Model)** of the M.A.T.E. Method. Its p
 3.  **Technical Contracts and Interfaces:**  
     Defines request/response schemas in TypeScript or JSON Schema with strict static typing (zero `any` types allowed).
 4.  **Live Web Page Reconnaissance (`page-explorer` Mode):**  
-    When documentation is missing or a feature is already deployed in dev/staging, uses **Playwright MCP** (or Playwright CLI) to interactively navigate the live URL, inventory UI elements, probe validation states, capture screenshots, and convert empirical observations directly into a `specs/[module].mate-spec.md`. See [`references/live-page-reconnaissance.md`](./references/live-page-reconnaissance.md).
+    When documentation is missing or a feature is already deployed in dev/staging, pairs with **`mate-pw-recon`** (`@playwright/cli`) or **Playwright MCP** to interactively navigate the live URL, inventory UI elements, probe validation states, capture screenshots, and convert empirical observations directly into a `specs/[module].mate-spec.md`. See [`references/live-page-reconnaissance.md`](./references/live-page-reconnaissance.md).
 5.  **Maintaining the Living Project Map:**  
     Automatically registers newly modeled modules in `MATE-PROJECT-MAP.md`.
 
@@ -33,12 +47,12 @@ This skill is responsible for **Pillar M (Model)** of the M.A.T.E. Method. Its p
 
 ## 🛠️ Operational Workflows
 
-### 1. Greenfield Projects (New Feature / New System):
-1.  Interview the user, Product Owner, or ingest requirements (applying the **Handling Uncertainty Protocol**: ask clarifying questions or mark `[TBD]`).
+### 1. Greenfield / User Story Projects:
+1.  Ingest requirements via `mate-story-testcases` (applying the **Handling Uncertainty Protocol**: ask clarifying questions or mark `[TBD]`).
 2.  Identify system actors, domain entities, and entity lifecycles.
 3.  Draft the `<intent_model>` block containing Mermaid state diagrams, legal transition tables, and **Explicitly Forbidden Transitions**.
-4.  Define typed data contracts for APIs and events.
-5.  Validate with `npx mate-sdt validate` and deliver the spec with status `APPROVED` to unblock Pillar A automation.
+4.  Define `<invariants>` (`INV-01`, `INV-02`...) covering Happy Paths, Border Cases, and Negative Paths.
+5.  Validate with `npx mate-sdt validate` and deliver the spec to unblock Pillar A automation.
 
 ### 2. Brownfield Projects — Source Code Reverse-Engineering:
 1.  Inspect API routes, controllers, ORM schemas, and database migrations.
@@ -47,8 +61,8 @@ This skill is responsible for **Pillar M (Model)** of the M.A.T.E. Method. Its p
 4.  Generate `specs/[module].mate-spec.md` with status `REVIEW` so tech leads and stakeholders can validate and freeze the intended business rules.
 
 ### 3. Brownfield / Undocumented Live App — Live Page Reconnaissance:
-1.  Follow [`references/live-page-reconnaissance.md`](./references/live-page-reconnaissance.md) using Playwright MCP.
-2.  Navigate the target URL, inventory interactive elements (navigation, forms, buttons, modals, alerts), and test non-destructive happy/error states.
+1.  Activate **`mate-pw-recon`** (`playwright-cli open <url>`) or follow [`references/live-page-reconnaissance.md`](./references/live-page-reconnaissance.md).
+2.  Navigate the target URL, inventory interactive elements (navigation, forms, buttons, modals, alerts), and test non-destructive happy/border/error states.
 3.  Synthesize findings into a draft `specs/[module].mate-spec.md` (with confidence tags `[OBSERVED]` vs. `[INFERRED]`).
 
 ---

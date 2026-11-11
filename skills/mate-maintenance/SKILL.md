@@ -2,9 +2,11 @@
 name: mate-maintenance
 description: >-
   Specialist in Day-2 Test Codebase Health & Technical Debt Auditing of the M.A.T.E. Method.
-  Audits test suites for SOLID/DIP violations, arbitrary sleeps (waitForTimeout/sleep),
-  duplicate locators, weak cosmetic assertions, and orphan tests, computing the official
-  M.A.T.E. Health Score (A to F) via npx mate-sdt audit.
+  USE WHEN: Auditing or refactoring `tests/` and `src/` for SOLID/DIP violations, arbitrary sleeps
+  (`waitForTimeout`/`sleep`), committed `.only` locks, duplicate locators, or weak cosmetic assertions, and
+  computing the M.A.T.E. Health Score (`A` to `F`) via `npx mate-sdt audit`.
+  SYNERGY: Runs as the final quality gate after `mate-pw-codegen` and `mate-assert-playwright` generate new tests,
+  and receives flaky-test remediation tasks from `mate-triage`.
 ---
 
 # 🧹 Day-2 Operations Skill: Test Suite Maintenance & Health Audit (`mate-maintenance`)
@@ -12,6 +14,16 @@ description: >-
 This skill governs the long-term architectural health of the test automation codebase. Its mission is to prevent test decay, eliminate flakiness root causes, and enforce strict compliance with M.A.T.E. SOLID principles.
 
 > **CRITICAL RULE:** Always read `MATE-PROJECT-MAP.md` before auditing or refactoring. Update `MATE-PROJECT-MAP.md` whenever reusable components, Page Objects, or Health Scores change.
+
+---
+
+## 🔗 Skill Synergy & Handoff Protocol
+
+| Direction | Skill | How They Work Together |
+| :--- | :--- | :--- |
+| **Upstream (Post-Codegen)** | **`mate-pw-codegen` & `mate-assert-playwright`** | Runs `npx mate-sdt audit` after new Page Objects, Component Objects, and test specs are created to guarantee `Grade A (100/100)` compliance. |
+| **Upstream (Flakiness)** | **`mate-triage`** | Receives tests classified as `[FLAKY TEST]` or `[UI / CONTRACT DRIFT]` and refactors them using web-first assertions and SOLID encapsulation. |
+| **Downstream** | **`mate-core`** | Updates the *Test Suite Health Score* and *Injectable Fixtures* registry inside `MATE-PROJECT-MAP.md`. |
 
 ---
 

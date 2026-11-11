@@ -1,9 +1,12 @@
 ---
 name: mate-performance-k6
 description: >-
-  Specialist in Non-Functional Oracles (Pillar A & Pillar T) of the M.A.T.E. Method.
-  Designs load profiles (Smoke, Load, Stress, Spike, Soak), maps SLAs to Grafana k6
-  thresholds, and executes performance suites inside rootless Podman containers (npx mate-sdt k6).
+  Specialist in Non-Functional Performance Oracles & Grafana k6 of the M.A.T.E. Method.
+  USE WHEN: Designing load profiles (Smoke, Load, Stress, Spike, Soak), translating `<performance_oracles>`
+  SLAs (`p95`, `p99`, error rates) into `tests/nfr/*.k6.js` scripts, or executing performance suites inside
+  rootless Podman containers (`npx mate-sdt k6`).
+  SYNERGY: Receives `<performance_oracles>` from `mate-model`, reuses endpoint contracts from `mate-assert-api`,
+  and feeds SLA verdicts into `mate-explore` and `mate-triage`.
 ---
 
 # ⚡ Pillar A/T Skill: Performance Oracles & k6 (`mate-performance-k6`)
@@ -11,6 +14,16 @@ description: >-
 This skill governs **Non-Functional Oracles (`<performance_oracles>`)** in the M.A.T.E. Method. It translates latency SLAs, throughput requirements, and resilience targets from `specs/[module].mate-spec.md` into deterministic **Grafana k6** suites executed inside rootless **Podman** containers.
 
 > **CRITICAL RULE:** Always read `MATE-PROJECT-MAP.md` first to verify environment VU limits (`dev` vs. `staging`) and existing SLA thresholds. Never invent load targets—apply the **Handling Uncertainty Protocol**.
+
+---
+
+## 🔗 Skill Synergy & Handoff Protocol
+
+| Direction | Skill | How They Work Together |
+| :--- | :--- | :--- |
+| **Upstream** | **`mate-model` & `mate-assert-api`** | Supplies `<performance_oracles>` SLAs and typed payload structures for critical endpoints. |
+| **Companion** | **`mate-threat`** | Combines spike/stress load profiles with idempotency and concurrency checks. |
+| **Downstream** | **`mate-triage` & `mate-explore`** | Reports SLA breaches (`p95`/`p99` violations) to `mate-triage` (`npx mate-sdt bug`) and informs the final Release Verdict in `mate-explore`. |
 
 ---
 
