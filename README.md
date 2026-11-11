@@ -1,6 +1,6 @@
 # 🧉 M.A.T.E. Method (`mate-sdt`)
 
-### Spec-Driven Testing (SDT) Framework, 9 AI Agent Skills & 5 E2E Workflows for the Agentic Coding Era
+### Spec-Driven Testing (SDT) Framework, 10 AI Agent Skills & 5 E2E Workflows for the Agentic Coding Era
 
 [![npm version](https://img.shields.io/npm/v/mate-sdt.svg?style=flat-square&color=2ea44f)](https://www.npmjs.com/package/mate-sdt)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
@@ -22,10 +22,10 @@ Run the interactive installer at the root of your repository using `npx`:
 npx mate-sdt install
 ```
 
-Or run non-interactively with default settings across your favorite AI coding agents:
+Or run non-interactively with default settings across your favorite AI coding agents (and optionally install `@playwright/cli` + `@playwright/test`):
 
 ```bash
-npx mate-sdt install --yes --ide antigravity,claude,cursor,windsurf,copilot
+npx mate-sdt install --yes --with-playwright-cli --ide antigravity,claude,cursor,windsurf,copilot
 ```
 
 ---
@@ -38,7 +38,7 @@ In the Agentic Era (2026+), autonomous AI agents write thousands of lines of cod
 *   **BDD (Behavior-Driven Development)** drowns engineering teams in brittle Gherkin (`Given/When/Then`) step-definition bureaucracy that gets abandoned within three sprints.
 *   **"Vibe Coding" + AI-Generated Tests** produce cosmetic "happy-path" checks (`expect(res).toBeDefined()`) that paint the CI pipeline green while silently shipping race conditions, security exploits, and broken business invariants to production.
 
-**The M.A.T.E. Method** is a **Spec-Driven Testing (SDT)** framework that flips the paradigm: **the specification belongs to the Quality Engineer**. It equips both human engineers and AI coding agents (Google Antigravity, Claude Code, Cursor, Windsurf, GitHub Copilot) with a rigorous, token-efficient architecture governed by four pillars, **9 specialized AI skills**, and **5 end-to-end workflows**.
+**The M.A.T.E. Method** is a **Spec-Driven Testing (SDT)** framework that flips the paradigm: **the specification belongs to the Quality Engineer**. It equips both human engineers and AI coding agents (Google Antigravity, Claude Code, Cursor, Windsurf, GitHub Copilot) with a rigorous, token-efficient architecture governed by four pillars, **10 specialized AI skills** (including **`mate-playwright-cli`** powered by `@playwright/cli`), and **5 end-to-end workflows**.
 
 ---
 
@@ -60,16 +60,17 @@ flowchart LR
 
 ---
 
-## 🧩 The 9 AI Agent Skills & 5 End-to-End Workflows
+## 🧩 The 10 AI Agent Skills & 5 End-to-End Workflows
 
-When you run `npx mate-sdt install`, your AI agents gain **9 specialized skills** and **5 orchestrated E2E workflows**:
+When you run `npx mate-sdt install`, your AI agents gain **10 specialized skills** and **5 orchestrated E2E workflows**:
 
-### 1. The 9 M.A.T.E. Skills (`skills/`)
+### 1. The 10 M.A.T.E. Skills (`skills/`)
 | Skill | Scope | Description |
 | :--- | :--- | :--- |
 | **`mate-core`** | **Orchestrator** | Manages `MATE-PROJECT-MAP.md`, SOLID/OOP rules, Handling Uncertainty Protocol (`[OBSERVED]` vs `[INFERRED]`), and Java/Python polyglot adapters. |
-| **`mate-model`** | **Pillar M** | Authors `*.mate-spec.md`, Finite State Machines, Forbidden Transitions, and **Live Page Reconnaissance** via Playwright MCP. |
+| **`mate-model`** | **Pillar M** | Authors `*.mate-spec.md`, Finite State Machines, Forbidden Transitions, and **Live Page Reconnaissance** via Playwright CLI / MCP. |
 | **`mate-assert-playwright`** | **Pillar A (UI)** | Generates SOLID Page Objects, Component Objects, and DIP fixtures with zero arbitrary sleeps. |
+| **`mate-playwright-cli`** | **Pillar M/A/T/E (Browser CLI)** | M.A.T.E.-engineered `@playwright/cli` skill + 10 deep-dive guides enforcing SOLID POM (`BasePage`), COM (`BaseComponent`), `test.extend` DIP fixtures, network mocking, multi-actor sessions, traces & video. |
 | **`mate-assert-api`** | **Pillar A (API)** | Generates OpenAPI/Swagger contract test matrices (`2xx`, `400/422`, `401/403` BOLA, `409` FSM) and typed API clients. |
 | **`mate-threat`** | **Pillar T (Chaos)** | Concurrency, race conditions, webhook idempotency, fuzzing, and Stryker Mutation (`>= 85%`) in Podman. |
 | **`mate-performance-k6`** | **Pillar A/T (NFR)** | Designs Smoke, Load, Stress, Spike, and Soak profiles in Grafana k6 enforcing `<performance_oracles>` in Podman. |
@@ -123,8 +124,9 @@ your-project/
 
 | Command | Description |
 | :--- | :--- |
-| `npx mate-sdt install` | Launch the interactive installer (choose Greenfield/Brownfield mode, target AI IDEs, and starter templates). |
+| `npx mate-sdt install` | Launch the interactive installer (choose Greenfield/Brownfield mode, target AI IDEs, starter templates, and `@playwright/cli` installation). |
 | `npx mate-sdt init [dir]` | Quickly scaffold the M.A.T.E. directory structure, `MATE-PROJECT-MAP.md`, and `stryker.config.json`. |
+| `npx mate-sdt setup-playwright [dir]` | Install `@playwright/cli@latest` and `@playwright/test@latest` in the target project and configure `.gitignore`. |
 | `npx mate-sdt validate [path]` | Lint one or all `*.mate-spec.md` files (verifies YAML frontmatter, 4 XML blocks, explicit Forbidden Transitions, and `INV-XX` IDs). |
 | `npx mate-sdt audit [dir]` | Scan test codebase for M.A.T.E. anti-patterns (`waitForTimeout`, `sleep`, `.only`, DIP violations) and compute Health Score (`A`–`F`). |
 | `npx mate-sdt mutate [dir]` | Execute Stryker Mutator inside an isolated, rootless **Podman** container enforcing the `>= 85%` mutation score threshold. |

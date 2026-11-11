@@ -2,7 +2,7 @@
 name: mate-core
 description: >-
   Master methodology of Spec-Driven Testing (SDT) M.A.T.E. created by Tony Crespo (Un Junior En Apuros).
-  Governs the quality lifecycle in both Greenfield and Brownfield projects across all 9 M.A.T.E. skills
+  Governs the quality lifecycle in both Greenfield and Brownfield projects across all 10 M.A.T.E. skills
   and 5 E2E workflows, enforcing OOP/SOLID principles, Living Documentation (MATE-PROJECT-MAP.md),
   and the Handling Uncertainty Protocol.
 ---
@@ -28,17 +28,18 @@ Its purpose is to ensure that any software project (from a greenfield startup to
     - **Never Assume:** Do not invent SLAs, authentication flows, or undocumented business rules.
     - **Ask First or Mark `[TBD]`:** When critical context is missing, ask targeted clarifying questions or mark `[TBD: needs input on X]` with explicit confidence levels (`Observed` vs. `Inferred`). See [`references/handling-uncertainty.md`](./references/handling-uncertainty.md).
 4.  **Full Lifecycle Governance (Greenfield, Brownfield & Day-2 Operations):**  
-    Orchestrates the **9 M.A.T.E. Skills** and **5 End-to-End Workflows** from initial intent modeling through post-execution failure triage and test suite maintenance.
+    Orchestrates the **10 M.A.T.E. Skills** and **5 End-to-End Workflows** from initial intent modeling through post-execution failure triage and test suite maintenance.
 
 ---
 
-## 🧩 The 9 M.A.T.E. Skills Ecosystem
+## 🧩 The 10 M.A.T.E. Skills Ecosystem
 
 | Skill | Pillar / Phase | Core Responsibility |
 | :--- | :--- | :--- |
 | **`mate-core`** | **Orchestrator** | Living Architecture Map (`MATE-PROJECT-MAP.md`), SOLID rules, uncertainty protocol, polyglot references. |
 | **`mate-model`** | **Pillar M (Model)** | Authors `specs/*.mate-spec.md`, Finite State Machines, **Explicit Forbidden Transitions**, and Live Page Reconnaissance (`page-explorer`). |
 | **`mate-assert-playwright`** | **Pillar A (Assert - UI)** | SOLID Playwright UI automation (`BasePage`, `ComponentObject`, DIP fixtures, zero arbitrary sleeps). |
+| **`mate-playwright-cli`** | **Pillar M/A/T/E (Browser CLI)** | M.A.T.E.-engineered `@playwright/cli` integration (DOM snapshots, SOLID POM/COM codegen, storageState DIP, network mocking, multi-actor sessions, traces & video). |
 | **`mate-assert-api`** | **Pillar A (Assert - API)** | Contract-driven API testing from OpenAPI/Swagger, schema validation, auth & status matrices. |
 | **`mate-threat`** | **Pillar T (Threat & Trash)** | Concurrency, race conditions, idempotency, payload fuzzing, and Stryker Mutation (`>= 85%`) in Podman. |
 | **`mate-performance-k6`** | **Pillar A/T (NFR - k6)** | Translates `<performance_oracles>` SLAs into k6 load/stress/spike scripts executed in rootless Podman. |

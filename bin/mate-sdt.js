@@ -17,6 +17,7 @@ const { auditTestSuite } = require('../src/cli/auditor');
 const {
   initMateProject,
   installMate,
+  installPlaywrightCliPackages,
   generateCharter,
   generateWaiver,
   generateBugReport,
@@ -34,6 +35,7 @@ function parseFlags(args) {
     dir: null,
     config: 'stryker.config.json',
     starter: true,
+    playwrightCli: false,
     help: false,
     version: false,
   };
@@ -48,6 +50,10 @@ function parseFlags(args) {
       flags.version = true;
     } else if (arg === '--no-starter') {
       flags.starter = false;
+    } else if (arg === '--with-playwright-cli' || arg === '--playwright-cli') {
+      flags.playwrightCli = true;
+    } else if (arg === '--no-playwright-cli') {
+      flags.playwrightCli = false;
     } else if (arg === '--mode' && args[i + 1]) {
       flags.mode = args[++i];
     } else if (arg.startsWith('--mode=')) {
@@ -78,10 +84,13 @@ function printHelp() {
   console.log('    npx mate-sdt <command> [options]\n');
   console.log(color('  COMMANDS:', COLORS.bold, COLORS.cyan));
   console.log(
-    `    ${color('install', COLORS.brightGreen, COLORS.bold)}              Interactive installer (9 AI skills, 5 E2E workflows, IDE rules & SDT layout)`
+    `    ${color('install', COLORS.brightGreen, COLORS.bold)}              Interactive installer (10 AI skills, 5 E2E workflows, IDE rules & SDT layout)`
   );
   console.log(
     `    ${color('init [dir]', COLORS.brightGreen, COLORS.bold)}           Quick-scaffold M.A.T.E. directories, Living Map & templates`
+  );
+  console.log(
+    `    ${color('setup-playwright [dir]', COLORS.brightGreen, COLORS.bold)} Install @playwright/cli & @playwright/test in the target project`
   );
   console.log(
     `    ${color('validate [path]', COLORS.brightGreen, COLORS.bold)}      Validate one or all *.mate-spec.md files (defaults to ./specs)`
@@ -115,6 +124,7 @@ function printHelp() {
   console.log('    --mode <mode>            Project mode: greenfield | brownfield | skills-only');
   console.log('    --ide <list>             Target IDEs: antigravity,claude,cursor,windsurf,copilot,all');
   console.log('    --dir <path>             Target project directory (default: current directory)');
+  console.log('    --with-playwright-cli    Install @playwright/cli & @playwright/test via npm');
   console.log('    --no-starter             Skip sample spec & Playwright/API/k6 starter templates\n');
   console.log(color('  EXAMPLES:', COLORS.bold, COLORS.cyan));
   console.log('    npx mate-sdt install');
@@ -134,6 +144,7 @@ async function handleInstall(flags) {
     ? flags.ide.split(',').map((s) => s.trim().toLowerCase())
     : ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'];
   let includeStarterFiles = flags.starter;
+  let installPlaywrightCli = flags.playwrightCli;
 
   if (!flags.yes && process.stdin.isTTY) {
     const rl = createPromptInterface();
@@ -143,7 +154,7 @@ async function handleInstall(flags) {
         'Select your project lifecycle mode:',
         [
           {
-            label: 'Greenfield (Full SDT Architecture + 9 AI Skills + 5 Workflows + SOLID Templates)',
+            label: 'Greenfield (Full SDT Architecture + 10 AI Skills + 5 Workflows + SOLID Templates)',
             description: 'Best for new projects or establishing a complete UI, API, k6 & SDT harness.',
             value: 'greenfield',
           },
@@ -166,7 +177,7 @@ async function handleInstall(flags) {
         'Which AI Coding Agents / IDEs do you want to configure?',
         [
           { label: 'Google Antigravity IDE & agy CLI (.agents/skills + .agent/workflows/mate)', value: 'antigravity' },
-          { label: 'Claude Code (.claude/commands + CLAUDE.md)', value: 'claude' },
+          { label: 'Claude Code (.claude/commands + .claude/skills + CLAUDE.md)', value: 'claude' },
           { label: 'Cursor (.cursor/rules/*.mdc)', value: 'cursor' },
           { label: 'Windsurf (.windsurf/rules + .windsurf/workflows)', value: 'windsurf' },
           { label: 'GitHub Copilot (.github/copilot-instructions.md + .github/prompts)', value: 'copilot' },
@@ -183,6 +194,12 @@ async function handleInstall(flags) {
       } else {
         includeStarterFiles = false;
       }
+
+      installPlaywrightCli = await promptConfirm(
+        rl,
+        'Install @playwright/cli & @playwright/test via npm now? (Enables live browser recon, codegen, traces & video)',
+        mode !== 'skills-only'
+      );
     } finally {
       rl.close();
     }
@@ -195,6 +212,7 @@ async function handleInstall(flags) {
     mode,
     ides,
     includeStarterFiles,
+    installPlaywrightCli,
   });
 
   console.log(color('  📦 Scaffolded Project Artifacts:', COLORS.bold, COLORS.cyan));
@@ -202,9 +220,13 @@ async function handleInstall(flags) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
   }
 
-  console.log(color('\n  🤖 Installed 9 AI Skills, 5 E2E Workflows & IDE Rules:', COLORS.bold, COLORS.cyan));
+  console.log(color('\n  🤖 Installed 10 AI Skills (incl. mate-playwright-cli), 5 E2E Workflows & IDE Rules:', COLORS.bold, COLORS.cyan));
   for (const item of result.ideFiles) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
+  }
+
+  if (result.playwrightCliInstalled) {
+    console.log(color('\n  🎭 Installed @playwright/cli & @playwright/test in node_modules', COLORS.bold, COLORS.brightGreen));
   }
 
   console.log(color('\n✨ M.A.T.E. Method installation complete!', COLORS.bold, COLORS.brightGreen));
@@ -374,6 +396,13 @@ function handleStatus(flags) {
         : color('✘ Not detected in PATH', COLORS.yellow)
     }`
   );
+  console.log(
+    `  • Playwright CLI (@playwright/cli):              ${
+      status.playwrightCliAvailable
+        ? color(`✔ ${status.playwrightCliVersion}`, COLORS.brightGreen)
+        : color('✘ Not installed (run: npx mate-sdt setup-playwright)', COLORS.yellow)
+    }`
+  );
 
   const specCount = status.specValidation.results.length;
   console.log(`\n  📋 Specifications Validated: ${specCount}`);
@@ -408,6 +437,12 @@ async function main() {
     case 'init':
       handleInit(flags);
       break;
+    case 'setup-playwright':
+    case 'playwright': {
+      const ok = installPlaywrightCliPackages(flags.dir || flags.positional[1] || '.');
+      process.exit(ok ? 0 : 1);
+      break;
+    }
     case 'validate':
     case 'lint':
       handleValidate(flags);

@@ -76,10 +76,10 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
     }
   });
 
-  test('3. installMate scaffolds Greenfield project, 9 skills, and 5 E2E workflows across all 5 IDEs', () => {
+  test('3. installMate scaffolds Greenfield project, 10 skills (with mate-playwright-cli references), and 5 E2E workflows across all 5 IDEs', () => {
     const tmpDir = createTempDir();
     try {
-      assert.equal(SKILL_NAMES.length, 9);
+      assert.equal(SKILL_NAMES.length, 10);
       assert.equal(WORKFLOW_NAMES.length, 5);
 
       installMate({
@@ -90,6 +90,8 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
       });
 
       assert.ok(fs.existsSync(path.join(tmpDir, 'MATE-PROJECT-MAP.md')));
+      assert.ok(fs.existsSync(path.join(tmpDir, '.gitignore')));
+      assert.ok(fs.readFileSync(path.join(tmpDir, '.gitignore'), 'utf8').includes('.playwright-cli/'));
       assert.ok(fs.existsSync(path.join(tmpDir, 'specs', 'TEMPLATE_MATE_SPEC.md')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'specs', 'sample-order-lifecycle.mate-spec.md')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'stryker.config.json')));
@@ -99,11 +101,37 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
       assert.ok(fs.existsSync(path.join(tmpDir, 'src', 'fixtures', 'mate.fixtures.ts')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'tests', 'nfr', 'order-load.k6.js')));
 
-      // Verify all 9 skills installed in Antigravity and Cursor
+      // Verify all 10 skills installed in Antigravity, Claude, and Cursor
       for (const skill of SKILL_NAMES) {
         assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'skills', skill, 'SKILL.md')));
         assert.ok(fs.existsSync(path.join(tmpDir, '.claude', 'commands', `${skill}.md`)));
         assert.ok(fs.existsSync(path.join(tmpDir, '.cursor', 'rules', `${skill}.mdc`)));
+      }
+
+      // Verify all 10 reference docs of mate-playwright-cli are copied into .agents/skills and .claude/skills
+      const pwRefs = [
+        'element-attributes.md',
+        'playwright-tests.md',
+        'pr-attachments.md',
+        'request-mocking.md',
+        'running-code.md',
+        'session-management.md',
+        'storage-state.md',
+        'test-generation.md',
+        'tracing.md',
+        'video-recording.md',
+      ];
+      for (const refFile of pwRefs) {
+        assert.ok(
+          fs.existsSync(
+            path.join(tmpDir, '.agents', 'skills', 'mate-playwright-cli', 'references', refFile)
+          )
+        );
+        assert.ok(
+          fs.existsSync(
+            path.join(tmpDir, '.claude', 'skills', 'mate-playwright-cli', 'references', refFile)
+          )
+        );
       }
 
       // Verify all 5 workflows installed in Antigravity, Claude, Windsurf, Copilot

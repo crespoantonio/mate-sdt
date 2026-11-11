@@ -34,14 +34,16 @@ This skill is responsible for **Pillar A (Assert)** of the M.A.T.E. Method. Its 
 
 ---
 
-## ⚡ Superpowers with Playwright CLI
+## ⚡ Superpowers with Playwright CLI (`mate-playwright-cli`)
 
-This skill actively leverages Playwright's command-line interface tools to accelerate test development and debugging:
+This skill works hand-in-hand with **`mate-playwright-cli`** (`@playwright/cli`) and Playwright's command-line tools to accelerate test development and debugging without ever breaking OOP/SOLID boundaries:
 
+*   **Interactive Browser Recon & Ref-Based Codegen (`playwright-cli`):**  
+    Use `playwright-cli open <url>` and `playwright-cli snapshot` to inspect live ARIA trees and generate semantic locators (`getByRole`, `getByLabel`, `getByTestId`), then encapsulate them inside `src/pages/*.page.ts` (`BasePage`) and `src/components/*.component.ts` (`BaseComponent`). See the **`mate-playwright-cli`** skill and its 10 reference guides for full workflows.
 *   **Semantic Selector Discovery:**  
     `npx playwright codegen localhost:3000` prioritizing accessibility and ARIA roles: `getByRole`, `getByLabel`, `getByTestId`.
 *   **Forensic Failure Auditing:**  
-    `npx playwright show-trace ./test-results/trace.zip` to review microsecond-level DOM snapshots, network payloads, and console logs when an oracle fails.
+    `playwright-cli tracing-start` / `tracing-stop` and `npx playwright show-trace ./test-results/trace.zip` to review microsecond-level DOM snapshots, network payloads, and console logs when an oracle fails.
 *   **Interactive UI Debugging:**  
     `npx playwright test --ui` for step-by-step state machine transition inspection.
 *   **Risk-Based Execution:**  

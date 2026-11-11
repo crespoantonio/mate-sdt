@@ -29,6 +29,7 @@ const SKILL_NAMES = [
   'mate-core',
   'mate-model',
   'mate-assert-playwright',
+  'mate-playwright-cli',
   'mate-assert-api',
   'mate-threat',
   'mate-performance-k6',
@@ -129,12 +130,19 @@ function installClaudeCode(targetDir) {
   const installed = [];
 
   for (const skillName of SKILL_NAMES) {
-    const skillMdPath = path.join(PACKAGE_ROOT, 'skills', skillName, 'SKILL.md');
+    const skillDir = path.join(PACKAGE_ROOT, 'skills', skillName);
+    const skillMdPath = path.join(skillDir, 'SKILL.md');
     if (fs.existsSync(skillMdPath)) {
       const content = fs.readFileSync(skillMdPath, 'utf8');
       const cmdFile = path.join(commandsDir, `${skillName}.md`);
       fs.writeFileSync(cmdFile, content, 'utf8');
       installed.push(`.claude/commands/${skillName}.md`);
+    }
+    const refsDir = path.join(skillDir, 'references');
+    if (fs.existsSync(refsDir)) {
+      const claudeSkillDest = path.join(targetDir, '.claude', 'skills', skillName);
+      copyDirRecursive(skillDir, claudeSkillDest);
+      installed.push(`.claude/skills/${skillName}`);
     }
   }
 
@@ -190,6 +198,7 @@ function installCursor(targetDir) {
     'mate-core': '**/*',
     'mate-model': 'specs/**/*.mate-spec.md,MATE-PROJECT-MAP.md',
     'mate-assert-playwright': 'tests/e2e/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/fixtures/**/*.ts',
+    'mate-playwright-cli': 'tests/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/fixtures/**/*.ts',
     'mate-assert-api': 'tests/api/**/*.ts,src/api/**/*.ts,src/models/**/*.ts',
     'mate-threat': 'tests/threats/**/*.ts,stryker.config.json',
     'mate-performance-k6': 'tests/nfr/**/*.js,tests/nfr/**/*.ts',
@@ -442,6 +451,76 @@ function initMateProject(targetDir, options = {}) {
 }
 
 /**
+ * Ensures .gitignore has standard M.A.T.E. and @playwright/cli ignore entries
+ */
+function ensurePlaywrightGitignore(targetDir) {
+  const gitignorePath = path.join(targetDir, '.gitignore');
+  const requiredEntries = [
+    '.playwright-cli/',
+    'playwright/.auth/',
+    '*.auth-state.json',
+  ];
+
+  let existing = '';
+  if (fs.existsSync(gitignorePath)) {
+    existing = fs.readFileSync(gitignorePath, 'utf8');
+  }
+
+  const missing = requiredEntries.filter((entry) => !existing.includes(entry));
+  if (missing.length > 0) {
+    const block = [
+      '',
+      '# M.A.T.E. & @playwright/cli artifacts and auth states',
+      ...missing,
+      '',
+    ].join('\n');
+    fs.writeFileSync(gitignorePath, `${existing.trimEnd()}\n${block}`, 'utf8');
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Installs @playwright/cli and @playwright/test into the target project
+ */
+function installPlaywrightCliPackages(targetDir = '.') {
+  const resolved = path.resolve(targetDir);
+  ensurePlaywrightGitignore(resolved);
+
+  const pkgJsonPath = path.join(resolved, 'package.json');
+  const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+
+  if (!fs.existsSync(pkgJsonPath)) {
+    console.log(color('   📄 No package.json found. Running `npm init -y`...', COLORS.cyan));
+    spawnSync(npmCmd, ['init', '-y'], {
+      cwd: resolved,
+      stdio: 'inherit',
+      shell: process.platform === 'win32',
+    });
+  }
+
+  console.log(
+    color(
+      '\n🎭 Installing @playwright/cli@latest and @playwright/test@latest (M.A.T.E. Browser Engine)...',
+      COLORS.bold,
+      COLORS.brightGreen
+    )
+  );
+
+  const installRes = spawnSync(
+    npmCmd,
+    ['install', '-D', '@playwright/cli@latest', '@playwright/test@latest'],
+    {
+      cwd: resolved,
+      stdio: 'inherit',
+      shell: process.platform === 'win32',
+    }
+  );
+
+  return installRes.status === 0;
+}
+
+/**
  * Full M.A.T.E. installation orchestrator
  */
 function installMate(options = {}) {
@@ -450,8 +529,12 @@ function installMate(options = {}) {
   const ides = options.ides || ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'];
   const includeStarterFiles =
     options.includeStarterFiles !== undefined ? options.includeStarterFiles : true;
+  const installPlaywrightCli = Boolean(options.installPlaywrightCli);
 
   const scaffolded = initMateProject(targetDir, { mode, includeStarterFiles });
+  if (ensurePlaywrightGitignore(targetDir)) {
+    scaffolded.push('.gitignore (added .playwright-cli/ & *.auth-state.json)');
+  }
   const ideFiles = [];
 
   if (ides.includes('antigravity') || ides.includes('all')) {
@@ -470,12 +553,18 @@ function installMate(options = {}) {
     ideFiles.push(...installCopilot(targetDir));
   }
 
+  let playwrightCliInstalled = false;
+  if (installPlaywrightCli) {
+    playwrightCliInstalled = installPlaywrightCliPackages(targetDir);
+  }
+
   return {
     targetDir,
     mode,
     ides,
     scaffolded,
     ideFiles,
+    playwrightCliInstalled,
   };
 }
 
@@ -618,6 +707,34 @@ function checkStatus(targetDir = '.') {
     podmanAvailable = false;
   }
 
+  let playwrightCliAvailable = false;
+  let playwrightCliVersion = null;
+  const localPwCliPkg = path.join(resolved, 'node_modules', '@playwright', 'cli', 'package.json');
+  if (fs.existsSync(localPwCliPkg)) {
+    try {
+      const pwPkg = JSON.parse(fs.readFileSync(localPwCliPkg, 'utf8'));
+      playwrightCliAvailable = true;
+      playwrightCliVersion = `@playwright/cli v${pwPkg.version} (local)`;
+    } catch {
+      playwrightCliAvailable = true;
+      playwrightCliVersion = '@playwright/cli (local)';
+    }
+  } else {
+    try {
+      const pwCmd = process.platform === 'win32' ? 'playwright-cli.cmd' : 'playwright-cli';
+      const res = spawnSync(pwCmd, ['--version'], {
+        encoding: 'utf8',
+        shell: process.platform === 'win32',
+      });
+      if (res.status === 0 && res.stdout) {
+        playwrightCliAvailable = true;
+        playwrightCliVersion = res.stdout.trim();
+      }
+    } catch {
+      playwrightCliAvailable = false;
+    }
+  }
+
   return {
     targetDir: resolved,
     hasProjectMap,
@@ -630,6 +747,8 @@ function checkStatus(targetDir = '.') {
     auditResult,
     podmanAvailable,
     podmanVersion,
+    playwrightCliAvailable,
+    playwrightCliVersion,
   };
 }
 
@@ -771,6 +890,7 @@ module.exports = {
   WORKFLOW_NAMES,
   initMateProject,
   installMate,
+  installPlaywrightCliPackages,
   generateCharter,
   generateWaiver,
   generateBugReport,

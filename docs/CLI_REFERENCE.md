@@ -21,7 +21,7 @@ npx mate status
 ## Commands
 
 ### 1. `install` (Default Command)
-Launches the interactive installer to scaffold directories, templates, **9 AI agent skills**, and **5 E2E workflows**.
+Launches the interactive installer to scaffold directories, templates, **10 AI agent skills** (including `mate-playwright-cli`), and **5 E2E workflows**, with optional automatic installation of `@playwright/cli` and `@playwright/test`.
 
 ```bash
 npx mate-sdt install [options]
@@ -32,6 +32,7 @@ npx mate-sdt install [options]
 *   `--mode <greenfield|brownfield|skills-only>`: Specify lifecycle mode.
 *   `--ide <list>`: Comma-separated list of IDEs (`antigravity`, `claude`, `cursor`, `windsurf`, `copilot`, or `all`).
 *   `--dir <path>`: Target directory (defaults to `.`).
+*   `--with-playwright-cli`: Automatically install `@playwright/cli@latest` and `@playwright/test@latest` via npm.
 *   `--no-starter`: Do not copy starter Playwright/API/k6 templates or sample spec.
 
 ---
@@ -41,6 +42,15 @@ Quickly scaffolds the standard M.A.T.E. folders, `MATE-PROJECT-MAP.md`, `specs/T
 
 ```bash
 npx mate-sdt init
+```
+
+---
+
+### 2b. `setup-playwright [target-dir]` (Alias: `playwright`)
+Installs `@playwright/cli@latest` and `@playwright/test@latest` into the target project and configures `.gitignore` with `.playwright-cli/`, `playwright/.auth/`, and `*.auth-state.json`.
+
+```bash
+npx mate-sdt setup-playwright
 ```
 
 ---
