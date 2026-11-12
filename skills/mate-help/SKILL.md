@@ -30,6 +30,7 @@ Whenever a QA Engineer, SDET, Developer, or Tech Lead asks a question about how 
 | *"We want to test APIs (from Swagger/OpenAPI or reverse-engineered from browser traffic)."* | **`/mate-flow-api-contract`** | `mate-pw-recon` ➔ `mate-assert-api` ➔ `mate-threat` | `npm run test:api` |
 | *"We need load, stress, or spike performance testing with Grafana k6."* | **`/mate-flow-performance`** | `mate-performance-k6` | `npx mate-sdt k6 tests/nfr/<script>.k6.js` |
 | *"Our tests failed in CI or our existing test suite is flaky and full of sleeps."* | **`/mate-flow-triage`** | `mate-triage` + `mate-pw-forensics` + `mate-maintenance` | `npx mate-sdt audit` & `npx mate-sdt bug <mod>` |
+| *"We need to test an AI Agent, Chatbot, or RAG system (Promptfoo, DeepEval, Datasets, OTel Traces)."* | **`/mate-flow-ai-agent`** | `mate-ai-dataset` ➔ `mate-ai-evals` ➔ `mate-ai-redteam` ➔ `mate-ai-observability` | `npx mate-sdt setup-ai` & `npx mate-sdt dataset <mod>` |
 
 ---
 
@@ -65,6 +66,8 @@ When explaining or applying M.A.T.E., always emphasize its **5 Foundational Prin
 | `npx mate-sdt install` | Interactive installer (scaffolds folders, 15 skills, 7 workflows, `playwright.config.ts`, `TEST-STRATEGY.md`, and optionally `@playwright/cli`). |
 | `npx mate-sdt init [dir]` | Quick-scaffolds M.A.T.E. folders and templates without interactive prompts. |
 | `npx mate-sdt setup-playwright` | Installs `@playwright/cli@latest` and `@playwright/test@latest` and updates `.gitignore`. |
+| `npx mate-sdt setup-ai` | Installs the on-demand **AI Agent, Chatbot & RAG Quality Pack** (4 AI Skills, `/mate-flow-ai-agent`, Promptfoo, DeepEval & OTel Trace Auditor). |
+| `npx mate-sdt dataset <module>` | Generates the 5-Dimension Socratic AI Dataset Discovery Sheet (`DS-<module>-discovery.md`) and Golden Dataset (`DS-<module>.json`). |
 | `npx mate-sdt strategy [name]` | Generates the Master Test Strategy & Business Risk Matrix (`docs/TEST-STRATEGY.md`). |
 | `npx mate-sdt plan <scope>` | Generates a Release / Sprint Test Plan (`docs/test-plans/TP-YYYYMMDD-<scope>.md`). |
 | `npx mate-sdt context [module]` | Audits Context Engineering token budgets, checks for Context Drift, and builds a JIT Context Pack (`.mate/context-pack-<module>.md`). |

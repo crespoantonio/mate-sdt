@@ -102,6 +102,24 @@ When you run `npx mate-sdt install`, your AI agents gain **15 specialized skills
 | **`/mate-flow-api-contract`** | OpenAPI/Swagger ➔ Contract Spec & Forbidden Transitions ➔ Typed `BaseApiClient` + Contract & Fuzzing Suite |
 | **`/mate-flow-performance`** | `<performance_oracles>` SLAs ➔ k6 Load Profile Design ➔ Rootless Podman Execution (`npx mate-sdt k6`) |
 | **`/mate-flow-triage`** | CI Failure Logs ➔ Root-Cause Triage (`mate-pw-forensics` + `mate-triage`) ➔ Spec-Linked Bug Report (`npx mate-sdt bug`) or Suite Refactor (`npx mate-sdt audit`) |
+| **`/mate-flow-ai-agent`** *(On-Demand AI Pack)* | **Socratic 5-Dimension Dataset Discovery & 5-Seed Approval** (`mate-ai-dataset`) ➔ **Promptfoo & DeepEval Dual-Engine Evals** (`mate-ai-evals`) ➔ **OWASP LLM Red Teaming** (`mate-ai-redteam`) ➔ **OpenTelemetry / Langfuse / Phoenix Trace Forensics** (`mate-ai-observability`) |
+
+---
+
+## 🤖 On-Demand AI Agent, Chatbot & RAG Quality Pack (`npx mate-sdt setup-ai`)
+
+Testing AI Agents, MCP tool-calling systems, conversational chatbots, and RAG pipelines requires specialized datasets, hybrid deterministic/probabilistic evaluators, security red-teaming, and deep **OpenTelemetry / OpenInference observability**.
+
+To keep standard web/API repositories lean, M.A.T.E. ships this as an **on-demand modular pack** (`npx mate-sdt setup-ai` or `npx mate-sdt install --with-ai-evals`):
+
+| AI Quality Skill | Core Responsibility | Frameworks & Standards |
+| :--- | :--- | :--- |
+| **`mate-ai-dataset`** | **Socratic 5-Dimension Interview** with the user/tester when no dataset exists + **Human-in-the-Loop 5-Seed Validation Gate** + **6 Synthetic Complexity Evolutions** (`npx mate-sdt dataset <module>`). | JSON/CSV/YAML Golden Datasets (`DS-<module>.json`), DeepEval `Synthesizer` |
+| **`mate-ai-evals`** | **Dual-Engine Functional, RAG Triad & Trajectory Evaluation**: evaluates Faithfulness, Answer Relevancy, Context Precision/Recall, `ToolCorrectnessMetric`, `TaskCompletionMetric`, and `trajectory:tool-args-match`. | **Promptfoo** (`promptfooconfig.yaml`) + **DeepEval** (`test_agent_deepeval.py`) |
+| **`mate-ai-redteam`** | **Pillar T for AI Systems (OWASP LLM Top 10)**: Direct & Indirect Prompt Injection (poisoned RAG chunks), Tool RBAC/BOLA bypasses, Excessive Agency, PII Leakage, and Multi-Turn Jailbreaks. | **Promptfoo Red Team** (`redteam.promptfoo.yaml`) |
+| **`mate-ai-observability`** | **Trace Forensics & Production Flywheel**: audits `AGENT`, `RETRIEVAL`, `TOOL`, and `LLM` spans for infinite tool loops (`ORA-AI-LOOP`), token/step budgets, isolates `[RETRIEVER_DEFECT]` vs. `[GENERATOR_DEFECT]`, and promotes failed production traces into the Golden Dataset. | **OpenTelemetry GenAI**, **OpenInference**, **Langfuse**, **Arize Phoenix** |
+
+> 📖 Read the complete guide in [`docs/AI_AGENT_AND_RAG_TESTING.md`](./docs/AI_AGENT_AND_RAG_TESTING.md).
 
 ---
 
@@ -143,6 +161,8 @@ your-project/
 | `npx mate-sdt install` | Launch the interactive installer (choose Greenfield/Brownfield mode, target AI IDEs, starter templates, and `@playwright/cli` installation). |
 | `npx mate-sdt init [dir]` | Quickly scaffold the M.A.T.E. directory structure, `MATE-PROJECT-MAP.md`, and `stryker.config.json`. |
 | `npx mate-sdt setup-playwright [dir]` | Install `@playwright/cli@latest` and `@playwright/test@latest` in the target project and configure `.gitignore`. |
+| `npx mate-sdt setup-ai [dir]` | Install the on-demand **AI Agent, Chatbot & RAG Quality Pack** (4 AI Skills, `/mate-flow-ai-agent`, Promptfoo, DeepEval & OTel Trace Auditor). |
+| `npx mate-sdt dataset <module>` | Generate a 5-Dimension Socratic AI Dataset Discovery Sheet (`DS-<module>-discovery.md`) & Golden Dataset (`DS-<module>.json`). |
 | `npx mate-sdt strategy [name]` | Generate the Master Test Strategy & Business Risk Matrix (`docs/TEST-STRATEGY.md`). |
 | `npx mate-sdt plan <scope>` | Generate a Release / Sprint Test Plan (`docs/test-plans/TP-YYYYMMDD-<scope>.md`). |
 | `npx mate-sdt validate [path]` | Lint one or all `*.mate-spec.md` files (verifies YAML frontmatter, 4 XML blocks, explicit Forbidden Transitions, and `INV-XX` IDs). |

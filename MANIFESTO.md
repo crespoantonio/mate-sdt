@@ -130,6 +130,18 @@ Software **does not ship to production** until the human Quality Engineer signs 
 
 ---
 
+## 🤖 Testing AI Agents, Chatbots & RAG Systems: Observability & Synthetic Datasets
+
+When the system under test is itself an **AI Agent, Conversational Chatbot, or RAG Pipeline**, traditional string-matching assertions collapse. Furthermore, an HTTP `200 OK` can mask a 10-step recursive tool loop, a $1.50 token explosion, or a hallucinated company policy.
+
+M.A.T.E. governs AI-based systems through its on-demand **AI Quality Pack (`npx mate-sdt setup-ai`)** built on four non-negotiable principles:
+1. **Socratic Dataset Discovery Before Synthesis (`mate-ai-dataset`):** An AI agent must never invent a Golden Dataset in the dark. When no dataset exists, M.A.T.E. conducts a structured **5-Dimension Socratic Interview** with the human tester (covering System Taxonomy, Ground-Truth Sources, Forbidden Tool Invariants, Compliance Boundaries, and Operational Budgets) and requires human sign-off on **5 Seed Cases** before scaling the dataset with adversarial evolutions.
+2. **Dual-Engine Hybrid Evaluation (`mate-ai-evals` — Promptfoo + DeepEval):** Combines deterministic tool-call trajectory checks (`ToolCorrectness = 1.0`, zero forbidden tool calls) with research-backed LLM-as-a-Judge metrics across the **RAG Triad** (*Faithfulness*, *Answer Relevancy*, *Contextual Precision/Recall*) and **End-to-End Task Completion**.
+3. **Adversarial Agentic Red Teaming (`mate-ai-redteam`):** Subjects AI agents to automated OWASP LLM Top 10 penetration probes (`npx promptfoo@latest redteam`) including Direct/Indirect Prompt Injection via poisoned RAG chunks, Tool RBAC/BOLA bypasses, Excessive Agency, and PII extraction.
+4. **AI Observability & Trace Forensics (`mate-ai-observability`):** Treats **OpenTelemetry / OpenInference traces** (in **Langfuse** or **Arize Phoenix**) as first-class test oracles—auditing `AGENT`, `RETRIEVAL`, `TOOL`, and `LLM` spans for infinite loops, token/step SLAs, fault isolation (`[RETRIEVER_DEFECT]` vs. `[GENERATOR_DEFECT]`), and continuously promoting failed production traces back into the Golden Dataset.
+
+---
+
 ## 📝 Anatomy of a M.A.T.E. Specification (`*.mate-spec.md`)
 
 Every feature governed by M.A.T.E. has a structured specification file in `./specs/`. It combines YAML frontmatter with four XML-delimited semantic blocks so both humans and AI agents can parse it deterministically:

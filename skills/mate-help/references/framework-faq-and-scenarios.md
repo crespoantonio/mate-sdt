@@ -67,3 +67,12 @@ M.A.T.E. (`v1.6+`) is built around the two foundational disciplines of reliable 
      - `GATE-03-ANTI-GREENWASHING`: Scans `tests/**/*.spec.ts` for `test.fail()` annotations and blocks the gate if any `test.fail()` lacks a matching `BUG-XXX` reference and a forensic report in `tests/bugs/BUG-*.md`.
      - `GATE-04-SOLID-AUDIT`: Enforces `Grade A (100/100)` zero-sleep (`waitForTimeout`) and SOLID Dependency Inversion rules.
      - `GATE-05` State Persistence: Writes `.mate/harness-state.json` with actionable `[SELF-CORRECTION]` prompts that tell the AI agent how to fix any violation before finishing its turn.
+
+---
+
+## Q7: How do we test AI Agents, Chatbots, and RAG systems with M.A.T.E.?
+Run **`npx mate-sdt setup-ai`** (or `npx mate-sdt install --with-ai-evals`) to install the on-demand **M.A.T.E. AI Quality Pack**:
+1. **Socratic Dataset Discovery (`mate-ai-dataset` / `npx mate-sdt dataset <module>`):** When no dataset exists, the agent interviews the tester across **5 Dimensions** (System Taxonomy, Ground Truth, Tool Guardrails, Compliance, and Observability Budgets), gets human sign-off on **5 Seed Cases**, and synthesizes `tests/ai-evals/datasets/DS-<module>.json`.
+2. **Dual-Engine Evaluation (`mate-ai-evals`):** Evaluates the RAG Triad (*Faithfulness*, *Answer Relevancy*, *Contextual Precision/Recall*) and Agent Trajectories (*Tool Correctness*, *Task Completion*) using **Promptfoo** (`npm run eval:promptfoo`) and **DeepEval** (`npm run eval:deepeval`).
+3. **Adversarial Red Teaming (`mate-ai-redteam`):** Runs OWASP LLM Top 10 probes (Prompt Injection, Tool RBAC/BOLA, PII leaks) via `npm run eval:redteam` (`npx promptfoo@latest redteam`).
+4. **AI Observability & Trace Forensics (`mate-ai-observability`):** Audits **OpenTelemetry / OpenInference** traces (from **Langfuse**, **Arize Phoenix**, or local JSON) via `npm run eval:traces` to catch infinite tool loops, token spikes, and isolate `[RETRIEVER_DEFECT]` vs. `[GENERATOR_DEFECT]`.

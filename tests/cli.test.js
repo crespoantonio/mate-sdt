@@ -12,7 +12,11 @@ const { auditTestSuite } = require('../src/cli/auditor');
 const {
   SKILL_NAMES,
   WORKFLOW_NAMES,
+  AI_SKILL_NAMES,
+  AI_WORKFLOW_NAMES,
   installMate,
+  setupAiQualityPack,
+  generateAiDataset,
   generateTestStrategy,
   generateTestPlan,
   generateTestCases,
@@ -327,6 +331,80 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
       const gatePass = runHarnessGate(tmpDir);
       const g3After = gatePass.gates.find((g) => g.id === 'GATE-03-ANTI-GREENWASHING');
       assert.equal(g3After.passed, true);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  test('8. On-Demand AI Quality Pack (setup-ai & dataset) scaffolds Promptfoo, DeepEval, Socratic Discovery & OTel Trace Auditor', () => {
+    const tmpDir = createTempDir();
+    try {
+      assert.equal(AI_SKILL_NAMES.length, 4);
+      assert.equal(AI_WORKFLOW_NAMES.length, 1);
+
+      installMate({
+        targetDir: tmpDir,
+        mode: 'standalone-qa',
+        ides: ['antigravity', 'claude', 'cursor'],
+        includeStarterFiles: true,
+        installAiEvals: true,
+      });
+
+      // Verify all 4 AI skills & /mate-flow-ai-agent workflow installed
+      for (const aiSkill of AI_SKILL_NAMES) {
+        assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'skills', aiSkill, 'SKILL.md')));
+        assert.ok(fs.existsSync(path.join(tmpDir, '.claude', 'commands', `${aiSkill}.md`)));
+        assert.ok(fs.existsSync(path.join(tmpDir, '.cursor', 'rules', `${aiSkill}.mdc`)));
+      }
+      assert.ok(
+        fs.existsSync(path.join(tmpDir, '.agent', 'workflows', 'mate', 'mate-flow-ai-agent.md'))
+      );
+
+      // Verify Promptfoo, RedTeam, DeepEval, and OTel Trace Auditor files exist
+      assert.ok(
+        fs.existsSync(path.join(tmpDir, 'tests', 'ai-evals', 'promptfoo', 'promptfooconfig.yaml'))
+      );
+      assert.ok(
+        fs.existsSync(path.join(tmpDir, 'tests', 'ai-evals', 'promptfoo', 'redteam.promptfoo.yaml'))
+      );
+      assert.ok(
+        fs.existsSync(path.join(tmpDir, 'tests', 'ai-evals', 'deepeval', 'test_agent_deepeval.py'))
+      );
+      const traceAuditorPath = path.join(
+        tmpDir,
+        'tests',
+        'ai-evals',
+        'traces',
+        'otel_trace_auditor.js'
+      );
+      assert.ok(fs.existsSync(traceAuditorPath));
+
+      // Verify CLI `dataset` command creates custom module Discovery & Golden JSON
+      const dsRun = spawnSync(
+        process.execPath,
+        [CLI_BIN, 'dataset', 'rag-billing', '--dir', tmpDir],
+        { encoding: 'utf8' }
+      );
+      assert.equal(dsRun.status, 0, `CLI dataset failed: ${dsRun.stderr}`);
+      assert.ok(
+        fs.existsSync(
+          path.join(tmpDir, 'tests', 'ai-evals', 'datasets', 'DS-rag-billing-discovery.md')
+        )
+      );
+      assert.ok(
+        fs.existsSync(path.join(tmpDir, 'tests', 'ai-evals', 'datasets', 'DS-rag-billing.json'))
+      );
+
+      // Execute the OpenTelemetry Trace Auditor against the sample trace
+      const traceRun = spawnSync(
+        process.execPath,
+        [traceAuditorPath, path.join(tmpDir, 'tests', 'ai-evals', 'traces', 'sample-trace.json')],
+        { encoding: 'utf8' }
+      );
+      assert.equal(traceRun.status, 0, `OTel trace auditor failed: ${traceRun.stderr}`);
+      const parsedTraceReport = JSON.parse(traceRun.stdout);
+      assert.equal(parsedTraceReport.passed, true);
+      assert.equal(parsedTraceReport.summary.tool_steps, 1);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }

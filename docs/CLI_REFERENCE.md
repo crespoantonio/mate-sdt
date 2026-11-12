@@ -33,6 +33,7 @@ npx mate-sdt install [options]
 *   `--ide <list>`: Comma-separated list of IDEs (`antigravity`, `claude`, `cursor`, `windsurf`, `copilot`, or `all`).
 *   `--dir <path>`: Target directory (defaults to `.`).
 *   `--with-playwright-cli`: Automatically install `@playwright/cli@latest` and `@playwright/test@latest` via npm.
+*   `--with-ai-evals`: Install the on-demand **AI Agent, Chatbot & RAG Quality Pack** (4 AI Skills, `/mate-flow-ai-agent`, Promptfoo, DeepEval & OTel Trace Auditor).
 *   `--no-starter`: Do not copy starter Playwright/API/k6 templates or sample spec.
 
 ---
@@ -51,6 +52,27 @@ Installs `@playwright/cli@latest` and `@playwright/test@latest` into the target 
 
 ```bash
 npx mate-sdt setup-playwright
+```
+
+---
+
+### 2bb. `setup-ai [target-dir]` (Aliases: `setup-ai-evals`, `ai`)
+Installs the on-demand **M.A.T.E. AI Agent, Chatbot & RAG Quality Pack**:
+*   4 Synergistic AI Skills (`mate-ai-dataset`, `mate-ai-evals`, `mate-ai-redteam`, `mate-ai-observability`)
+*   1 E2E AI Workflow (`/mate-flow-ai-agent`)
+*   Starter configurations for **Promptfoo** (`tests/ai-evals/promptfoo/promptfooconfig.yaml`), **Promptfoo Red Team** (`redteam.promptfoo.yaml`), **DeepEval** (`tests/ai-evals/deepeval/test_agent_deepeval.py`), and **OpenTelemetry / OpenInference Trace Auditing** (`tests/ai-evals/traces/otel_trace_auditor.js`).
+
+```bash
+npx mate-sdt setup-ai
+```
+
+---
+
+### 2bc. `dataset <module-name>` (Alias: `ai-dataset`)
+Generates a 5-Dimension Socratic AI Dataset Discovery Sheet (`tests/ai-evals/datasets/DS-<module>-discovery.md` with the 5-Seed Approval Gate) and a Promptfoo + DeepEval compatible Golden & Adversarial Dataset (`tests/ai-evals/datasets/DS-<module>.json`).
+
+```bash
+npx mate-sdt dataset support-agent
 ```
 
 ---

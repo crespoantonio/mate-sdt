@@ -18,6 +18,8 @@ const {
   initMateProject,
   installMate,
   installPlaywrightCliPackages,
+  setupAiQualityPack,
+  generateAiDataset,
   generateTestStrategy,
   generateTestPlan,
   generateTestCases,
@@ -42,6 +44,7 @@ function parseFlags(args) {
     config: 'stryker.config.json',
     starter: true,
     playwrightCli: false,
+    aiEvals: false,
     help: false,
     version: false,
   };
@@ -62,6 +65,8 @@ function parseFlags(args) {
       flags.playwrightCli = true;
     } else if (arg === '--no-playwright-cli') {
       flags.playwrightCli = false;
+    } else if (arg === '--with-ai-evals' || arg === '--ai-evals' || arg === '--with-ai') {
+      flags.aiEvals = true;
     } else if (arg === '--mode' && args[i + 1]) {
       flags.mode = args[++i];
     } else if (arg.startsWith('--mode=')) {
@@ -99,6 +104,12 @@ function printHelp() {
   );
   console.log(
     `    ${color('setup-playwright [dir]', COLORS.brightGreen, COLORS.bold)} Install @playwright/cli & @playwright/test in the target project`
+  );
+  console.log(
+    `    ${color('setup-ai [dir]', COLORS.brightGreen, COLORS.bold)}         Install On-Demand AI Quality Pack (Promptfoo + DeepEval + OTel Traces)`
+  );
+  console.log(
+    `    ${color('dataset <module>', COLORS.brightGreen, COLORS.bold)}       Generate Socratic 5-Dimension AI Dataset Discovery & Golden JSON`
   );
   console.log(
     `    ${color('strategy [name]', COLORS.brightGreen, COLORS.bold)}      Generate Master Test Strategy & Risk Matrix in docs/TEST-STRATEGY.md`
@@ -148,6 +159,7 @@ function printHelp() {
   console.log('    --ide <list>             Target IDEs: antigravity,claude,cursor,windsurf,copilot,all');
   console.log('    --dir <path>             Target project directory (default: current directory)');
   console.log('    --with-playwright-cli    Install @playwright/cli & @playwright/test via npm');
+  console.log('    --with-ai-evals          Install the AI Agent, Chatbot & RAG Quality Pack (Promptfoo + DeepEval + OTel)');
   console.log('    --no-starter             Skip sample spec & Playwright/API/k6 starter templates\n');
   console.log(color('  EXAMPLES:', COLORS.bold, COLORS.cyan));
   console.log('    npx mate-sdt install');
@@ -168,6 +180,7 @@ async function handleInstall(flags) {
     : ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'];
   let includeStarterFiles = flags.starter;
   let installPlaywrightCli = flags.playwrightCli;
+  let installAiEvals = flags.aiEvals;
 
   if (!flags.yes && process.stdin.isTTY) {
     const rl = createPromptInterface();
@@ -228,6 +241,12 @@ async function handleInstall(flags) {
         'Install @playwright/cli & @playwright/test via npm now? (Enables live browser recon, codegen, traces & video)',
         mode !== 'skills-only'
       );
+
+      installAiEvals = await promptConfirm(
+        rl,
+        'Install the AI Agent, Chatbot & RAG Quality Pack? (4 AI Skills + Promptfoo + DeepEval + OTel Trace Auditor)',
+        false
+      );
     } finally {
       rl.close();
     }
@@ -241,6 +260,7 @@ async function handleInstall(flags) {
     ides,
     includeStarterFiles,
     installPlaywrightCli,
+    installAiEvals,
   });
 
   console.log(color('  📦 Scaffolded Project Artifacts:', COLORS.bold, COLORS.cyan));
@@ -255,6 +275,13 @@ async function handleInstall(flags) {
 
   if (result.playwrightCliInstalled) {
     console.log(color('\n  🎭 Installed @playwright/cli & @playwright/test in node_modules', COLORS.bold, COLORS.brightGreen));
+  }
+
+  if (result.aiPackInstalled && result.aiPackFiles?.length) {
+    console.log(color('\n  🧬 Installed M.A.T.E. AI Quality Pack (Promptfoo + DeepEval + OTel Observability):', COLORS.bold, COLORS.cyan));
+    for (const item of result.aiPackFiles) {
+      console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
+    }
   }
 
   console.log(color('\n✨ M.A.T.E. Method installation complete!', COLORS.bold, COLORS.brightGreen));
@@ -486,6 +513,36 @@ function handleCases(flags) {
   console.log(`   • CSV Export:      ${csvDest}\n`);
 }
 
+function handleSetupAi(flags) {
+  const targetDir = flags.dir || flags.positional[1] || '.';
+  const res = setupAiQualityPack(targetDir);
+  console.log(
+    color(
+      `\n🤖 Installed M.A.T.E. AI Quality Pack (Promptfoo + DeepEval + OTel Observability) in: ${res.targetDir}`,
+      COLORS.brightGreen,
+      COLORS.bold
+    )
+  );
+  for (const item of res.created) {
+    console.log(`   ${color('✔', COLORS.brightGreen)} ${item}`);
+  }
+  console.log('');
+}
+
+function handleDataset(flags) {
+  const moduleName = flags.positional[1] || 'agent';
+  const { discoveryDest, jsonDest } = generateAiDataset(moduleName, flags.dir || '.');
+  console.log(
+    color(
+      `\n🧬 Created M.A.T.E. AI Dataset Discovery Sheet & Golden Dataset (Promptfoo + DeepEval):`,
+      COLORS.brightGreen,
+      COLORS.bold
+    )
+  );
+  console.log(`   • 5-Dimension Discovery & 5-Seed Gate: ${discoveryDest}`);
+  console.log(`   • Golden & Adversarial Dataset JSON:   ${jsonDest}\n`);
+}
+
 function handleCharter(flags) {
   const moduleName = flags.positional[1];
   if (!moduleName) {
@@ -594,6 +651,15 @@ async function main() {
       process.exit(ok ? 0 : 1);
       break;
     }
+    case 'setup-ai':
+    case 'setup-ai-evals':
+    case 'ai':
+      handleSetupAi(flags);
+      break;
+    case 'dataset':
+    case 'ai-dataset':
+      handleDataset(flags);
+      break;
     case 'validate':
     case 'lint':
       handleValidate(flags);

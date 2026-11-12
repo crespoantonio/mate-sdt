@@ -18,6 +18,7 @@ const REQUIRED_FILES = [
   'src/cli/harness.js',
   'src/cli/installer.js',
   'docs/CONTEXT_AND_HARNESS_ENGINEERING.md',
+  'docs/AI_AGENT_AND_RAG_TESTING.md',
   'templates/TEMPLATE_MATE_SPEC.md',
   'templates/standalone/playwright.config.template.ts',
   'templates/standalone/tsconfig.template.json',
@@ -78,7 +79,7 @@ const REQUIRED_FILES = [
   'skills/mate-triage/resources/triage-report.template.md',
   'skills/mate-maintenance/SKILL.md',
   'skills/mate-maintenance/resources/maintenance-report.template.md',
-  // 7 E2E Workflows
+  // 7 E2E Workflows + 1 On-Demand AI Agent Workflow
   'workflows/mate-flow-zero-to-one.md',
   'workflows/mate-flow-user-story.md',
   'workflows/mate-flow-greenfield.md',
@@ -86,6 +87,23 @@ const REQUIRED_FILES = [
   'workflows/mate-flow-api-contract.md',
   'workflows/mate-flow-performance.md',
   'workflows/mate-flow-triage.md',
+  'workflows/mate-flow-ai-agent.md',
+  // 4 On-Demand AI Quality Pack Skills (Promptfoo + DeepEval + OTel Observability)
+  'skills/mate-ai-dataset/SKILL.md',
+  'skills/mate-ai-dataset/references/socratic-dataset-interview.md',
+  'skills/mate-ai-dataset/resources/dataset-discovery.template.md',
+  'skills/mate-ai-dataset/resources/golden-dataset.template.json',
+  'skills/mate-ai-evals/SKILL.md',
+  'skills/mate-ai-evals/references/promptfoo-agent-guide.md',
+  'skills/mate-ai-evals/references/deepeval-rag-and-agents.md',
+  'skills/mate-ai-evals/resources/promptfooconfig.template.yaml',
+  'skills/mate-ai-evals/resources/test_agent_deepeval.template.py',
+  'skills/mate-ai-redteam/SKILL.md',
+  'skills/mate-ai-redteam/references/owasp-llm-and-agentic-threats.md',
+  'skills/mate-ai-redteam/resources/redteam.promptfoo.template.yaml',
+  'skills/mate-ai-observability/SKILL.md',
+  'skills/mate-ai-observability/references/otel-openinference-langfuse-phoenix.md',
+  'skills/mate-ai-observability/resources/otel_trace_auditor.template.ts',
 ];
 
 console.log('🧉 Running M.A.T.E. SDT Package Build & Integrity Check...\n');
