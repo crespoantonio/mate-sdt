@@ -88,10 +88,28 @@ NPM requires every published update to have a higher Semantic Version (`major.mi
 
 ---
 
-## 4. Automated Publishing via GitHub Actions (Optional)
+## 4. Automated Publishing via GitHub Actions with OIDC Trusted Publishing (Recommended for npm v12+)
 
-This repository includes `.github/workflows/publish.yml`. To publish automatically whenever you create a GitHub Release:
-1.  On [npmjs.com](https://www.npmjs.com/), go to **Access Tokens** -> **Generate New Token** -> **Granular Access Token** (with Read and Write permissions for `mate-sdt`).
-2.  In your GitHub repository (`crespoantonio/mate-sdt`), go to **Settings** -> **Secrets and variables** -> **Actions** -> **New repository secret**.
-3.  Name the secret `NPM_TOKEN` and paste your token.
-4.  Whenever you publish a Release on GitHub, GitHub Actions will automatically run the test suite and publish the package to NPM with provenance!
+As of npm v12, long-lived **2FA-bypass Granular Access Tokens (GATs)** are deprecated for automated publishing and replaced by **Trusted Publishing (OIDC — OpenID Connect)**. With OIDC, you **do not need to create or store an `NPM_TOKEN` secret** in GitHub!
+
+This repository includes `.github/workflows/publish.yml` pre-configured with `id-token: write` and `--provenance`.
+
+### How to Enable OIDC Trusted Publishing on npmjs.com:
+1.  **Publish the first version (`v1.7.0`) interactively from your terminal** (`npm login` + `npm publish --access public`) so the `mate-sdt` package exists on npmjs.com.
+2.  On [npmjs.com](https://www.npmjs.com/), open your package **`mate-sdt`** -> go to **Settings** -> **Publishing access** -> **Trusted publishing (Add a new provider)**.
+3.  Select **GitHub Actions** and fill in:
+    *   **Organization or user:** `crespoantonio`
+    *   **Repository:** `mate-sdt`
+    *   **Workflow filename:** `publish.yml`
+    *   **Environment name:** *(leave empty unless you use a dedicated GitHub environment)*
+4.  Save with your interactive 2FA prompt.
+5.  From now on, whenever you publish a **Release** on GitHub, `.github/workflows/publish.yml` automatically authenticates via OIDC (zero static tokens!) and publishes the package with cryptographic provenance.
+
+---
+
+## 5. Why `mate-sdt` Is 100% Compatible with npm v12 Install-Time Security Defaults
+
+npm v12 disables `preinstall`/`install`/`postinstall` lifecycle scripts (`allowScripts: false`), git dependencies (`--allow-git: none`), and remote tarball dependencies (`--allow-remote: none`) by default.
+*   `mate-sdt` has **zero third-party runtime dependencies** (`dependencies` is empty, using only built-in Node.js modules).
+*   `mate-sdt` uses **zero install-time lifecycle scripts** (it uses `"bin"` executables invoked explicitly via `npx mate-sdt`, and `"prepublishOnly"` which only runs locally on the maintainer's machine before publishing).
+*   Users on npm v12+ can run `npx mate-sdt init` cleanly with zero security warnings or `npm approve-scripts` prompts.
