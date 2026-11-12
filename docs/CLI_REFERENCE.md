@@ -32,7 +32,7 @@ npx mate-sdt install [options]
 **Options:**
 *   `-y, --yes`: Skip interactive prompts and use defaults.
 *   `--mode <standalone-qa|greenfield|brownfield|skills-only>`: Specify lifecycle mode.
-*   `--ide <list>`: Comma-separated list of IDEs (`antigravity`, `claude`, `cursor`, `windsurf`, `copilot`, or `all`).
+*   `--ide <list>`: Comma-separated list of IDEs (`antigravity`, `claude`, `cursor`, `windsurf`, `copilot`, `codex`, or `all`).
 *   `--dir <path>`: Target directory (defaults to `.`).
 *   `--with-playwright-cli`: Automatically install `@playwright/cli@latest` and `@playwright/test@latest` via npm.
 *   `--with-ai-evals`: Install the on-demand **AI Agent, Chatbot & RAG Quality Pack** (4 AI Skills, `/mate-flow-ai-agent`, Promptfoo, DeepEval & OTel Trace Auditor).

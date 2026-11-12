@@ -144,27 +144,29 @@ function installAntigravity(targetDir) {
 }
 
 /**
- * Installs M.A.T.E. slash commands (skills + workflows) and CLAUDE.md rules for Anthropic Claude Code
+ * Installs M.A.T.E. slash commands, Agent Skills (.claude/skills/), and CLAUDE.md rules for Anthropic Claude Code
  */
 function installClaudeCode(targetDir) {
   const commandsDir = path.join(targetDir, '.claude', 'commands');
+  const skillsDestRoot = path.join(targetDir, '.claude', 'skills');
   fs.mkdirSync(commandsDir, { recursive: true });
+  fs.mkdirSync(skillsDestRoot, { recursive: true });
   const installed = [];
 
   for (const skillName of SKILL_NAMES) {
     const skillDir = path.join(PACKAGE_ROOT, 'skills', skillName);
     const skillMdPath = path.join(skillDir, 'SKILL.md');
     if (fs.existsSync(skillMdPath)) {
+      // Modern Claude Code: .claude/skills/<skillName>/SKILL.md (with full resources/references)
+      const claudeSkillDest = path.join(skillsDestRoot, skillName);
+      copyDirRecursive(skillDir, claudeSkillDest);
+      installed.push(`.claude/skills/${skillName}`);
+
+      // Backward-compatible fallback: .claude/commands/<skillName>.md
       const content = fs.readFileSync(skillMdPath, 'utf8');
       const cmdFile = path.join(commandsDir, `${skillName}.md`);
       fs.writeFileSync(cmdFile, content, 'utf8');
       installed.push(`.claude/commands/${skillName}.md`);
-    }
-    const refsDir = path.join(skillDir, 'references');
-    if (fs.existsSync(refsDir)) {
-      const claudeSkillDest = path.join(targetDir, '.claude', 'skills', skillName);
-      copyDirRecursive(skillDir, claudeSkillDest);
-      installed.push(`.claude/skills/${skillName}`);
     }
   }
 
@@ -172,9 +174,16 @@ function installClaudeCode(targetDir) {
     const wfSrc = path.join(PACKAGE_ROOT, 'workflows', `${wfName}.md`);
     if (fs.existsSync(wfSrc)) {
       const content = fs.readFileSync(wfSrc, 'utf8');
+      // Legacy commands fallback
       const cmdFile = path.join(commandsDir, `${wfName}.md`);
       fs.writeFileSync(cmdFile, content, 'utf8');
       installed.push(`.claude/commands/${wfName}.md`);
+
+      // Modern Claude Code skill for workflow (auto-registers /<wfName>)
+      const wfSkillDir = path.join(skillsDestRoot, wfName);
+      fs.mkdirSync(wfSkillDir, { recursive: true });
+      fs.writeFileSync(path.join(wfSkillDir, 'SKILL.md'), content, 'utf8');
+      installed.push(`.claude/skills/${wfName}`);
     }
   }
 
@@ -188,6 +197,7 @@ function installClaudeCode(targetDir) {
     '- **Context Engineering (Tier-1 Living Map):** Always read and update `MATE-PROJECT-MAP.md` (`< 3,000 tokens`) before scanning the repository. Run `npx mate-sdt context [module]` to check token budgets, detect unindexed artifacts, and assemble Just-In-Time (JIT) Context Packs.',
     '- **Epistemic Isolation (Anti-Poisoning):** Never guess SLAs, auth mechanisms, or undocumented contracts. Isolate uncertainty with `[OBSERVED]`, `[INFERRED]`, and `[TBD]` tags.',
     '- **User Story Ingestion & Pragmatic QA Companion (`mate-story-testcases`):** Ingest stories from Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text. Generate `docs/test-cases/TC-*.md` & `.csv` (`npx mate-sdt cases <mod>`) covering 4 quadrants (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) and classifying each into `AUTOMATE_UI`, `AUTOMATE_API`, `MANUAL_TEST` (with rationale), or `EXPLORATORY_CHARTER`.',
+    '- **Tool-First Grounding:** Never guess or simulate DOM elements in internal thinking loops. Immediately invoke `@playwright/cli` (`open`, `snapshot`, `eval`) or inspect accessibility locators (`getByRole`, `getByLabel`, `getByTestId`).',
     '- **Anti-Greenwashing Guardrail:** Never only write tests that pass! If an automatable test fails against the app due to a real bug, KEEP the test with its real assertion, mark it with `test.fail(true, "BUG-XXX: ...")`, generate `npx mate-sdt bug <mod>`, and alert the tester.',
     '- **Pillar M (`mate-model` + `mate-pw-recon`):** Specifications live in `specs/*.mate-spec.md` (`npx mate-sdt validate`). Verify live behavior and compress DOM context using `@playwright/cli` YAML ARIA snapshots (`playwright-cli open/snapshot`).',
     '- **Pillar A (`mate-assert-playwright` + `mate-pw-codegen` + `mate-assert-api`):** Follow OOP & SOLID principles (`src/pages/`, `src/components/`, `src/api/`, `src/mocks/`, `src/fixtures/`). Zero arbitrary sleeps (`waitForTimeout` is strictly forbidden).',
@@ -256,11 +266,14 @@ function installCursor(targetDir) {
     installed.push(`.cursor/rules/${skillName}.mdc`);
   }
 
+  // Also write AGENTS.md for Cursor universal context
+  installed.push(...installUniversalAgents(targetDir));
+
   return installed;
 }
 
 /**
- * Installs M.A.T.E. rules and workflows for Windsurf IDE
+ * Installs modular M.A.T.E. rules and workflows for Windsurf IDE (Cascade)
  */
 function installWindsurf(targetDir) {
   const rulesDir = path.join(targetDir, '.windsurf', 'rules');
@@ -269,17 +282,55 @@ function installWindsurf(targetDir) {
   fs.mkdirSync(workflowsDir, { recursive: true });
   const installed = [];
 
-  const combined = SKILL_NAMES.map((skillName) => {
-    const p = path.join(PACKAGE_ROOT, 'skills', skillName, 'SKILL.md');
-    if (!fs.existsSync(p)) return '';
-    return fs.readFileSync(p, 'utf8').replace(/^---[\s\S]*?---\r?\n/, '').trim();
-  })
-    .filter(Boolean)
-    .join('\n\n---\n\n');
+  // Remove legacy monolithic mate-sdt.md if it exists to respect character limits
+  const legacyCombined = path.join(rulesDir, 'mate-sdt.md');
+  if (fs.existsSync(legacyCombined)) {
+    try {
+      fs.unlinkSync(legacyCombined);
+    } catch {
+      // ignore
+    }
+  }
 
-  const dest = path.join(rulesDir, 'mate-sdt.md');
-  fs.writeFileSync(dest, combined + '\n', 'utf8');
-  installed.push('.windsurf/rules/mate-sdt.md');
+  const globsMap = {
+    'mate-core': '**/*',
+    'mate-help': '**/*',
+    'mate-strategy': 'docs/**/*.md,MATE-PROJECT-MAP.md',
+    'mate-story-testcases': 'docs/test-cases/**/*,specs/**/*.mate-spec.md',
+    'mate-model': 'specs/**/*.mate-spec.md,MATE-PROJECT-MAP.md',
+    'mate-pw-recon': 'specs/**/*.mate-spec.md,docs/test-cases/**/*,src/pages/**/*.ts,src/components/**/*.ts',
+    'mate-assert-playwright': 'tests/e2e/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/fixtures/**/*.ts',
+    'mate-pw-codegen': 'tests/e2e/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/mocks/**/*.ts,src/fixtures/**/*.ts',
+    'mate-pw-forensics': 'tests/threats/**/*.ts,tests/charters/**/*.md,tests/bugs/**/*.md',
+    'mate-assert-api': 'tests/api/**/*.ts,src/api/**/*.ts,src/models/**/*.ts',
+    'mate-threat': 'tests/threats/**/*.ts,stryker.config.json',
+    'mate-performance-k6': 'tests/nfr/**/*.js,tests/nfr/**/*.ts',
+    'mate-explore': 'tests/charters/**/*.md,specs/waivers/**/*.md',
+    'mate-triage': 'tests/bugs/**/*.md,MATE-PROJECT-MAP.md',
+    'mate-maintenance': 'tests/**/*.ts,src/**/*.ts',
+  };
+
+  // Install modular rules respecting Windsurf character quotas (6k-12k chars max per file)
+  for (const skillName of SKILL_NAMES) {
+    const p = path.join(PACKAGE_ROOT, 'skills', skillName, 'SKILL.md');
+    if (!fs.existsSync(p)) continue;
+    const body = fs.readFileSync(p, 'utf8').replace(/^---[\s\S]*?---\r?\n/, '').trim();
+    const isAlwaysOn = skillName === 'mate-core';
+    const ruleContent = [
+      '---',
+      `trigger: ${isAlwaysOn ? 'always_on' : 'model_decision'}`,
+      `description: M.A.T.E. Method (${skillName}) Spec-Driven Testing rule`,
+      ...(globsMap[skillName] ? [`globs: ${globsMap[skillName]}`] : []),
+      '---',
+      '',
+      body,
+      '',
+    ].join('\n');
+
+    const dest = path.join(rulesDir, `${skillName}.md`);
+    fs.writeFileSync(dest, ruleContent, 'utf8');
+    installed.push(`.windsurf/rules/${skillName}.md`);
+  }
 
   for (const wfName of WORKFLOW_NAMES) {
     const wfSrc = path.join(PACKAGE_ROOT, 'workflows', `${wfName}.md`);
@@ -289,7 +340,68 @@ function installWindsurf(targetDir) {
     }
   }
 
+  // Also write AGENTS.md for Windsurf workspace awareness
+  installed.push(...installUniversalAgents(targetDir));
+
   return installed;
+}
+
+/**
+ * Installs M.A.T.E. AGENTS.md instructions for OpenAI Codex CLI and the open agent standard
+ */
+function installUniversalAgents(targetDir) {
+  const agentsMdPath = path.join(targetDir, 'AGENTS.md');
+  const installed = [];
+
+  const mateBlock = [
+    '<!-- MATE-SDT-START -->',
+    '# AGENTS.md — M.A.T.E. Spec-Driven Testing (SDT) & Agent Governance',
+    '',
+    '> Governed by the **M.A.T.E. Method** (`mate-sdt` — Model-Agnostic Test Engineering).',
+    '> Built on **Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** ($\\text{Agent} = \\text{Model} + \\text{Harness}$).',
+    '',
+    '## 1. Environment & Test Execution Commands',
+    '- **P0 Smoke Suite:** `npm run test:smoke` (Golden Paths, < 3 min execution)',
+    '- **Full E2E Suite:** `npm run test:e2e` (Playwright UI regression)',
+    '- **API Contract Suite:** `npm run test:api` (Backend endpoints & schemas)',
+    '- **Threats & Concurrency:** `npm run test:threats` (Idempotency, races, fuzzing)',
+    '- **Performance (k6):** `npx mate-sdt k6 <script>` (SLA validation in rootless Podman)',
+    '- **Spec Validation:** `npx mate-sdt validate` (Lints `specs/*.mate-spec.md` with explicit Forbidden Transitions)',
+    '- **Codebase Health Audit:** `npx mate-sdt audit` (Health Grade A gate; zero sleeps, zero `.only`)',
+    '- **Closed Verification Gate:** `npx mate-sdt gate` (Execute before concluding any agent turn)',
+    '',
+    '## 2. Context Engineering Protocol',
+    '- **Living Map First:** Always read and update `MATE-PROJECT-MAP.md` (< 3,000 tokens) before scanning code.',
+    '- **Tool-First Grounding:** NEVER guess or deduce DOM selectors, CSS classes, or component hierarchies in internal reasoning loops. Ground every locator using `@playwright/cli` live discovery (`playwright-cli open/snapshot`) or accessibility-first locators (`getByRole`, `getByLabel`, `getByTestId`).',
+    '- **Epistemic Isolation:** Isolate facts from assumptions using `[OBSERVED]`, `[INFERRED]`, and `[TBD]` tags. Never guess undocumented endpoints.',
+    '- **User Story Ingestion:** Generate 4-quadrant test case matrices in `docs/test-cases/TC-*.md` and `.csv` (`npx mate-sdt cases <module>`).',
+    '',
+    '## 3. Anti-Greenwashing & Architecture Guardrails',
+    '- **Anti-Greenwashing Mandate:** Never delete or alter assertions to force a green test suite! If an automatable test fails due to a real product defect, keep the test with its true assertion, annotate with `test.fail(true, "BUG-XXX: ...")`, generate a formal bug report (`npx mate-sdt bug <module>`), and notify the engineer.',
+    '- **Zero Arbitrary Sleeps:** `page.waitForTimeout()` or `sleep()` are strictly forbidden. Use auto-retrying web assertions (`await expect(locator).toBeVisible()`).',
+    '- **SOLID Playwright Architecture:** Adhere to Page Object Model (`src/pages/*.page.ts`), Component Objects (`src/components/`), API clients (`src/api/`), and custom fixtures (`src/fixtures/`).',
+    '<!-- MATE-SDT-END -->',
+    '',
+  ].join('\n');
+
+  if (fs.existsSync(agentsMdPath)) {
+    const existing = fs.readFileSync(agentsMdPath, 'utf8');
+    if (!existing.includes('<!-- MATE-SDT-START -->')) {
+      fs.writeFileSync(agentsMdPath, `${existing.trimEnd()}\n\n${mateBlock}`, 'utf8');
+    }
+  } else {
+    fs.writeFileSync(agentsMdPath, `${mateBlock}`, 'utf8');
+  }
+  installed.push('AGENTS.md');
+
+  return installed;
+}
+
+/**
+ * Alias for installUniversalAgents tailored for OpenAI Codex CLI
+ */
+function installCodex(targetDir) {
+  return installUniversalAgents(targetDir);
 }
 
 /**
@@ -679,6 +791,17 @@ function installMate(options = {}) {
   if (ides.includes('copilot') || ides.includes('all')) {
     ideFiles.push(...installCopilot(targetDir));
   }
+  if (
+    ides.includes('codex') ||
+    ides.includes('agents') ||
+    ides.includes('universal') ||
+    ides.includes('all')
+  ) {
+    ideFiles.push(...installUniversalAgents(targetDir));
+  }
+
+  // Always ensure universal AGENTS.md is maintained at project root
+  ideFiles.push(...installUniversalAgents(targetDir));
 
   let playwrightCliInstalled = false;
   if (installPlaywrightCli) {
@@ -838,6 +961,38 @@ function setupAiQualityPack(targetDir = '.', options = {}) {
         ].join('\n');
         fs.writeFileSync(path.join(rulesDir, `${sName}.mdc`), mdc, 'utf8');
         created.push(`.cursor/rules/${sName}.mdc`);
+      }
+    }
+  }
+
+  if (ides.includes('windsurf') || ides.includes('all')) {
+    const rulesDir = path.join(resolved, '.windsurf', 'rules');
+    const workflowsDir = path.join(resolved, '.windsurf', 'workflows');
+    fs.mkdirSync(rulesDir, { recursive: true });
+    fs.mkdirSync(workflowsDir, { recursive: true });
+    for (const sName of AI_SKILL_NAMES) {
+      const skillMd = path.join(PACKAGE_ROOT, 'skills', sName, 'SKILL.md');
+      if (fs.existsSync(skillMd)) {
+        const body = fs.readFileSync(skillMd, 'utf8').replace(/^---[\s\S]*?---\r?\n/, '');
+        const ruleContent = [
+          '---',
+          'trigger: model_decision',
+          `description: M.A.T.E. AI Quality Pack (${sName}) rule`,
+          'globs: tests/ai-evals/**/*,specs/**/*.mate-spec.md',
+          '---',
+          '',
+          body.trim(),
+          '',
+        ].join('\n');
+        fs.writeFileSync(path.join(rulesDir, `${sName}.md`), ruleContent, 'utf8');
+        created.push(`.windsurf/rules/${sName}.md`);
+      }
+    }
+    for (const wf of AI_WORKFLOW_NAMES) {
+      const wfSrc = path.join(PACKAGE_ROOT, 'workflows', `${wf}.md`);
+      if (fs.existsSync(wfSrc)) {
+        fs.copyFileSync(wfSrc, path.join(workflowsDir, `${wf}.md`));
+        created.push(`.windsurf/workflows/${wf}.md`);
       }
     }
   }
@@ -1162,12 +1317,19 @@ function checkStatus(targetDir = '.') {
   const hasAntigravitySkills = fs.existsSync(
     path.join(resolved, '.agents', 'skills', 'mate-core', 'SKILL.md')
   );
-  const hasClaudeCommands = fs.existsSync(
-    path.join(resolved, '.claude', 'commands', 'mate-core.md')
-  );
+  const hasClaudeCommands =
+    fs.existsSync(path.join(resolved, '.claude', 'commands', 'mate-core.md')) ||
+    fs.existsSync(path.join(resolved, '.claude', 'skills', 'mate-core', 'SKILL.md'));
   const hasCursorRules = fs.existsSync(
     path.join(resolved, '.cursor', 'rules', 'mate-core.mdc')
   );
+  const hasWindsurfRules =
+    fs.existsSync(path.join(resolved, '.windsurf', 'rules', 'mate-core.md')) ||
+    fs.existsSync(path.join(resolved, '.windsurf', 'rules', 'mate-sdt.md'));
+  const hasCopilotInstructions = fs.existsSync(
+    path.join(resolved, '.github', 'copilot-instructions.md')
+  );
+  const hasAgentsMd = fs.existsSync(path.join(resolved, 'AGENTS.md'));
 
   let specValidation = { allValid: true, results: [] };
   if (hasSpecsDir) {
@@ -1230,6 +1392,9 @@ function checkStatus(targetDir = '.') {
     hasAntigravitySkills,
     hasClaudeCommands,
     hasCursorRules,
+    hasWindsurfRules,
+    hasCopilotInstructions,
+    hasAgentsMd,
     specValidation,
     auditResult,
     podmanAvailable,
@@ -1379,10 +1544,15 @@ function detectExistingMate(targetDir = '.') {
   const hasProjectMap = fs.existsSync(path.join(resolved, 'MATE-PROJECT-MAP.md'));
   const hasSpecs = fs.existsSync(path.join(resolved, 'specs'));
   const hasAntigravity = fs.existsSync(path.join(resolved, '.agents', 'skills', 'mate-core', 'SKILL.md'));
-  const hasClaude = fs.existsSync(path.join(resolved, '.claude', 'commands', 'mate-core.md'));
+  const hasClaude =
+    fs.existsSync(path.join(resolved, '.claude', 'commands', 'mate-core.md')) ||
+    fs.existsSync(path.join(resolved, '.claude', 'skills', 'mate-core', 'SKILL.md'));
   const hasCursor = fs.existsSync(path.join(resolved, '.cursor', 'rules', 'mate-core.mdc'));
-  const hasWindsurf = fs.existsSync(path.join(resolved, '.windsurf', 'rules', 'mate-core.md'));
+  const hasWindsurf =
+    fs.existsSync(path.join(resolved, '.windsurf', 'rules', 'mate-core.md')) ||
+    fs.existsSync(path.join(resolved, '.windsurf', 'rules', 'mate-sdt.md'));
   const hasCopilot = fs.existsSync(path.join(resolved, '.github', 'copilot-instructions.md'));
+  const hasCodex = fs.existsSync(path.join(resolved, 'AGENTS.md'));
   const hasAiPack = fs.existsSync(path.join(resolved, '.agents', 'skills', 'mate-ai-dataset', 'SKILL.md'));
 
   const detectedIdes = [];
@@ -1391,6 +1561,7 @@ function detectExistingMate(targetDir = '.') {
   if (hasCursor) detectedIdes.push('cursor');
   if (hasWindsurf) detectedIdes.push('windsurf');
   if (hasCopilot) detectedIdes.push('copilot');
+  if (hasCodex) detectedIdes.push('codex');
 
   const isInstalled = hasProjectMap || hasSpecs || detectedIdes.length > 0;
 
@@ -1410,7 +1581,7 @@ function detectExistingMate(targetDir = '.') {
     hasProjectMap,
     hasSpecs,
     hasAiPack,
-    detectedIdes: detectedIdes.length > 0 ? detectedIdes : ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'],
+    detectedIdes: detectedIdes.length > 0 ? detectedIdes : ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot', 'codex'],
     installedSkillsCount,
   };
 }
@@ -1425,6 +1596,8 @@ module.exports = {
   initMateProject,
   installMate,
   installPlaywrightCliPackages,
+  installUniversalAgents,
+  installCodex,
   setupAiQualityPack,
   generateAiDataset,
   generateTestStrategy,

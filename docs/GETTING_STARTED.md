@@ -8,7 +8,7 @@ This guide walks you through installing and operating the **M.A.T.E. Method — 
 
 *   **Node.js:** `>= 18.0.0` (for running `npx mate-sdt`, `@playwright/cli`, and `@playwright/test`).
 *   **Podman (Recommended for Pillar T & Performance):** Rootless [Podman](https://podman.io/) for isolated execution of Stryker Mutation Testing (`npx mate-sdt mutate`) and Grafana k6 load tests (`npx mate-sdt k6`).
-*   **AI Coding Agent / IDE:** Works natively with Google Antigravity (`agy`), Claude Code, Cursor, Windsurf, and GitHub Copilot.
+*   **AI Coding Agent / IDE:** Works natively with Google Antigravity (`agy`), Claude Code, Cursor, Windsurf, GitHub Copilot, and OpenAI Codex CLI (`AGENTS.md`).
 
 ---
 
@@ -30,7 +30,7 @@ npx mate-sdt install
 > 💡 **Upgrading an Existing Project:**  
 > Running `npx mate-sdt install` inside an existing project automatically detects your current configuration, prompts whether you want to update all skills and workflows to the latest version, and leaves your tests and specs completely untouched.
 2.  **Select Target AI Agents / IDEs:**
-    *   Choose one or multiple IDEs (`Antigravity`, `Claude Code`, `Cursor`, `Windsurf`, `GitHub Copilot`).
+    *   Choose one or multiple IDEs (`Antigravity`, `Claude Code`, `Cursor`, `Windsurf`, `GitHub Copilot`, `OpenAI Codex / AGENTS.md`).
 3.  **Starter Templates & `@playwright/cli` Installation:**
     *   Copies SOLID templates (`BasePage`, `BaseComponent`, `BaseApiClient`, `MateFixtures`, `k6`) and optionally installs `@playwright/cli@latest` and `@playwright/test@latest`.
 

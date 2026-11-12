@@ -157,7 +157,7 @@ function printHelp() {
   console.log(color('  INSTALL OPTIONS:', COLORS.bold, COLORS.cyan));
   console.log('    -y, --yes                Accept defaults without interactive prompts');
   console.log('    --mode <mode>            Project mode: greenfield | brownfield | skills-only');
-  console.log('    --ide <list>             Target IDEs: antigravity,claude,cursor,windsurf,copilot,all');
+  console.log('    --ide <list>             Target IDEs: antigravity,claude,cursor,windsurf,copilot,codex,all');
   console.log('    --dir <path>             Target project directory (default: current directory)');
   console.log('    --with-playwright-cli    Install @playwright/cli & @playwright/test via npm');
   console.log('    --with-ai-evals          Install the AI Agent, Chatbot & RAG Quality Pack (Promptfoo + DeepEval + OTel)');
@@ -211,12 +211,13 @@ async function handleInstall(flags) {
             'Which AI Coding Agents / IDEs do you want to update/configure?',
             [
               { label: 'Google Antigravity IDE & agy CLI (.agents/skills + .agent/workflows/mate)', value: 'antigravity' },
-              { label: 'Claude Code (.claude/commands + .claude/skills + CLAUDE.md)', value: 'claude' },
-              { label: 'Cursor (.cursor/rules/*.mdc)', value: 'cursor' },
-              { label: 'Windsurf (.windsurf/rules + .windsurf/workflows)', value: 'windsurf' },
+              { label: 'Claude Code (.claude/skills + .claude/commands + CLAUDE.md)', value: 'claude' },
+              { label: 'Cursor (.cursor/rules/*.mdc + AGENTS.md)', value: 'cursor' },
+              { label: 'Windsurf (.windsurf/rules/*.md + .windsurf/workflows)', value: 'windsurf' },
               { label: 'GitHub Copilot (.github/copilot-instructions.md + .github/prompts)', value: 'copilot' },
+              { label: 'OpenAI Codex CLI & Universal Agents (AGENTS.md)', value: 'codex' },
             ],
-            existing.detectedIdes.map((id) => ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'].indexOf(id)).filter((i) => i >= 0)
+            existing.detectedIdes.map((id) => ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot', 'codex'].indexOf(id)).filter((i) => i >= 0)
           );
 
           if (!existing.hasAiPack) {
@@ -268,12 +269,13 @@ async function handleInstall(flags) {
           'Which AI Coding Agents / IDEs do you want to configure?',
           [
             { label: 'Google Antigravity IDE & agy CLI (.agents/skills + .agent/workflows/mate)', value: 'antigravity' },
-            { label: 'Claude Code (.claude/commands + .claude/skills + CLAUDE.md)', value: 'claude' },
-            { label: 'Cursor (.cursor/rules/*.mdc)', value: 'cursor' },
-            { label: 'Windsurf (.windsurf/rules + .windsurf/workflows)', value: 'windsurf' },
+            { label: 'Claude Code (.claude/skills + .claude/commands + CLAUDE.md)', value: 'claude' },
+            { label: 'Cursor (.cursor/rules/*.mdc + AGENTS.md)', value: 'cursor' },
+            { label: 'Windsurf (.windsurf/rules/*.md + .windsurf/workflows)', value: 'windsurf' },
             { label: 'GitHub Copilot (.github/copilot-instructions.md + .github/prompts)', value: 'copilot' },
+            { label: 'OpenAI Codex CLI & Universal Agents (AGENTS.md)', value: 'codex' },
           ],
-          [0, 1, 2]
+          [0, 1, 2, 5]
         );
 
         if (mode !== 'skills-only') {
@@ -639,8 +641,11 @@ function handleStatus(flags) {
   console.log(`  • Specifications Directory (specs/):             ${checkMark(status.hasSpecsDir)}`);
   console.log(`  • Stryker Mutation Config (stryker.config.json): ${checkMark(status.hasStrykerConfig)}`);
   console.log(`  • Antigravity Skills (.agents/skills/mate-*):    ${checkMark(status.hasAntigravitySkills)}`);
-  console.log(`  • Claude Code Commands (.claude/commands/):      ${checkMark(status.hasClaudeCommands)}`);
+  console.log(`  • Claude Code Skills/Commands (.claude/):        ${checkMark(status.hasClaudeCommands)}`);
   console.log(`  • Cursor Rules (.cursor/rules/):                 ${checkMark(status.hasCursorRules)}`);
+  console.log(`  • Windsurf Rules (.windsurf/rules/):             ${checkMark(status.hasWindsurfRules)}`);
+  console.log(`  • GitHub Copilot (.github/copilot-instructions): ${checkMark(status.hasCopilotInstructions)}`);
+  console.log(`  • Universal Agents Standard (AGENTS.md):         ${checkMark(status.hasAgentsMd)}`);
   console.log(
     `  • Test Suite Health Score (npx mate-sdt audit):  ${color(
       `${status.auditResult.grade} (${status.auditResult.score}/100 across ${status.auditResult.filesScanned} files)`,
