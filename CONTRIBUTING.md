@@ -8,7 +8,7 @@ Thank you for your interest in contributing to the **M.A.T.E. Method — Spec-Dr
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/crespoantonio/mate-sdt.git
+   git clone https://github.com/mate-sdt/mate-sdt.git
    cd mate-sdt
    ```
 2. **Verify package integrity and run the automated test suite:**

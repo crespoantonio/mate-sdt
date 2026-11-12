@@ -238,4 +238,4 @@ It is an open-source project built for Quality Engineers, SDETs, testers, and so
 *Brew a good mate, open your spec, armor your oracles, and build indestructible software.*
 
 **Buenos Aires, Argentina — 2026+**  
-*Official Repository: [github.com/crespoantonio/mate-sdt](https://github.com/crespoantonio/mate-sdt)*
+*Official Repository: [github.com/mate-sdt/mate-sdt](https://github.com/mate-sdt/mate-sdt)*
