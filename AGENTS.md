@@ -10,10 +10,10 @@
 ## 1. Project Mission & Identity
 
 `mate-sdt` is a **Spec-Driven Testing (SDT) Framework and Daily QA/QE Companion** built for the Agentic AI Era (2026+).  
-In an era where autonomous agents generate application code at lightspeed ("Vibe Coding"), testing cannot be reduced to naive LLM unit test prompts. `mate-sdt` equips human testers and AI agents with **Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** ($\text{Agent} = \text{Model} + \text{Harness}$) to govern software quality deterministically.
+In an era where autonomous agents generate application code at lightspeed ("Vibe Coding"), testing cannot be reduced to naive LLM unit test prompts. `mate-sdt` equips human testers and AI agents with **Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** (`Agent = Model + Harness`) to govern software quality deterministically.
 
 ### Core Philosophy
-1. **Testing $\neq$ Checking:** Cosmetic assertions and green suites mean nothing if intent is violated. Specifications, invariant oracles, and human critical thinking are the permanent assets.
+1. **Testing != Checking:** Cosmetic assertions and green suites mean nothing if intent is violated. Specifications, invariant oracles, and human critical thinking are the permanent assets.
 2. **Anti-Greenwashing Mandate (`MATE-ANTI-06`):** Never write tests that only pass. Never use permissive alternative regexes (e.g. `/A|B/`) to mask copy discrepancies. Keep failing tests with `test.fail(true, "BUG-XXX")` and formal bug reports in `docs/bugs/`.
 3. **Enterprise Anti-Bloated Page Objects (`MATE-ANTI-07`):** Page Objects model the page structure, not test cases. Expose parameterized assertions, public `readonly Locator`s for `expect.soft()`, encapsulate synchronization guards inside actions, and extract reusable widgets into Component Objects.
 4. **Epistemic Hygiene:** Separate observed facts (`[OBSERVED]`), reasoned hypotheses (`[INFERRED]`), and unknowns requiring clarification (`[TBD]`). Never guess contracts or SLAs.
