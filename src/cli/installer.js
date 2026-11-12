@@ -213,11 +213,15 @@ function installClaudeCode(targetDir) {
   if (fs.existsSync(claudeMdPath)) {
     const existing = fs.readFileSync(claudeMdPath, 'utf8');
     if (existing.includes('<!-- MATE-SDT-START -->')) {
-      const updated = existing.replace(
-        /<!-- MATE-SDT-START -->[\s\S]*?<!-- MATE-SDT-END -->/,
-        mateSection.trim()
-      );
+      const updated = existing.includes('<!-- MATE-SDT-END -->')
+        ? existing.replace(
+            /<!-- MATE-SDT-START -->[\s\S]*?<!-- MATE-SDT-END -->/,
+            mateSection.trim()
+          )
+        : existing.replace(/<!-- MATE-SDT-START -->[\s\S]*/, mateSection.trim());
       fs.writeFileSync(claudeMdPath, updated, 'utf8');
+    } else if (existing.includes('M.A.T.E. Method — Context Engineering')) {
+      fs.writeFileSync(claudeMdPath, `# Project Instructions\n${mateSection}`, 'utf8');
     } else {
       fs.writeFileSync(claudeMdPath, `${existing.trimEnd()}\n${mateSection}`, 'utf8');
     }
@@ -403,11 +407,16 @@ function installUniversalAgents(targetDir) {
   if (fs.existsSync(agentsMdPath)) {
     const existing = fs.readFileSync(agentsMdPath, 'utf8');
     if (existing.includes('<!-- MATE-SDT-START -->')) {
-      const updated = existing.replace(
-        /<!-- MATE-SDT-START -->[\s\S]*?<!-- MATE-SDT-END -->/,
-        mateBlock.trim()
-      );
+      const updated = existing.includes('<!-- MATE-SDT-END -->')
+        ? existing.replace(
+            /<!-- MATE-SDT-START -->[\s\S]*?<!-- MATE-SDT-END -->/,
+            mateBlock.trim()
+          )
+        : existing.replace(/<!-- MATE-SDT-START -->[\s\S]*/, mateBlock.trim());
       fs.writeFileSync(agentsMdPath, updated, 'utf8');
+    } else if (existing.includes('# AGENTS.md — M.A.T.E.')) {
+      // Prior M.A.T.E. file without explicit boundary markers
+      fs.writeFileSync(agentsMdPath, `${mateBlock}`, 'utf8');
     } else {
       fs.writeFileSync(agentsMdPath, `${existing.trimEnd()}\n\n${mateBlock}`, 'utf8');
     }
@@ -471,11 +480,19 @@ function installCopilot(targetDir) {
   if (fs.existsSync(copilotInstructionsPath)) {
     const existing = fs.readFileSync(copilotInstructionsPath, 'utf8');
     if (existing.includes('<!-- MATE-SDT-START -->')) {
-      const updated = existing.replace(
-        /<!-- MATE-SDT-START -->[\s\S]*?<!-- MATE-SDT-END -->/,
-        block.trim()
-      );
+      const updated = existing.includes('<!-- MATE-SDT-END -->')
+        ? existing.replace(
+            /<!-- MATE-SDT-START -->[\s\S]*?<!-- MATE-SDT-END -->/,
+            block.trim()
+          )
+        : existing.replace(/<!-- MATE-SDT-START -->[\s\S]*/, block.trim());
       fs.writeFileSync(copilotInstructionsPath, updated, 'utf8');
+    } else if (existing.includes('M.A.T.E. Method — Spec-Driven Testing')) {
+      fs.writeFileSync(
+        copilotInstructionsPath,
+        `# GitHub Copilot Repository Instructions\n${block}`,
+        'utf8'
+      );
     } else {
       fs.writeFileSync(copilotInstructionsPath, `${existing.trimEnd()}\n${block}`, 'utf8');
     }
@@ -713,6 +730,9 @@ function initMateProject(targetDir, options = {}) {
       }
     }
   }
+
+  // Universal AGENTS.md instructions for agent-assisted projects
+  created.push(...installUniversalAgents(resolved));
 
   return created;
 }
