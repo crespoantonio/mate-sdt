@@ -83,6 +83,31 @@ npx mate-sdt validate specs/laundry-orders.mate-spec.md
 
 ---
 
+### 3a. `context [module-name]`
+Executes the **Context Engineering Analyzer & Just-In-Time (JIT) Context Pack Assembler**. Verifies that `MATE-PROJECT-MAP.md` stays within the `< 3,000 token` Tier-1 RAM budget, checks for unindexed Page/Component Objects (Context Drift), counts epistemic provenance tags (`[OBSERVED]`, `[INFERRED]`, `[TBD]`), and optionally writes `.mate/context-pack-<module>.md`. Supports `--json`.
+
+```bash
+npx mate-sdt context
+npx mate-sdt context checkout-flow
+```
+
+---
+
+### 3aa. `gate [target-dir]` (Aliases: `verify`, `harness`)
+Executes the **5-Gate Harness Engineering Closed Verification Loop**:
+1. `GATE-01-CONTEXT`: Living Map existence & Tier-1 token budget (`< 3,000 tokens`).
+2. `GATE-02-SPEC-MODEL`: Pillar M spec determinism & Explicit Forbidden Transitions.
+3. `GATE-03-ANTI-GREENWASHING`: Verifies every `test.fail()` / `test.fixme()` annotation has a corresponding Bug Report in `tests/bugs/`.
+4. `GATE-04-SOLID-AUDIT`: Pillar A SOLID/DIP and zero-sleep guardrail (`Grade A/B`).
+5. `GATE-05`: Persists verification state to `.mate/harness-state.json` and emits `[SELF-CORRECTION]` prompts if any gate fails. Supports `--json`.
+
+```bash
+npx mate-sdt gate
+npx mate-sdt gate --json
+```
+
+---
+
 ### 3b. `cases <module-name>` (Aliases: `testcases`, `tc`)
 Generates a 4-Quadrant Test Case Matrix (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) in both Markdown (`tests/cases/TC-<module>.md`) and CSV (`tests/cases/TC-<module>.csv`) ready for Jira/Xray/Zephyr, TestRail, Notion, or Excel import.
 

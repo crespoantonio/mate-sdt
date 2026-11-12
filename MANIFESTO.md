@@ -18,7 +18,21 @@ In the Agentic Era (2026+), humans no longer type the majority of implementation
 When machines write the application code and testing is reduced to asking another machine to "generate generic unit tests," software quality collapses. LLMs are compliance-seeking engines: if you do not explicitly define how the system must fail, they will hallucinate solutions that *appear* to pass while silently corrupting production data.
 
 That is why the **M.A.T.E. Method** was born.  
-It is not another cosmetic wrapper library. It is a **Spec-Driven Testing (SDT) methodology and Daily QA/QE Companion** engineered by and for **Quality Engineers** to govern software agents, make intelligent decisions on **what to automate, what to verify manually, and where to apply human exploratory testing**, reclaim architectural control, and restore the tester's rightful role: **Supreme Architect and Guardian of Software Quality**.
+It is not another cosmetic wrapper library. It is a **Spec-Driven Testing (SDT) methodology and Daily QA/QE Companion** built upon the two pillars of enterprise AI Agent Engineering—**Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** ($\text{Agent} = \text{Model} + \text{Harness}$)—to govern software agents, make intelligent decisions on **what to automate, what to verify manually, and where to apply human exploratory testing**, reclaim architectural control, and restore the tester's rightful role: **Supreme Architect and Guardian of Software Quality**.
+
+---
+
+## 🧠⚙️ The Dual AI Foundation: Context Engineering & Harness Engineering
+
+Modern autonomous agents fail not because the underlying LLM lacks intelligence, but because of **Context Rot/Poisoning** and **Missing Deterministic Harnesses**. M.A.T.E. enforces both disciplines natively:
+
+1. **Context Engineering (*Write, Select, Compress, Isolate*):**
+   - **Write (Externalized RAM):** Stores project topology in `MATE-PROJECT-MAP.md` (`< 3,000 tokens`) and structured specs in `specs/*.mate-spec.md` instead of scanning hundreds of files on every turn.
+   - **Select (3-Tier Just-In-Time Routing):** Activates only the exact skill needed for the current step (`USE WHEN` / `SYNERGY`) and assembles module-scoped JIT Context Packs via `npx mate-sdt context <module>`.
+   - **Compress (Signal-to-Noise Optimization):** Uses `@playwright/cli` compact YAML ARIA snapshots (`< 800 tokens`) instead of 80,000-token raw HTML dumps.
+   - **Isolate (Epistemic Hygiene):** Prevents Context Poisoning by separating verified facts (`[OBSERVED]`) from assumptions (`[INFERRED]`) and unknowns (`[TBD]`).
+2. **Harness Engineering ($\text{Agent} = \text{Model} + \text{Harness}$):**
+   - Surrounds the probabilistic model with a **5-Gate Closed Verification Loop (`npx mate-sdt gate`)** that deterministically checks Context Budgets, Spec Forbidden Transitions, Anti-Greenwashing `test.fail()` traceability, and SOLID/Zero-Sleep compliance—feeding structured `[SELF-CORRECTION]` prompts back to the agent until all gates pass and persisting state in `.mate/harness-state.json`.
 
 ---
 

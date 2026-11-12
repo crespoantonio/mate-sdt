@@ -18,11 +18,16 @@ Its purpose is to ensure that any software project implements a quality architec
 
 ---
 
-## 🎯 The 5 Core Operational Mandates of `mate-core`
+## 🎯 The 6 Core Operational Mandates of `mate-core`
 
-1. **AI-Friendly Architecture with Living Documentation (`MATE-PROJECT-MAP.md`):**  
-   Prevent LLMs from burning 100k+ tokens reading the entire repository. Maintain an up-to-date living index in the root directory that maps project stack, naming conventions, business modules, specs, test case matrices, invariants, injectable fixtures, and quality gaps.
-2. **Object-Oriented Design and SOLID Principles in Testing:**  
+1. **Context Engineering (*Write, Select, Compress, Isolate*):**  
+   - **Write:** Persist repository topology in `MATE-PROJECT-MAP.md` (`< 3,000 tokens` Tier-1 RAM) and specs in `specs/*.mate-spec.md` so LLMs never burn 100k+ tokens scanning the entire repository.
+   - **Select:** Use 3-Tier Progressive Context Disclosure—activate only the skill needed for the current step (`USE WHEN` / `SYNERGY`) and build module-scoped JIT Context Packs via `npx mate-sdt context <module>`.
+   - **Compress:** Use `@playwright/cli` compact YAML ARIA snapshots (`< 800 tokens`) instead of raw DOM HTML dumps, promoting locators immediately into `src/pages/*.page.ts`.
+   - **Isolate:** Prevent Context Poisoning by tagging every statement with epistemic provenance (`[OBSERVED]`, `[INFERRED]`, or `[TBD]`).
+2. **Harness Engineering ($\text{Agent} = \text{Model} + \text{Harness}$ — Closed Verification Loop):**  
+   Never rely on prompt instructions alone. After creating or modifying specs, Page Objects, or tests, run **`npx mate-sdt gate`** to execute the 5 deterministic guardrails (`GATE-01` Context Budget, `GATE-02` Spec Linter, `GATE-03` Anti-Greenwashing Traceability, `GATE-04` SOLID/Zero-Sleep Audit, and `GATE-05` State Persistence in `.mate/harness-state.json`). If any gate fails, follow the `[SELF-CORRECTION]` prompts until `npx mate-sdt gate` passes.
+3. **Object-Oriented Design and SOLID Principles in Testing:**  
    - **Single Responsibility (SRP):** Atomic Page Objects (`BasePage`), dedicated Component Objects (`BaseComponent`), and typed API Clients (`BaseApiClient`).
    - **Open/Closed (OCP):** Extensible base classes and fixtures that allow extending behavior without modifying existing code.
    - **Liskov Substitution (LSP):** Base page abstractions and API clients must be substitutable by their derivatives without breaking test contracts.

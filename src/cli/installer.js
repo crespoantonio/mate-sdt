@@ -6,6 +6,7 @@ const { spawnSync } = require('node:child_process');
 const { COLORS, color } = require('./ui');
 const { validateTarget } = require('./validator');
 const { auditTestSuite } = require('./auditor');
+const { analyzeContextEngineering, runHarnessGate } = require('./harness');
 
 const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 
@@ -171,17 +172,16 @@ function installClaudeCode(targetDir) {
   const mateSection = [
     '',
     '<!-- MATE-SDT-START -->',
-    '## 🧉 M.A.T.E. Method — Spec-Driven Testing (SDT) Governance',
+    '## 🧉 M.A.T.E. Method — Context Engineering & Harness Engineering Governance',
     '',
-    'This repository is governed by the **M.A.T.E. Method** (`mate-sdt` — 13 Synergistic Skills & 6 E2E Workflows):',
-    '- **Living Architecture Map:** Always read and update `MATE-PROJECT-MAP.md` before scanning the entire repository.',
-    '- **User Story Ingestion & 4-Quadrant Test Cases (`mate-story-testcases`):** Ingest stories from Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text. Design Test Cases (`tests/cases/TC-*.md` & `.csv`) covering Happy Paths, Border/Boundary Cases, Negative Paths, and State Transitions (`npx mate-sdt cases <mod>`).',
-    '- **Anti-Greenwashing Mandate:** Never only write tests that pass! Automate all 4 quadrants. If a test that should pass per the User Story/Spec fails against the app, KEEP the test with its real assertion, mark it with `test.fail(true, "BUG-XXX: ...")`, generate `npx mate-sdt bug <mod>`, and alert the tester.',
-    '- **Handling Uncertainty:** Never guess SLAs, auth mechanisms, or undocumented contracts. Ask the user or mark `[TBD]` with confidence tags (`[OBSERVED]` vs `[INFERRED]`).',
-    '- **Pillar M (`mate-model` + `mate-pw-recon`):** Specifications live in `specs/*.mate-spec.md` (`npx mate-sdt validate`). Verify live behavior and extract semantic locators via `@playwright/cli` (`playwright-cli open/snapshot`).',
-    '- **Pillar A (`mate-assert-playwright` + `mate-pw-codegen` + `mate-assert-api`):** Follow OOP & SOLID principles (`src/pages/`, `src/components/`, `src/api/`, `src/mocks/`, `src/fixtures/`). Zero arbitrary sleeps (`waitForTimeout` is strictly forbidden). Audit anytime via `npx mate-sdt audit`.',
-    '- **Pillar T (`mate-threat` + `mate-pw-forensics` + `mate-performance-k6`):** Test multi-actor concurrency (`playwright-cli -s=actor1`), idempotency, and fuzzing. Enforce Mutation Score >= 85% via Stryker in Podman (`npx mate-sdt mutate`) and verify latency SLAs with k6 in Podman (`npx mate-sdt k6`).',
-    '- **Pillar E & Day-2 Operations (`mate-explore` + `mate-triage` + `mate-maintenance`):** Reserve human exploratory charters (`npx mate-sdt charter <mod>`), capture traces/videos (`mate-pw-forensics`), file spec-linked bug reports (`npx mate-sdt bug <mod>`), and issue formal release verdicts (`PASS`, `CONCERNS` with `npx mate-sdt waiver <mod>`, or `FAIL`).',
+    'This repository is governed by the **M.A.T.E. Method** (`mate-sdt` — 15 Synergistic Skills & 7 E2E Workflows) built on **Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** ($\\text{Agent} = \\text{Model} + \\text{Harness}$):',
+    '- **Context Engineering (Tier-1 Living Map):** Always read and update `MATE-PROJECT-MAP.md` (`< 3,000 tokens`) before scanning the repository. Run `npx mate-sdt context [module]` to check token budgets, detect unindexed artifacts, and assemble Just-In-Time (JIT) Context Packs.',
+    '- **Epistemic Isolation (Anti-Poisoning):** Never guess SLAs, auth mechanisms, or undocumented contracts. Isolate uncertainty with `[OBSERVED]`, `[INFERRED]`, and `[TBD]` tags.',
+    '- **User Story Ingestion & Pragmatic QA Companion (`mate-story-testcases`):** Ingest stories from Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text. Generate `tests/cases/TC-*.md` & `.csv` (`npx mate-sdt cases <mod>`) covering 4 quadrants (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) and classifying each into `AUTOMATE_UI`, `AUTOMATE_API`, `MANUAL_TEST` (with rationale), or `EXPLORATORY_CHARTER`.',
+    '- **Anti-Greenwashing Guardrail:** Never only write tests that pass! If an automatable test fails against the app due to a real bug, KEEP the test with its real assertion, mark it with `test.fail(true, "BUG-XXX: ...")`, generate `npx mate-sdt bug <mod>`, and alert the tester.',
+    '- **Pillar M (`mate-model` + `mate-pw-recon`):** Specifications live in `specs/*.mate-spec.md` (`npx mate-sdt validate`). Verify live behavior and compress DOM context using `@playwright/cli` YAML ARIA snapshots (`playwright-cli open/snapshot`).',
+    '- **Pillar A (`mate-assert-playwright` + `mate-pw-codegen` + `mate-assert-api`):** Follow OOP & SOLID principles (`src/pages/`, `src/components/`, `src/api/`, `src/mocks/`, `src/fixtures/`). Zero arbitrary sleeps (`waitForTimeout` is strictly forbidden).',
+    '- **Harness Verification Loop (`npx mate-sdt gate`):** Before finishing any coding or spec turn, run `npx mate-sdt gate` to execute all deterministic guardrails (Context Budget, Spec Linter, Anti-Greenwashing Traceability, and SOLID Audit) and self-correct any failures.',
     '<!-- MATE-SDT-END -->',
     '',
   ].join('\n');
@@ -523,6 +523,8 @@ function initMateProject(targetDir, options = {}) {
       'test:e2e': 'playwright test --project=e2e',
       'test:api': 'playwright test --project=api',
       'test:threats': 'playwright test --project=threats',
+      'mate:gate': 'mate-sdt gate',
+      'mate:context': 'mate-sdt context',
       'mate:validate': 'mate-sdt validate',
       'mate:audit': 'mate-sdt audit',
       'mate:status': 'mate-sdt status',
@@ -570,6 +572,7 @@ function initMateProject(targetDir, options = {}) {
 function ensurePlaywrightGitignore(targetDir) {
   const gitignorePath = path.join(targetDir, '.gitignore');
   const requiredEntries = [
+    '.mate/',
     '.playwright-cli/',
     'playwright/.auth/',
     '*.auth-state.json',
@@ -1119,6 +1122,8 @@ module.exports = {
   generateWaiver,
   generateBugReport,
   checkStatus,
+  analyzeContextEngineering,
+  runHarnessGate,
   runPodmanMutation,
   runPodmanK6,
 };

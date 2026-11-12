@@ -25,6 +25,8 @@ const {
   generateWaiver,
   generateBugReport,
   checkStatus,
+  analyzeContextEngineering,
+  runHarnessGate,
   runPodmanMutation,
   runPodmanK6,
 } = require('../src/cli/installer');
@@ -33,6 +35,7 @@ function parseFlags(args) {
   const flags = {
     positional: [],
     yes: false,
+    json: false,
     mode: null,
     ide: null,
     dir: null,
@@ -47,6 +50,8 @@ function parseFlags(args) {
     const arg = args[i];
     if (arg === '-y' || arg === '--yes') {
       flags.yes = true;
+    } else if (arg === '--json') {
+      flags.json = true;
     } else if (arg === '-h' || arg === '--help') {
       flags.help = true;
     } else if (arg === '-v' || arg === '--version') {
@@ -103,6 +108,12 @@ function printHelp() {
   );
   console.log(
     `    ${color('validate [path]', COLORS.brightGreen, COLORS.bold)}      Validate one or all *.mate-spec.md files (defaults to ./specs)`
+  );
+  console.log(
+    `    ${color('context [module]', COLORS.brightGreen, COLORS.bold)}     Analyze Context Engineering token budget & build JIT Context Pack`
+  );
+  console.log(
+    `    ${color('gate [dir]', COLORS.brightGreen, COLORS.bold)}           Execute the 5-Gate Harness Engineering Closed Verification Loop`
   );
   console.log(
     `    ${color('cases <module>', COLORS.brightGreen, COLORS.bold)}       Create a 4-Quadrant Test Case Matrix (.md & .csv) in tests/cases/`
@@ -301,6 +312,99 @@ function handleValidate(flags) {
   }
 }
 
+function handleContext(flags) {
+  const moduleName = flags.positional[1] || null;
+  const targetDir = flags.dir || '.';
+  const ctx = analyzeContextEngineering(targetDir, moduleName);
+
+  if (flags.json) {
+    console.log(JSON.stringify(ctx, null, 2));
+    return;
+  }
+
+  console.log(
+    color(`\n🧠 M.A.T.E. Context Engineering Analysis: ${ctx.targetDir}\n`, COLORS.bold, COLORS.cyan)
+  );
+  const budgetOk = ctx.tier1Healthy
+    ? color(`✔ ${ctx.mapTokens} / ${ctx.tier1TokenBudget} tokens (LEAN)`, COLORS.brightGreen, COLORS.bold)
+    : color(`✘ ${ctx.mapTokens} / ${ctx.tier1TokenBudget} tokens (EXCEEDS BUDGET OR MISSING)`, COLORS.red, COLORS.bold);
+
+  console.log(`  • Tier-1 RAM Budget (MATE-PROJECT-MAP.md): ${budgetOk}`);
+  console.log(`  • Total Spec Token Footprint (${ctx.specCount} specs):   ~${ctx.totalSpecTokens} tokens`);
+  console.log(
+    `  • Epistemic Isolation Tags:                [OBSERVED]: ${ctx.epistemicStats.observedCount} | [INFERRED]: ${ctx.epistemicStats.inferredCount} | [TBD]: ${ctx.epistemicStats.tbdCount}`
+  );
+  console.log(
+    `  • Context Drift (Unindexed Artifacts):     ${
+      ctx.unindexedArtifacts.length === 0
+        ? color('0 (100% Synchronized)', COLORS.brightGreen)
+        : color(`${ctx.unindexedArtifacts.length} unindexed (${ctx.unindexedArtifacts.join(', ')})`, COLORS.yellow)
+    }`
+  );
+
+  if (ctx.contextPackPath) {
+    console.log(
+      color(`\n  📦 Generated Just-In-Time (JIT) Context Pack (~${ctx.contextPackTokens} tokens):`, COLORS.brightGreen, COLORS.bold)
+    );
+    console.log(`     ${ctx.contextPackPath}`);
+  }
+  console.log('');
+}
+
+function handleGate(flags) {
+  const targetDir = flags.dir || flags.positional[1] || '.';
+  const report = runHarnessGate(targetDir);
+
+  if (flags.json) {
+    console.log(JSON.stringify(report, null, 2));
+    if (!report.allGatesPassed) process.exit(1);
+    return;
+  }
+
+  console.log(
+    color(
+      `\n⚙️  M.A.T.E. Harness Engineering — Closed Verification Loop (${targetDir})\n`,
+      COLORS.bold,
+      COLORS.cyan
+    )
+  );
+
+  for (const g of report.gates) {
+    const badge = g.passed
+      ? color('✅ PASS', COLORS.brightGreen, COLORS.bold)
+      : color('❌ FAIL', COLORS.red, COLORS.bold);
+    console.log(`  ${badge} [${g.id}] ${g.name}`);
+    console.log(`         ${color(g.details, COLORS.gray)}`);
+  }
+
+  if (report.selfCorrectionPrompts.length > 0) {
+    console.log(color('\n🔁 Agent Self-Correction Feedback Loop:', COLORS.bold, COLORS.yellow));
+    for (const p of report.selfCorrectionPrompts) {
+      console.log(`  • ${p}`);
+    }
+  }
+
+  console.log('');
+  if (!report.allGatesPassed) {
+    console.error(
+      color(
+        '❌ Harness Verification Gate FAILED. Apply the self-correction prompts above and re-run `npx mate-sdt gate`.',
+        COLORS.red,
+        COLORS.bold
+      )
+    );
+    process.exit(1);
+  } else {
+    console.log(
+      color(
+        '✅ All 5 Harness Engineering Gates PASSED! State persisted in .mate/harness-state.json.\n',
+        COLORS.brightGreen,
+        COLORS.bold
+      )
+    );
+  }
+}
+
 function handleAudit(flags) {
   const targetDir = flags.dir || flags.positional[1] || '.';
   const result = auditTestSuite(targetDir);
@@ -493,6 +597,14 @@ async function main() {
     case 'validate':
     case 'lint':
       handleValidate(flags);
+      break;
+    case 'context':
+      handleContext(flags);
+      break;
+    case 'gate':
+    case 'verify':
+    case 'harness':
+      handleGate(flags);
       break;
     case 'audit':
       handleAudit(flags);

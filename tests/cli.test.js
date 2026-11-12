@@ -20,6 +20,8 @@ const {
   generateWaiver,
   generateBugReport,
   checkStatus,
+  analyzeContextEngineering,
+  runHarnessGate,
 } = require('../src/cli/installer');
 
 const CLI_BIN = path.resolve(__dirname, '..', 'bin', 'mate-sdt.js');
@@ -272,6 +274,59 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
         { encoding: 'utf8' }
       );
       assert.equal(planRun.status, 0, `CLI plan failed: ${planRun.stderr}`);
+
+      const ctxRun = spawnSync(
+        process.execPath,
+        [CLI_BIN, 'context', 'order-service', '--dir', tmpDir],
+        { encoding: 'utf8' }
+      );
+      assert.equal(ctxRun.status, 0, `CLI context failed: ${ctxRun.stderr}`);
+      assert.ok(fs.existsSync(path.join(tmpDir, '.mate', 'context-pack-order-service.md')));
+
+      const gateRun = spawnSync(
+        process.execPath,
+        [CLI_BIN, 'gate', '--dir', tmpDir],
+        { encoding: 'utf8' }
+      );
+      assert.equal(gateRun.status, 0, `CLI gate failed: ${gateRun.stderr}`);
+      assert.ok(fs.existsSync(path.join(tmpDir, '.mate', 'harness-state.json')));
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  test('7. Harness Gate detects Anti-Greenwashing violation when test.fail() exists without a Bug Report', () => {
+    const tmpDir = createTempDir();
+    try {
+      installMate({
+        targetDir: tmpDir,
+        mode: 'standalone-qa',
+        ides: ['antigravity'],
+        includeStarterFiles: true,
+      });
+
+      fs.writeFileSync(
+        path.join(tmpDir, 'tests', 'e2e', 'untracked-bug.spec.ts'),
+        [
+          "import { test, expect } from '../../src/fixtures/mate.fixtures';",
+          "test('TC-03: should floor discount at zero', async ({ basePage }) => {",
+          "  test.fail(true, 'App calculates negative total');",
+          '  expect(basePage).toBeTruthy();',
+          '});',
+        ].join('\n'),
+        'utf8'
+      );
+
+      const gateFail = runHarnessGate(tmpDir);
+      assert.equal(gateFail.allGatesPassed, false);
+      const g3 = gateFail.gates.find((g) => g.id === 'GATE-03-ANTI-GREENWASHING');
+      assert.equal(g3.passed, false);
+
+      // Once a Bug Report is generated via generateBugReport, Gate 3 passes!
+      generateBugReport('discount-floor', tmpDir);
+      const gatePass = runHarnessGate(tmpDir);
+      const g3After = gatePass.gates.find((g) => g.id === 'GATE-03-ANTI-GREENWASHING');
+      assert.equal(g3After.passed, true);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }

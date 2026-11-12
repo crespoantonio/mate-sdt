@@ -1,11 +1,13 @@
 {
   "name": "mate-sdt",
-  "version": "1.5.0",
-  "description": "M.A.T.E. Method — Spec-Driven Testing (SDT) Framework & QA Companion: 15 Synergistic AI Agent Skills (incl. mate-help, Strategy, Story Ingestion, @playwright/cli & Anti-Greenwashing) & 7 E2E Workflows.",
+  "version": "1.6.0",
+  "description": "M.A.T.E. Method — Spec-Driven Testing (SDT) Framework & QA Companion built on Context Engineering & Harness Engineering: 15 Synergistic AI Skills & 7 E2E Workflows.",
   "keywords": [
     "mate-method",
     "mate-sdt",
     "spec-driven-testing",
+    "context-engineering",
+    "harness-engineering",
     "sdt",
     "qa",
     "quality-engineering",

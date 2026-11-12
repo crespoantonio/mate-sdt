@@ -38,7 +38,16 @@ In the Agentic Era (2026+), autonomous AI agents write thousands of lines of cod
 *   **BDD (Behavior-Driven Development)** drowns engineering teams in brittle Gherkin (`Given/When/Then`) step-definition bureaucracy that gets abandoned within three sprints.
 *   **"Vibe Coding" + AI-Generated Tests** produce cosmetic "happy-path" checks (`expect(res).toBeDefined()`) that paint the CI pipeline green while silently shipping race conditions, security exploits, and broken business invariants to production.
 
-**The M.A.T.E. Method** is a **Spec-Driven Testing (SDT)** framework and **Daily QA/QE Companion** that flips the paradigm: **the specification belongs to the Quality Engineer**. Whether your QA team sits inside a monorepo or works in a **standalone Black-Box QA folder** on a live production app with zero existing tests, `mate-sdt` equips both human engineers and AI coding agents (Google Antigravity, Claude Code, Cursor, Windsurf, GitHub Copilot) with a rigorous, token-efficient architecture governed by four pillars, **15 specialized & synergistic AI skills** (knowing what to automate, what to keep manual with rationale, and where to recommend exploratory testing), and **7 end-to-end workflows**.
+**The M.A.T.E. Method** is a **Spec-Driven Testing (SDT)** framework and **Daily QA/QE Companion** that flips the paradigm: **the specification belongs to the Quality Engineer**. Built on the two foundational pillars of modern AI systems—**Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** ($\text{Agent} = \text{Model} + \text{Harness}$)—`mate-sdt` equips both human engineers and AI coding agents (Google Antigravity, Claude Code, Cursor, Windsurf, GitHub Copilot) with a rigorous, token-efficient architecture governed by four pillars, **15 specialized & synergistic AI skills**, and **7 end-to-end workflows**.
+
+---
+
+## 🧠⚙️ Built on Context Engineering & Harness Engineering
+
+| AI Agent Pillar | Problem Solved | How M.A.T.E. Enforces It | CLI Command |
+| :--- | :--- | :--- | :--- |
+| **1. Context Engineering**<br>*(Write, Select, Compress, Isolate)* | Prevents **Context Rot** (token bloat), **Context Poisoning** (hallucinated SLAs/contracts), and **Context Confusion** (monolithic skill overload). | • **Write:** `MATE-PROJECT-MAP.md` (`< 3,000 tokens` Tier-1 RAM) + XML spec blocks.<br>• **Select:** 3-Tier JIT routing across 15 granular skills + module JIT Context Packs.<br>• **Compress:** `@playwright/cli` compact YAML ARIA snapshots (`< 800 tokens`) instead of raw DOM dumps.<br>• **Isolate:** Epistemic tags (`[OBSERVED]`, `[INFERRED]`, `[TBD]`). | `npx mate-sdt context [module]` |
+| **2. Harness Engineering**<br>*($\text{Agent} = \text{Model} + \text{Harness}$)* | Replaces wishful prompt instructions with **deterministic code guardrails**, **closed verification loops**, **sandboxed execution**, and **durable state**. | • **5-Gate Closed Verification Loop:** Validates Context Budget (`GATE-01`), Spec Forbidden Transitions (`GATE-02`), Anti-Greenwashing `test.fail()` Traceability (`GATE-03`), and SOLID/Zero-Sleep AST/Regex rules (`GATE-04`).<br>• **Self-Correction & State:** Emits `[SELF-CORRECTION]` prompts and persists `.mate/harness-state.json` (`GATE-05`). | `npx mate-sdt gate` |
 
 ---
 
@@ -137,7 +146,9 @@ your-project/
 | `npx mate-sdt strategy [name]` | Generate the Master Test Strategy & Business Risk Matrix (`docs/TEST-STRATEGY.md`). |
 | `npx mate-sdt plan <scope>` | Generate a Release / Sprint Test Plan (`docs/test-plans/TP-YYYYMMDD-<scope>.md`). |
 | `npx mate-sdt validate [path]` | Lint one or all `*.mate-spec.md` files (verifies YAML frontmatter, 4 XML blocks, explicit Forbidden Transitions, and `INV-XX` IDs). |
-| `npx mate-sdt cases <module>` | Generate a 4-Quadrant Test Case Matrix (`tests/cases/TC-<module>.md` & `.csv` ready for Jira/Xray/Zephyr/Excel/Notion). |
+| `npx mate-sdt context [module]` | Audit Context Engineering token budgets, detect unindexed artifacts (Context Drift), and build a Just-In-Time (JIT) Context Pack. |
+| `npx mate-sdt gate [dir]` | Execute the **5-Gate Harness Engineering Closed Verification Loop** (Context, Spec, Anti-Greenwashing, SOLID Audit & State Persistence). |
+| `npx mate-sdt cases <module>` | Generate a 4-Quadrant QA Companion Test Case Matrix (`tests/cases/TC-<module>.md` & `.csv` with Automated, Manual & Exploratory sections). |
 | `npx mate-sdt audit [dir]` | Scan test codebase for M.A.T.E. anti-patterns (`waitForTimeout`, `sleep`, `.only`, DIP violations) and compute Health Score (`A`–`F`). |
 | `npx mate-sdt mutate [dir]` | Execute Stryker Mutator inside an isolated, rootless **Podman** container enforcing the `>= 85%` mutation score threshold. |
 | `npx mate-sdt k6 [script]` | Execute Grafana k6 performance suite inside an isolated, rootless **Podman** container validating `<performance_oracles>`. |
@@ -150,7 +161,8 @@ your-project/
 
 ## 📚 Documentation & Manifesto
 
-*   📜 [**The M.A.T.E. Manifesto (`MANIFESTO.md`)**](./MANIFESTO.md) — Philosophy, the 4 Core Values, the MATE Loop diagram, and the 10 Commandments of the M.A.T.E. Quality Engineer.
+*   📜 [**The M.A.T.E. Manifesto (`MANIFESTO.md`)**](./MANIFESTO.md) — Philosophy, Context & Harness Engineering foundations, the 4 Core Values, and the 10 Commandments.
+*   🧠⚙️ [**Context & Harness Engineering Guide (`docs/CONTEXT_AND_HARNESS_ENGINEERING.md`)**](./docs/CONTEXT_AND_HARNESS_ENGINEERING.md) — Deep dive into Write/Select/Compress/Isolate context management and the 5-Gate Closed Verification Loop.
 *   🚀 [**Getting Started Guide (`docs/GETTING_STARTED.md`)**](./docs/GETTING_STARTED.md) — Step-by-step walkthrough from installation to release verdict.
 *   📐 [**Specification Standard (`docs/SPEC_STANDARD.md`)**](./docs/SPEC_STANDARD.md) — Complete reference for authoring `*.mate-spec.md` files.
 *   💻 [**CLI Reference (`docs/CLI_REFERENCE.md`)**](./docs/CLI_REFERENCE.md) — Detailed options, flags, and CI/CD integration examples.
