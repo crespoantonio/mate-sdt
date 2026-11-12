@@ -194,6 +194,10 @@ function installClaudeCode(targetDir) {
     '## 🧉 M.A.T.E. Method — Context Engineering & Harness Engineering Governance',
     '',
     'This repository is governed by the **M.A.T.E. Method** (`mate-sdt` — 20 Synergistic AI Skills [16 Core + 4 AI Agent/RAG] & 8 E2E Workflows) built on **Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** ($\\text{Agent} = \\text{Model} + \\text{Harness}$):',
+    '- **Conversational Entry Points & Agent Routing:**',
+    '  - *Open-ended prompts, ambiguity, brainstorming, or "Where do I start?":* ➔ Activate `mate-party` (Council of QA Experts mode). Convenes the virtual round-table (Tony Strategist, Exploratory Sleuth, Automation Architect, Threat Specialist, Stakeholder Liaison), loads domain discovery questions, and synthesizes a concrete action plan.',
+    '  - *M.A.T.E. framework questions & coaching:* ➔ Activate `mate-help` (`/mate-help`) for commands, workflows, or QA diagnosis.',
+    '  - *Direct task execution, living map updates, or spec implementation:* ➔ Activate `mate-core` to inspect/update `MATE-PROJECT-MAP.md` and route to specialized skills.',
     '- **Context Engineering (Tier-1 Living Map):** Always read and update `MATE-PROJECT-MAP.md` (`< 3,000 tokens`) before scanning the repository. Run `npx mate-sdt context [module]` to check token budgets, detect unindexed artifacts, and assemble Just-In-Time (JIT) Context Packs.',
     '- **Epistemic Isolation (Anti-Poisoning):** Never guess SLAs, auth mechanisms, or undocumented contracts. Isolate uncertainty with `[OBSERVED]`, `[INFERRED]`, and `[TBD]` tags.',
     '- **User Story Ingestion & Pragmatic QA Companion (`mate-story-testcases`):** Ingest stories from Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text. Generate `docs/test-cases/TC-*.md` & `.csv` (`npx mate-sdt cases <mod>`) covering 4 quadrants (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) and classifying each into `AUTOMATE_UI`, `AUTOMATE_API`, `MANUAL_TEST` (with rationale), or `EXPLORATORY_CHARTER`.',
@@ -208,7 +212,13 @@ function installClaudeCode(targetDir) {
 
   if (fs.existsSync(claudeMdPath)) {
     const existing = fs.readFileSync(claudeMdPath, 'utf8');
-    if (!existing.includes('<!-- MATE-SDT-START -->')) {
+    if (existing.includes('<!-- MATE-SDT-START -->')) {
+      const updated = existing.replace(
+        /<!-- MATE-SDT-START -->[\s\S]*?<!-- MATE-SDT-END -->/,
+        mateSection.trim()
+      );
+      fs.writeFileSync(claudeMdPath, updated, 'utf8');
+    } else {
       fs.writeFileSync(claudeMdPath, `${existing.trimEnd()}\n${mateSection}`, 'utf8');
     }
   } else {
@@ -360,7 +370,12 @@ function installUniversalAgents(targetDir) {
     '> Governed by the **M.A.T.E. Method** (`mate-sdt` — Model-Agnostic Test Engineering).',
     '> Built on **Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** ($\\text{Agent} = \\text{Model} + \\text{Harness}$).',
     '',
-    '## 1. Environment & Test Execution Commands',
+    '## 1. Conversational Entry Points & Agent Routing',
+    '- **Open-Ended Prompts, Brainstorming, or "Where do I start?":** Activate `mate-party` (Council of QA Experts mode). Convenes the virtual round-table (Tony Strategist, Exploratory Sleuth, Automation Architect, Threat Specialist, Stakeholder Liaison), loads domain discovery questions, and synthesizes a concrete action plan.',
+    '- **Framework Guidance & Coaching:** Activate `mate-help` (`/mate-help`) for questions about M.A.T.E. commands, workflows, or QA diagnosis.',
+    '- **Direct Task Execution & Map Governance:** Activate `mate-core` to inspect/update `MATE-PROJECT-MAP.md`, apply SDT rules, and route to specialized skills.',
+    '',
+    '## 2. Environment & Test Execution Commands',
     '- **P0 Smoke Suite:** `npm run test:smoke` (Golden Paths, < 3 min execution)',
     '- **Full E2E Suite:** `npm run test:e2e` (Playwright UI regression)',
     '- **API Contract Suite:** `npm run test:api` (Backend endpoints & schemas)',
@@ -370,13 +385,13 @@ function installUniversalAgents(targetDir) {
     '- **Codebase Health Audit:** `npx mate-sdt audit` (Health Grade A gate; zero sleeps, zero `.only`)',
     '- **Closed Verification Gate:** `npx mate-sdt gate` (Execute before concluding any agent turn)',
     '',
-    '## 2. Context Engineering Protocol',
+    '## 3. Context Engineering Protocol',
     '- **Living Map First:** Always read and update `MATE-PROJECT-MAP.md` (< 3,000 tokens) before scanning code.',
     '- **Tool-First Grounding:** NEVER guess or deduce DOM selectors, CSS classes, or component hierarchies in internal reasoning loops. Ground every locator using `@playwright/cli` live discovery (`playwright-cli open/snapshot`) or accessibility-first locators (`getByRole`, `getByLabel`, `getByTestId`).',
     '- **Epistemic Isolation:** Isolate facts from assumptions using `[OBSERVED]`, `[INFERRED]`, and `[TBD]` tags. Never guess undocumented endpoints.',
     '- **User Story Ingestion:** Generate 4-quadrant test case matrices in `docs/test-cases/TC-*.md` and `.csv` (`npx mate-sdt cases <module>`).',
     '',
-    '## 3. Anti-Greenwashing & Architecture Guardrails',
+    '## 4. Anti-Greenwashing & Architecture Guardrails',
     '- **Anti-Greenwashing Mandate & Zero Permissive Regexes (`MATE-ANTI-06`):** Never write ambiguous alternative regexes (e.g. `/A|B/` or `/already in use|already exists/`) to mask copy discrepancies, and never delete/alter assertions to force a green test suite! If an automatable test fails due to a real product defect, keep the test with its true assertion, annotate with `test.fail(true, "BUG-XXX: ...")`, generate a formal bug report (`npx mate-sdt bug <module>`), and notify the engineer.',
     '- **Mandatory Discrepancy Escalation:** When live app behavior differs from User Stories (undocumented fields, differing copy, state reset on reload), STOP and ask the engineer before writing code: Is it a Defect (`test.fail()`) or an intentional Spec Update?',
     '- **Zero Arbitrary Sleeps:** `page.waitForTimeout()` or `sleep()` are strictly forbidden. Use auto-retrying web assertions (`await expect(locator).toBeVisible()`).',
@@ -387,7 +402,13 @@ function installUniversalAgents(targetDir) {
 
   if (fs.existsSync(agentsMdPath)) {
     const existing = fs.readFileSync(agentsMdPath, 'utf8');
-    if (!existing.includes('<!-- MATE-SDT-START -->')) {
+    if (existing.includes('<!-- MATE-SDT-START -->')) {
+      const updated = existing.replace(
+        /<!-- MATE-SDT-START -->[\s\S]*?<!-- MATE-SDT-END -->/,
+        mateBlock.trim()
+      );
+      fs.writeFileSync(agentsMdPath, updated, 'utf8');
+    } else {
       fs.writeFileSync(agentsMdPath, `${existing.trimEnd()}\n\n${mateBlock}`, 'utf8');
     }
   } else {
@@ -438,17 +459,24 @@ function installCopilot(targetDir) {
     '<!-- MATE-SDT-START -->',
     '## 🧉 M.A.T.E. Method — Spec-Driven Testing (SDT) Instructions',
     '',
-    '1. Consult `MATE-PROJECT-MAP.md` first to understand modules, state machines, invariants, conventions, and fixtures.',
-    '2. Every feature requires a validated specification in `specs/[module].mate-spec.md` (`npx mate-sdt validate`).',
-    '3. Enforce OOP and SOLID principles in Playwright UI/API tests (`src/pages`, `src/components`, `src/api`, `src/fixtures`). Never use `waitForTimeout()`. Audit with `npx mate-sdt audit`.',
-    '4. Enforce Mutation Testing >= 85% via Stryker in rootless Podman (`npx mate-sdt mutate`) and k6 SLAs (`npx mate-sdt k6`).',
+    '1. **Conversational Entry Points:** For open-ended questions, brainstorming, or "Where do I start?", activate `mate-party` (Council of QA Experts). For framework coaching or commands, use `mate-help` (`/mate-help`). For direct task execution and map updates, use `mate-core`.',
+    '2. Consult `MATE-PROJECT-MAP.md` first to understand modules, state machines, invariants, conventions, and fixtures.',
+    '3. Every feature requires a validated specification in `specs/[module].mate-spec.md` (`npx mate-sdt validate`).',
+    '4. Enforce OOP and SOLID principles in Playwright UI/API tests (`src/pages`, `src/components`, `src/api`, `src/fixtures`). Never use `waitForTimeout()`. Audit with `npx mate-sdt audit`.',
+    '5. Enforce Mutation Testing >= 85% via Stryker in rootless Podman (`npx mate-sdt mutate`) and k6 SLAs (`npx mate-sdt k6`).',
     '<!-- MATE-SDT-END -->',
     '',
   ].join('\n');
 
   if (fs.existsSync(copilotInstructionsPath)) {
     const existing = fs.readFileSync(copilotInstructionsPath, 'utf8');
-    if (!existing.includes('<!-- MATE-SDT-START -->')) {
+    if (existing.includes('<!-- MATE-SDT-START -->')) {
+      const updated = existing.replace(
+        /<!-- MATE-SDT-START -->[\s\S]*?<!-- MATE-SDT-END -->/,
+        block.trim()
+      );
+      fs.writeFileSync(copilotInstructionsPath, updated, 'utf8');
+    } else {
       fs.writeFileSync(copilotInstructionsPath, `${existing.trimEnd()}\n${block}`, 'utf8');
     }
   } else {
