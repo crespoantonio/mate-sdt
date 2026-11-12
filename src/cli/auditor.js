@@ -58,6 +58,15 @@ const AUDIT_RULES = [
     remediation: 'Do not use permissive alternative regexes (/A|B/) to paper over copy/spec discrepancies. Escalate to the user: assert the exact requirement and use test.fail() if it is a defect, or update the spec if intentional.',
     testFilesOnly: true,
   },
+  {
+    code: 'MATE-ANTI-07',
+    name: 'Hardcoded Single-Case Assertion in Page Object (Bloated PO Smell)',
+    severity: 'MEDIUM',
+    penalty: 4,
+    regex: /async\s+assert[A-Za-z0-9]*(?:Duplicate|Strict|Missing|Invalid)[A-Za-z0-9]*\s*\(\s*\)/,
+    remediation: 'Do not hardcode single-case assertions in Page Objects. Parametrize them (e.g. assertAlertMessage(expected)) and expose public readonly Locators for expect.soft() flexibility.',
+    pageObjectsOnly: true,
+  },
 ];
 
 function isScannableFile(fileName) {
@@ -69,6 +78,15 @@ function isScannableFile(fileName) {
 function isTestSpecFile(fileName) {
   return /\.(spec|test)\.(ts|js|mjs|cjs|tsx|jsx)$|Test\.java$|^test_.*\.py$|_test\.py$/.test(
     fileName
+  );
+}
+
+function isPageObjectFile(filePath) {
+  const norm = filePath.replace(/\\/g, '/').toLowerCase();
+  return (
+    norm.includes('/pages/') ||
+    norm.endsWith('.page.ts') ||
+    norm.endsWith('.page.js')
   );
 }
 
@@ -121,6 +139,7 @@ function auditTestSuite(targetDir = '.') {
   for (const filePath of filesToScan) {
     const fileName = path.basename(filePath);
     const isSpec = isTestSpecFile(fileName);
+    const isPageObject = isPageObjectFile(filePath);
     const lines = fs.readFileSync(filePath, 'utf8').split(/\r?\n/);
 
     lines.forEach((lineText, idx) => {
@@ -137,6 +156,7 @@ function auditTestSuite(targetDir = '.') {
 
       for (const rule of AUDIT_RULES) {
         if (rule.testFilesOnly && !isSpec) continue;
+        if (rule.pageObjectsOnly && !isPageObject) continue;
         if (rule.regex.test(lineText)) {
           findings.push({
             file: path.relative(resolved, filePath).replace(/\\/g, '/'),

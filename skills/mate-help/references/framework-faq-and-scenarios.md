@@ -88,5 +88,15 @@ M.A.T.E. is specifically engineered to **discover and formalize truth from zero 
 
 ---
 
+## Q9: Where should assertions live in M.A.T.E.? (Anti-Bloated Page Object & `expect.soft()` flexibility)
+In enterprise test architecture, M.A.T.E. resolves the classic *"asserts in Page Objects vs. asserts in tests"* debate through a clean **Single Responsibility** division:
+1. **Internal Synchronization Guards (Inside Actions):** Assertions that verify preconditions (element ready, spinner gone, dialog opened) live 100% encapsulated inside Page Object action methods (`submit()`, `goto()`). Test specs never call guards directly.
+2. **Parameterized Business Assertions (On Page Objects):** Page Objects expose high-level, parameterized validation methods (e.g., `assertAlertMessage(expected: string | RegExp)`). M.A.T.E. **strictly forbids single-case hardcoded assertions** (like `assertDuplicateEmailStrict()`), which bloat Page Objects to 800+ lines (`MATE-ANTI-07`).
+3. **Public `readonly Locator`s for `expect.soft()` Flexibility:** Every inspectable element is exposed as a public `readonly` Locator. This allows test specs in `tests/e2e/*.spec.ts` to use Playwright's native web-first assertions or `expect.soft()` to collect multiple form errors in a single execution without breaking encapsulation.
+4. **Math, Contract & State Invariants (Inside Spec Files):** Mathematical calculations (`INV-02: Total = Sum - Discount + Shipping`), multi-endpoint contract reconciliations, and `test.fail(true, 'BUG-XXX')` active canary tripwires live directly in test specifications.
+5. **Widget Extraction (`BaseComponent`):** Any widget with its own state or appearance across multiple pages (e.g., password meters, toast notifications, search filters) must be extracted into a class extending `BaseComponent` instead of bloating the Page Object.
+
+---
+
 ## Q9: Can we use M.A.T.E. if our team writes tests in Java (Selenium/Playwright/REST Assured) or Python (Pytest)?
 **Yes!** While M.A.T.E.'s default starter templates use TypeScript/Playwright, the **Spec-Driven Testing (`*.mate-spec.md`) model, 4-Quadrant Test Case Matrices (`TC-*.md` & `.csv`), Context Engineering (`MATE-PROJECT-MAP.md`), and AI Evals (`DeepEval` in Python)** are stack-agnostic. Consult `skills/mate-core/references/polyglot-stacks-java-python.md` for the official **Java 21 + Maven + JUnit 5** and **Python 3.12 + Pytest + Pydantic** OOP/SOLID mapping patterns.

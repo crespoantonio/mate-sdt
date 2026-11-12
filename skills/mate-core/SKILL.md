@@ -35,6 +35,7 @@ Its purpose is to ensure that any software project implements a quality architec
    - **Liskov Substitution (LSP):** Base page abstractions and API clients must be substitutable by their derivatives without breaking test contracts.
    - **Interface Segregation (ISP):** Lean, specific interfaces for test data and contract models (zero `any` types).
    - **Dependency Inversion (DIP):** Dependency injection via Playwright fixtures (`test.extend()`) rather than hard-coupled `new PageObject(page)` instantiation inside test files.
+   - **Anti-Bloated Page Objects (`MATE-ANTI-07`):** Never bloat Page Objects with dozens of single-case assertion methods (`assertInvalidEmail()`, `assertMissingHouseNumber()`). Parametrize assertions (`assertAlertMessage(expected)`), expose public `readonly Locator`s for `expect.soft()` flexibility, keep synchronization Guards private inside actions, and extract stateful/shared widgets into dedicated `BaseComponent` objects.
 3. **The Anti-Greenwashing Mandate (Never Only Write Tests That Pass):**  
    - **Specification Over Implementation:** The User Story and `*.mate-spec.md` are the source of truth—never the potentially buggy application.
    - **4-Quadrant Coverage:** Every feature must have Test Cases and Automated Tests covering **Happy Paths, Border/Boundary Cases, Negative Paths, and Forbidden State Transitions**.

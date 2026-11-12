@@ -142,7 +142,7 @@ npx mate-sdt cases checkout-flow
 ---
 
 ### 4. `audit [target-dir]`
-Scans `tests/` and `src/` for M.A.T.E. anti-patterns (`waitForTimeout`, `Thread.sleep`, `time.sleep`, `.only` focus locks, direct `new *Page()` DIP violations, weak `toBeDefined()` assertions, and raw XPath/`:nth-child` selectors) and calculates a deterministic **Health Score (`A` to `F`)**.
+Scans `tests/` and `src/` for M.A.T.E. anti-patterns (`waitForTimeout` sleeps, `.only` focus locks, direct `new *Page()` DIP violations, weak `toBeDefined()` assertions, raw XPath selectors, permissive discrepancy regexes, and bloated single-case assertions in Page Objects) and calculates a deterministic **Health Score (`A` to `F`)**.
 
 ```bash
 npx mate-sdt audit
