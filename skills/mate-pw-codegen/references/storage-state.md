@@ -68,6 +68,55 @@ export { expect } from '@playwright/test';
 
 ---
 
+
+---
+
+## 2b. Multi-Role & Multi-Tenant Fixtures in M.A.T.E.
+
+When an application has multiple roles (`admin`, `manager`, `customer`) or multiple tenants (`tenant-a`, `tenant-b`), do not split test suites across brittle `playwright.config.ts` projects. Instead, inject role-specific browser contexts:
+
+```typescript
+// src/fixtures/mate.fixtures.ts
+export type MateFixtures = {
+  adminPage: Page;
+  customerPage: Page;
+  asTenant: (tenantId: string, role?: string) => Promise<{ page: Page; context: BrowserContext }>;
+};
+
+export const test = base.extend<MateFixtures>({
+  adminPage: async ({ browser }, use) => {
+    const context = await browser.newContext({
+      storageState: 'playwright/.auth/admin.auth-state.json',
+    });
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  },
+
+  customerPage: async ({ browser }, use) => {
+    const context = await browser.newContext({
+      storageState: 'playwright/.auth/customer.auth-state.json',
+    });
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  },
+
+  asTenant: async ({ browser }, use) => {
+    const contexts: BrowserContext[] = [];
+    const factory = async (tenantId: string, role: string = 'customer') => {
+      const context = await browser.newContext({
+        storageState: `playwright/.auth/${tenantId}-${role}.auth-state.json`,
+      });
+      contexts.push(context);
+      return { page: await context.newPage(), context };
+    };
+    await use(factory);
+    for (const ctx of contexts) await ctx.close();
+  },
+});
+```
+
 ## 3. Cookie Management Commands
 
 Inspect and manipulate cookies directly from the CLI to test session expiration, `HttpOnly`/`SameSite` flags, and unauthenticated redirects (**Pillar T**):

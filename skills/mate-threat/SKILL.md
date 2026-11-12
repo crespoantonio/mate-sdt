@@ -32,6 +32,7 @@ This skill is responsible for **Pillar T (Threat & Trash)** of the M.A.T.E. Meth
     Inspects module specifications and discovers critical failure vectors:
     - **Concurrency & Race Conditions:** Simultaneous user actions, concurrent transactions executed in the exact same millisecond.
     - **Idempotency:** Automated network retries and duplicate webhooks (ensuring operations process exactly ONCE).
+    - **Broken Object Level Authorization (BOLA / IDOR) & Multi-Tenant Isolation:** Verify that users and tenants cannot access unauthorized resources. Automated via Multi-Role and Multi-Tenant fixtures (`{ tenantAPage, tenantBPage }` or `asTenant()`).
     - **Data Trash & Fuzzing:** Massive payloads, SQL/NoSQL/XSS injections, negative balances, non-standard Unicode strings, and corrupted ISO timestamp formats.
 2.  **Dual-Mode Pillar T Governance (White-Box Monorepo vs. Black-Box Standalone QA Repo):**  
     - **Mode A — White-Box / Integrated Repository (App source code present):**  

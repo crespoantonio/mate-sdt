@@ -168,6 +168,57 @@ export class PasswordStrengthComponent extends BaseComponent {
 
 ---
 
+## 🏛️ 4. The Multi-Role & Multi-Tenant Dependency Inversion Pattern
+
+Enterprise applications frequently require testing across distinct permission tiers (e.g., `Admin`, `Manager`, `Customer`, `Auditor`) or separated tenant domains (e.g., `Tenant A`, `Tenant B`).
+
+### The Problem with Project-Based Auth in Playwright
+Playwright's default documentation recommends configuring authentication via separate projects in `playwright.config.ts` (e.g. `setup` -> `admin-tests`, `user-tests`). While functional for simple single-user suites, this introduces **two fatal limitations in enterprise QA**:
+1. **No Collaborative Multi-User Flows:** If an Admin approves a requisition and a Customer verifies its status in real-time, project-based auth cannot execute the flow because a test is locked to a single project/context.
+2. **Cannot Test Cross-Tenant Security Invariants (BOLA / IDOR):** Testing that Tenant B is strictly forbidden (`403 Forbidden`) from reading Tenant A's private documents requires **two simultaneous, isolated authenticated contexts in the same test block**.
+
+### The M.A.T.E. Multi-Role Fixture Architecture
+
+In M.A.T.E., we solve this by injecting pre-authenticated, isolated browser contexts via **Dependency Inversion Fixtures (`test.extend()`)** backed by `storageState` JSON files (`playwright/.auth/*.json`):
+
+#### 1. Static Role Fixtures (`adminPage`, `customerPage`)
+Tests declare exactly the role contexts they need:
+```typescript
+import { test, expect } from '../src/fixtures/mate.fixtures';
+
+test('Admin unlocks user and Customer can log in immediately [INV-03]', async ({ adminPage, customerPage }) => {
+  // adminPage runs with admin storageState
+  await adminPage.goto('/admin/users');
+  await adminPage.getByRole('button', { name: /unlock customer/i }).click();
+
+  // customerPage runs with customer storageState in an isolated context
+  await customerPage.goto('/account/orders');
+  await expect(customerPage.getByTestId('order-history')).toBeVisible();
+});
+```
+
+#### 2. Cross-Tenant Security & Isolation Testing (Pillar T Synergy)
+Using the dynamic tenant factory fixture `asTenant(tenantId, role)`:
+```typescript
+test('THR-SEC-01: Cross-Tenant Isolation - Tenant B cannot read Tenant A order', async ({ asTenant }) => {
+  const { page: tenantAPage } = await asTenant('tenant-alpha', 'customer');
+  const { page: tenantBPage } = await asTenant('tenant-beta', 'customer');
+
+  // Tenant A creates an invoice
+  await tenantAPage.goto('/invoices');
+  const invoiceId = await tenantAPage.getByTestId('latest-invoice-id').innerText();
+
+  // Tenant B attempts direct access (IDOR / BOLA probe)
+  await tenantBPage.goto(`/invoices/${invoiceId}`);
+  await expect(tenantBPage.getByTestId('error-403-forbidden')).toBeVisible();
+});
+```
+
+#### 3. Fast API-Driven Session Pre-Hydration
+Never perform repetitive UI logins in `beforeEach`. Populate `playwright/.auth/*.json` using fast backend API requests in a global setup or setup project (`request.post('/api/auth/login')`), and let fixtures inject the cached storage state instantly.
+
+---
+
 ## 📦 Reference Boilerplates & Companion Guides
 
 *   **Base Page Object Template:** [`resources/base-page.template.ts`](./resources/base-page.template.ts)
