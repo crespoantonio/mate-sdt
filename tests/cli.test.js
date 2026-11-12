@@ -79,10 +79,10 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
     }
   });
 
-  test('3. installMate scaffolds Standalone/Greenfield project, 14 synergistic skills, 7 E2E workflows, and ready-to-run Playwright harness', () => {
+  test('3. installMate scaffolds Standalone/Greenfield project, 15 synergistic skills, 7 E2E workflows, and ready-to-run Playwright harness', () => {
     const tmpDir = createTempDir();
     try {
-      assert.equal(SKILL_NAMES.length, 14);
+      assert.equal(SKILL_NAMES.length, 15);
       assert.equal(WORKFLOW_NAMES.length, 7);
 
       installMate({

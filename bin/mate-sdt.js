@@ -87,7 +87,7 @@ function printHelp() {
   console.log('    npx mate-sdt <command> [options]\n');
   console.log(color('  COMMANDS:', COLORS.bold, COLORS.cyan));
   console.log(
-    `    ${color('install', COLORS.brightGreen, COLORS.bold)}              Interactive installer (14 AI skills, 7 E2E workflows, IDE rules & SDT layout)`
+    `    ${color('install', COLORS.brightGreen, COLORS.bold)}              Interactive installer (15 AI skills, 7 E2E workflows, IDE rules & SDT layout)`
   );
   console.log(
     `    ${color('init [dir]', COLORS.brightGreen, COLORS.bold)}           Quick-scaffold M.A.T.E. directories, Living Map & templates`
@@ -171,7 +171,7 @@ async function handleInstall(flags) {
             value: 'standalone-qa',
           },
           {
-            label: 'Greenfield (Full SDT Architecture + 14 AI Skills + 7 Workflows + SOLID Templates)',
+            label: 'Greenfield (Full SDT Architecture + 15 AI Skills + 7 Workflows + SOLID Templates)',
             description: 'Best for new projects or establishing a complete UI, API, k6 & SDT harness.',
             value: 'greenfield',
           },
@@ -237,7 +237,7 @@ async function handleInstall(flags) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
   }
 
-  console.log(color('\n  🤖 Installed 14 Synergistic AI Skills, 7 E2E Workflows & IDE Rules:', COLORS.bold, COLORS.cyan));
+  console.log(color('\n  🤖 Installed 15 Synergistic AI Skills, 7 E2E Workflows & IDE Rules:', COLORS.bold, COLORS.cyan));
   for (const item of result.ideFiles) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
   }

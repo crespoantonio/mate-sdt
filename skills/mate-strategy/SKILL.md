@@ -58,7 +58,7 @@ When an application is already serving real users and has zero test coverage, **
   3. Write 1 deterministic `@smoke @p0` E2E test + 1 health/contract API test per critical flow.
   4. Wire `npm run test:smoke` so the team has a 2-minute safety net immediately.
 
-### Wave 2: Module-by-Module M.A.T.E. Deepening (4 Quadrantes + Pillar T & E)
+### Wave 2: Module-by-Module M.A.T.E. Deepening (4 Quadrants + Pillar T & E)
 - Once Wave 1 is green, pick modules in strict **Risk Matrix order (`P0` ➔ `P1` ➔ `P2`)**:
   1. Author `specs/[module].mate-spec.md` (`mate-model`).
   2. Generate the 4-Quadrant Test Case Matrix `tests/cases/TC-[module].md` & `.csv` (`mate-story-testcases`: Happy + Border + Negative + Forbidden Transitions).

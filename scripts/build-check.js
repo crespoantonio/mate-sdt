@@ -21,12 +21,14 @@ const REQUIRED_FILES = [
   'templates/standalone/tsconfig.template.json',
   'templates/standalone/env.example.template',
   'templates/standalone/github-workflow.template.yml',
-  // 14 Synergistic M.A.T.E. Skills
+  // 15 Synergistic M.A.T.E. Skills
   'skills/mate-core/SKILL.md',
   'skills/mate-core/scripts/init_mate_project.py',
   'skills/mate-core/resources/MATE-PROJECT-MAP.template.md',
   'skills/mate-core/references/handling-uncertainty.md',
   'skills/mate-core/references/polyglot-stacks-java-python.md',
+  'skills/mate-help/SKILL.md',
+  'skills/mate-help/references/framework-faq-and-scenarios.md',
   'skills/mate-strategy/SKILL.md',
   'skills/mate-strategy/resources/test-strategy.template.md',
   'skills/mate-strategy/resources/test-plan.template.md',

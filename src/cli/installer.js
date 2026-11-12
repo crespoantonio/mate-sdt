@@ -31,6 +31,7 @@ const STANDARD_DIRECTORIES = [
 
 const SKILL_NAMES = [
   'mate-core',
+  'mate-help',
   'mate-strategy',
   'mate-story-testcases',
   'mate-model',
@@ -208,6 +209,7 @@ function installCursor(targetDir) {
 
   const globsMap = {
     'mate-core': '**/*',
+    'mate-help': '**/*',
     'mate-strategy': 'docs/**/*.md,MATE-PROJECT-MAP.md',
     'mate-story-testcases': 'tests/cases/**/*,specs/**/*.mate-spec.md',
     'mate-model': 'specs/**/*.mate-spec.md,MATE-PROJECT-MAP.md',

@@ -1,6 +1,6 @@
 # 🧉 M.A.T.E. Method (`mate-sdt`)
 
-### Spec-Driven Testing (SDT) Framework, 14 Synergistic AI Agent Skills & 7 E2E Workflows for the Agentic Coding Era
+### Spec-Driven Testing (SDT) Framework & QA Companion — 15 Synergistic AI Agent Skills & 7 E2E Workflows for the Agentic Coding Era
 
 [![npm version](https://img.shields.io/npm/v/mate-sdt.svg?style=flat-square&color=2ea44f)](https://www.npmjs.com/package/mate-sdt)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
@@ -38,7 +38,7 @@ In the Agentic Era (2026+), autonomous AI agents write thousands of lines of cod
 *   **BDD (Behavior-Driven Development)** drowns engineering teams in brittle Gherkin (`Given/When/Then`) step-definition bureaucracy that gets abandoned within three sprints.
 *   **"Vibe Coding" + AI-Generated Tests** produce cosmetic "happy-path" checks (`expect(res).toBeDefined()`) that paint the CI pipeline green while silently shipping race conditions, security exploits, and broken business invariants to production.
 
-**The M.A.T.E. Method** is a **Spec-Driven Testing (SDT)** framework that flips the paradigm: **the specification belongs to the Quality Engineer**. Whether your QA team sits inside a monorepo or works in a **standalone Black-Box QA folder** on a live production app with zero existing tests, `mate-sdt` equips both human engineers and AI coding agents (Google Antigravity, Claude Code, Cursor, Windsurf, GitHub Copilot) with a rigorous, token-efficient architecture governed by four pillars, **14 specialized & synergistic AI skills**, and **7 end-to-end workflows**.
+**The M.A.T.E. Method** is a **Spec-Driven Testing (SDT)** framework and **Daily QA/QE Companion** that flips the paradigm: **the specification belongs to the Quality Engineer**. Whether your QA team sits inside a monorepo or works in a **standalone Black-Box QA folder** on a live production app with zero existing tests, `mate-sdt` equips both human engineers and AI coding agents (Google Antigravity, Claude Code, Cursor, Windsurf, GitHub Copilot) with a rigorous, token-efficient architecture governed by four pillars, **15 specialized & synergistic AI skills** (knowing what to automate, what to keep manual with rationale, and where to recommend exploratory testing), and **7 end-to-end workflows**.
 
 ---
 
@@ -60,16 +60,17 @@ flowchart LR
 
 ---
 
-## 🧩 The 14 Synergistic AI Agent Skills & 7 End-to-End Workflows
+## 🧩 The 15 Synergistic AI Agent Skills & 7 End-to-End Workflows
 
-When you run `npx mate-sdt install`, your AI agents gain **14 specialized skills** (each with exact `USE WHEN:` triggers and `SYNERGY:` handoff protocols) and **7 orchestrated E2E workflows**:
+When you run `npx mate-sdt install`, your AI agents gain **15 specialized skills** (each with exact `USE WHEN:` triggers and `SYNERGY:` handoff protocols) and **7 orchestrated E2E workflows**:
 
-### 1. The 14 M.A.T.E. Skills (`skills/`)
+### 1. The 15 M.A.T.E. Skills (`skills/`)
 | Skill | Scope | Exact Responsibility & Synergy |
 | :--- | :--- | :--- |
-| **`mate-core`** | **Orchestrator** | Manages `MATE-PROJECT-MAP.md`, SOLID/OOP rules, Anti-Greenwashing Mandate, Handling Uncertainty Protocol (`[OBSERVED]` vs `[INFERRED]`), and routes tasks across all 14 skills. |
+| **`mate-core`** | **Orchestrator** | Manages `MATE-PROJECT-MAP.md`, SOLID/OOP rules, Anti-Greenwashing Mandate, Handling Uncertainty Protocol (`[OBSERVED]` vs `[INFERRED]`), and routes tasks across all 15 skills. |
+| **`mate-help`** | **Coach & Advisor** | Interactive M.A.T.E. Framework Coach (`/mate-help`). Answers any question about how M.A.T.E. works, diagnoses the tester's scenario, and recommends the exact workflow or command to run. |
 | **`mate-strategy`** | **Phase 0 (Strategy & Plan)** | Authors `docs/TEST-STRATEGY.md` and `docs/test-plans/TP-*.md`, builds the `P0/P1/P2` Business Risk Matrix, orchestrates the **2-Wave Smoke-First Rollout** for live apps without testing, and guides manual suite migration. |
-| **`mate-story-testcases`** | **Ingestion & TC Design** | Ingests User Stories from **Atlassian/Jira MCP, Notion MCP, GitHub/Linear MCP, Excel/CSV, or text** (or audits legacy manual cases) and generates 4-Quadrant Test Case Matrices (`tests/cases/TC-*.md` & `.csv`). |
+| **`mate-story-testcases`** | **Ingestion & QA Companion** | Ingests User Stories from **Atlassian/Jira MCP, Notion MCP, GitHub/Linear MCP, Excel/CSV, or text**, designs 4-Quadrant Test Case Matrices (`tests/cases/TC-*.md` & `.csv`), decides **What to Automate vs. Keep Manual (with explicit rationale)**, and recommends **Exploratory Testing Charters**. |
 | **`mate-model`** | **Pillar M** | Authors `*.mate-spec.md`, Finite State Machines, **Explicit Forbidden Transitions**, and `<invariants>`. |
 | **`mate-pw-recon`** | **Pillar M/A (CLI Recon)** | Uses `@playwright/cli` (`open`, `snapshot`, `network`, `eval`) to verify User Stories live in the browser, map semantic DOM/ARIA locators, and **reverse-engineer hidden backend APIs** when no Swagger exists. |
 | **`mate-assert-playwright`** | **Pillar A (UI Rules)** | Governs SOLID Page Objects (`BasePage`), Component Objects (`BaseComponent`), DIP fixtures, zero arbitrary sleeps, and the **Anti-Greenwashing Mandate** (`test.fail()` on real product bugs). |

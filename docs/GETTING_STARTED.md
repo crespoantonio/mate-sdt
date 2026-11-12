@@ -1,20 +1,20 @@
 # 🚀 Getting Started with M.A.T.E. Method (`mate-sdt`)
 
-This guide walks you through installing and operating the **M.A.T.E. Method — Spec-Driven Testing (SDT) Framework** in both **Greenfield** (new) and **Brownfield** (existing/legacy) projects.
+This guide walks you through installing and operating the **M.A.T.E. Method — Spec-Driven Testing (SDT) Framework & QA Companion** across **Standalone Black-Box QA Repositories**, **Greenfield** projects, and **Brownfield** legacy applications.
 
 ---
 
 ## 1. Prerequisites
 
-*   **Node.js:** `>= 18.0.0` (for running `npx mate-sdt` and Playwright).
-*   **Podman (Recommended for Pillar T):** Rootless [Podman](https://podman.io/) for isolated execution of Stryker Mutation Testing (`npx mate-sdt mutate`).
+*   **Node.js:** `>= 18.0.0` (for running `npx mate-sdt`, `@playwright/cli`, and `@playwright/test`).
+*   **Podman (Recommended for Pillar T & Performance):** Rootless [Podman](https://podman.io/) for isolated execution of Stryker Mutation Testing (`npx mate-sdt mutate`) and Grafana k6 load tests (`npx mate-sdt k6`).
 *   **AI Coding Agent / IDE:** Works natively with Google Antigravity (`agy`), Claude Code, Cursor, Windsurf, and GitHub Copilot.
 
 ---
 
-## 2. Installing M.A.T.E. in Your Repository
+## 2. Installing M.A.T.E. in Your Repository (or Standalone QA Folder)
 
-Navigate to your project's root folder and run:
+Navigate to your project's root folder (or create a dedicated QA folder outside your frontend/backend repos) and run:
 
 ```bash
 npx mate-sdt install
@@ -22,56 +22,36 @@ npx mate-sdt install
 
 ### Interactive Wizard Steps
 1.  **Select Project Lifecycle Mode:**
-    *   `Greenfield`: Creates the full SDT directory structure (`specs/`, `tests/`, `src/pages/`, `src/components/`, `src/fixtures/`), `MATE-PROJECT-MAP.md`, and `stryker.config.json`.
+    *   `Standalone QA Repository (Separate QA Folder for a Live App)`: Scaffolds the complete SDT layout, `docs/TEST-STRATEGY.md`, `MATE-PROJECT-MAP.md`, `playwright.config.ts`, `tsconfig.json`, `.env.example`, `.github/workflows/mate-qa.yml`, and `package.json` scripts (`test:smoke`, `test:e2e`, `test:api`, `test:threats`).
+    *   `Greenfield`: Full SDT architecture, 15 synergistic AI skills, 7 E2E workflows, and SOLID starter templates for new projects.
     *   `Brownfield`: Installs the Living Map, spec governance, and AI agent skills for reverse-engineering existing code.
-    *   `AI Skills & IDE Rules Only`: Installs the agent skills and `specs/` directory without scaffolding `src/` or `tests/` folders.
+    *   `AI Skills, Workflows & IDE Rules Only`: Installs the 15 skills, 7 workflows, and `specs/` directory without scaffolding `src/` or `tests/` folders.
 2.  **Select Target AI Agents / IDEs:**
-    *   Choose one or multiple IDEs (e.g., `1,2,3` for Antigravity, Claude Code, and Cursor, or `all`).
-3.  **Starter Templates:**
-    *   Optionally copies the Golden Sample Spec (`specs/sample-order-lifecycle.mate-spec.md`) and SOLID Playwright templates (`BasePage`, `NotificationToastComponent`, `MateFixtures`).
+    *   Choose one or multiple IDEs (`Antigravity`, `Claude Code`, `Cursor`, `Windsurf`, `GitHub Copilot`).
+3.  **Starter Templates & `@playwright/cli` Installation:**
+    *   Copies SOLID templates (`BasePage`, `BaseComponent`, `BaseApiClient`, `MateFixtures`, `k6`) and optionally installs `@playwright/cli@latest` and `@playwright/test@latest`.
+
+> **Need Help at Any Time?**  
+> Ask your AI agent using the **`/mate-help`** skill (e.g., *"Use `mate-help` to tell me how to start testing our live staging app"*), or run `npx mate-sdt status`.
 
 ---
 
-## 3. Executing the 4 Pillars Step-by-Step
+## 3. Choose Your Daily QA Workflow
 
-### Step 1: Pillar M — Model Intent & State Machines (`mate-model`)
-Before writing application code or tests, create a new spec from `specs/TEMPLATE_MATE_SPEC.md` (or ask your AI agent using the `mate-model` skill):
+### Scenario A: Working on a User Story (From Jira/Atlassian MCP, Notion, Excel, or Text)
+Use the **`/mate-flow-user-story`** workflow:
+1.  **Ingest & Design (`mate-story-testcases`):** Reads the User Story from your MCP (Jira/Notion/Linear) or local file (`.xlsx`/`.csv`/`.md`) and generates `tests/cases/TC-[module].md` and `.csv` (`npx mate-sdt cases <module>`).
+2.  **Pragmatic Automation vs. Manual vs. Exploratory Split:**
+    *   Classifies every test case (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) into **`AUTOMATE_UI`**, **`AUTOMATE_API`**, **`MANUAL_TEST`**, or **`EXPLORATORY_CHARTER`** with an explicit engineering rationale.
+    *   Includes a step-by-step **Manual Test Execution Guide** for cases that should not be automated, plus tailored **Exploratory Testing Recommendations**.
+3.  **Live Browser Verification (`mate-pw-recon`):** Opens the live app with `playwright-cli` to verify whether the User Story and border cases actually work and extracts semantic locators.
+4.  **SOLID Automation & Anti-Greenwashing (`mate-pw-codegen` + `mate-assert-playwright`):** Automates all `AUTOMATE_UI` and `AUTOMATE_API` cases. If a test fails because the app has a bug, M.A.T.E. **keeps the test**, marks it with `test.fail(true, 'BUG-XXX')`, generates `tests/bugs/BUG-*.md` (`npx mate-sdt bug <module>`), and reports it clearly.
 
-> **Prompt Example:**  
-> *"Use `mate-model` to create `specs/checkout-payment.mate-spec.md` for our Stripe checkout workflow. Include the Finite State Machine, Explicit Forbidden Transitions, mathematical invariants, race condition threats, and accessibility charters."*
+---
 
-Validate your specification with the CLI linter:
-
-```bash
-npx mate-sdt validate specs/checkout-payment.mate-spec.md
-```
-
-### Step 2: Pillar A — Assert with SOLID Playwright (`mate-assert-playwright`)
-Once the spec passes validation and is marked `APPROVED`, instruct your agent to build the Page Objects, Component Objects, Dependency Inversion fixtures, and test suite:
-
-> **Prompt Example:**  
-> *"Using `mate-assert-playwright`, implement the Page Objects in `src/pages/`, fixtures in `src/fixtures/`, and invariant tests in `tests/e2e/` for `specs/checkout-payment.mate-spec.md`. Remember: zero `waitForTimeout` sleeps."*
-
-### Step 3: Pillar T — Threat & Mutation Governance (`mate-threat`)
-Write adversarial tests in `tests/threats/` (double-click race conditions, duplicate webhook delivery, payload fuzzing) and verify that your test suite genuinely catches logic mutations:
-
-```bash
-npx mate-sdt mutate
-```
-
-If the Stryker Mutation Score drops below **85%**, ask `mate-threat` to analyze surviving mutants and strengthen your assertions.
-
-### Step 4: Pillar E — Human Exploration & Release Verdict (`mate-explore`)
-Before shipping to production, generate a time-boxed Session-Based Test Management (SBTM) charter for human exploratory testing:
-
-```bash
-npx mate-sdt charter checkout-payment
-```
-
-Complete the 30–45 minute session in `tests/charters/CHR-YYYYMMDD-checkout-payment.md`.
-*   If everything passes cleanly, mark the release verdict as **`[PASS]`**.
-*   If a minor non-blocking issue is accepted for this sprint, generate a formal waiver:
-    ```bash
-    npx mate-sdt waiver checkout-payment
-    ```
-    Have both the Quality Lead and Tech Lead sign `specs/waivers/WVR-YYYY-checkout-payment.md`.
+### Scenario B: Starting From Zero on a Live Production App (`/mate-flow-zero-to-one`)
+When your team has zero Test Strategy, zero Test Plan, and zero tests on an already running application:
+1.  **Global Live Recon (`mate-pw-recon`):** Explores the live URL via `playwright-cli` and reverse-engineers hidden backend APIs from browser network traffic (even without Swagger!).
+2.  **Master Strategy & Risk Matrix (`mate-strategy`):** Generates `docs/TEST-STRATEGY.md` (`npx mate-sdt strategy`) and scores modules into `P0`, `P1`, and `P2`.
+3.  **Wave 1 — 72-Hour P0 Smoke Shield:** Automates the top 5–8 critical Golden Paths (`npm run test:smoke`) to protect production immediately.
+4.  **Wave 2 — Module-by-Module Deepening:** Iterates through `P0` ➔ `P1` ➔ `P2` modules with full 4-quadrant specs, automated suites, manual checklists, and exploratory charters.

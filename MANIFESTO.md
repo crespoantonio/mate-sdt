@@ -18,7 +18,7 @@ In the Agentic Era (2026+), humans no longer type the majority of implementation
 When machines write the application code and testing is reduced to asking another machine to "generate generic unit tests," software quality collapses. LLMs are compliance-seeking engines: if you do not explicitly define how the system must fail, they will hallucinate solutions that *appear* to pass while silently corrupting production data.
 
 That is why the **M.A.T.E. Method** was born.  
-It is not another cosmetic wrapper library. It is a **Spec-Driven Testing (SDT) methodology** engineered by and for **Quality Engineers** to govern software agents, reclaim architectural control, and restore the tester's rightful role: **Supreme Architect and Guardian of Software Quality**.
+It is not another cosmetic wrapper library. It is a **Spec-Driven Testing (SDT) methodology and Daily QA/QE Companion** engineered by and for **Quality Engineers** to govern software agents, make intelligent decisions on **what to automate, what to verify manually, and where to apply human exploratory testing**, reclaim architectural control, and restore the tester's rightful role: **Supreme Architect and Guardian of Software Quality**.
 
 ---
 
@@ -76,7 +76,9 @@ AI agents excel at writing tests that pass without proving anything (blind mocks
 Pillar **Assert** establishes **Non-Negotiable Acceptance Oracles**:
 
 *   **Business Invariants:** Mathematical rules that must **never** be violated under any state transition (e.g., *"Account balance must never drop below zero"*, *"The sum of line items plus tax must match the invoiced total to the exact cent"*).
-*   **SOLID & OOP Automation Architecture:** Enforces Single Responsibility (Page & Component Object Models), Open/Closed abstractions, and Dependency Inversion via Playwright fixtures.
+*   **Pragmatic Execution Mode Decision Engine (Automate vs. Manual vs. Exploratory):** Not everything should be automated! M.A.T.E. evaluates every requirement across four execution modes—`AUTOMATE_UI`, `AUTOMATE_API`, `MANUAL_TEST`, and `EXPLORATORY_CHARTER`—and generates a complete **QA Companion Document** (`tests/cases/TC-[module].md` & `.csv`) explaining *why* each scenario is automated or kept manual, along with step-by-step manual instructions and tailored exploratory heuristics.
+*   **The Anti-Greenwashing Mandate:** AI agents must never cherry-pick only the tests that pass. When automating Happy, Border, Negative, and State-Transition cases, if the application fails a valid requirement, the test is **kept in the suite** with its true assertion, annotated with `test.fail(true, 'BUG-XXX')`, and linked to a formal Bug Report (`tests/bugs/BUG-*.md`).
+*   **SOLID & OOP Automation Architecture:** Enforces Single Responsibility (`BasePage` & `BaseComponent` Object Models, `BaseApiClient`), Open/Closed abstractions, and Dependency Inversion via Playwright fixtures (`test.extend`).
 *   **Zero Arbitrary Sleeps:** Absolute prohibition of `sleep()` or `page.waitForTimeout()`. All synchronization must rely on deterministic events and auto-retrying web assertions.
 *   **Performance & Resource Oracles:** Explicit SLAs measured by objective harnesses (e.g., *"P95 latency <= 400ms under 200 RPS sustained load inside a Podman container"*).
 
@@ -188,9 +190,9 @@ sequenceDiagram
 
 ## 📜 The 10 Commandments of the M.A.T.E. Quality Engineer
 
-1.  **Thou shalt not automate without a spec:** Never write a test script unless an explicit invariant exists in a `*.mate-spec.md` file.
-2.  **Thou shalt not trust green AI tests blindly:** An AI-written test is suspect until it kills at least 85% of code mutants in Stryker.
-3.  **Thou shalt separate checking from testing:** Let machines execute repetitive checking at lightning speed; reserve exploratory testing and lateral thinking for the human mind.
+1.  **Thou shalt not automate without a spec or rationale:** Never write a test script unless an explicit invariant exists in `*.mate-spec.md` and automation provides positive ROI over manual or exploratory verification.
+2.  **Thou shalt never greenwash a failing requirement:** Never delete a failing test or weaken an assertion to make a broken application pass. Keep the test, mark it with `test.fail()`, and file a spec-linked bug report.
+3.  **Thou shalt separate checking from testing:** Let machines execute repetitive UI/API checking at lightning speed; reserve manual perception checks and exploratory testing charters for the human mind.
 4.  **Thou shalt tolerate zero arbitrary sleeps:** `sleep()` and `waitForTimeout()` are banned. Synchronization is event-driven with auto-retrying web assertions.
 5.  **Thou shalt isolate destructive executions:** No untrusted AI-generated code or mutation suite runs on the bare host without rootless **Podman** container isolation.
 6.  **The specification is the single source of truth:** If the code disagrees with the spec, the code is broken. If business requirements evolve, update and validate the spec first, then regenerate the code.

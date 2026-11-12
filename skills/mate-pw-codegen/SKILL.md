@@ -63,7 +63,7 @@ When automating the Test Case Matrix from `mate-story-testcases`:
      });
      ```
    - Generate the bug report via `npx mate-sdt bug <module>` and report it clearly to the user:
-     > *"⚠️ Se automatizaron 6 casos de prueba: 5 pasan (`PASS`) y 1 falla por un bug real de la aplicación (`TC-03`, documentado en `tests/bugs/BUG-...md` y marcado con `test.fail()` en la suite)."*
+     > *"⚠️ Automated 6 high-ROI test cases: 5 pass (`PASS`) and 1 fails due to a real application bug (`TC-03`, documented in `tests/bugs/BUG-...md` and marked with `test.fail()` in the suite). Additionally, 2 manual cases and 1 exploratory charter were documented in `tests/cases/TC-<module>.md`."*
 
 ---
 

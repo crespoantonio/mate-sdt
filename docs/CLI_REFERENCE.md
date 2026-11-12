@@ -21,7 +21,7 @@ npx mate status
 ## Commands
 
 ### 1. `install` (Default Command)
-Launches the interactive installer to scaffold directories, templates, ready-to-run Playwright/TypeScript harness files (`playwright.config.ts`, `tsconfig.json`, `.env.example`, `.github/workflows/mate-qa.yml`), **14 synergistic AI agent skills**, and **7 E2E workflows**, with optional automatic installation of `@playwright/cli` and `@playwright/test`.
+Launches the interactive installer to scaffold directories, templates, ready-to-run Playwright/TypeScript harness files (`playwright.config.ts`, `tsconfig.json`, `.env.example`, `.github/workflows/mate-qa.yml`), **15 synergistic AI agent skills** (including `mate-help`), and **7 E2E workflows**, with optional automatic installation of `@playwright/cli` and `@playwright/test`.
 
 ```bash
 npx mate-sdt install [options]
