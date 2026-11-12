@@ -76,3 +76,17 @@ Run **`npx mate-sdt setup-ai`** (or `npx mate-sdt install --with-ai-evals`) to i
 2. **Dual-Engine Evaluation (`mate-ai-evals`):** Evaluates the RAG Triad (*Faithfulness*, *Answer Relevancy*, *Contextual Precision/Recall*) and Agent Trajectories (*Tool Correctness*, *Task Completion*) using **Promptfoo** (`npm run eval:promptfoo`) and **DeepEval** (`npm run eval:deepeval`).
 3. **Adversarial Red Teaming (`mate-ai-redteam`):** Runs OWASP LLM Top 10 probes (Prompt Injection, Tool RBAC/BOLA, PII leaks) via `npm run eval:redteam` (`npx promptfoo@latest redteam`).
 4. **AI Observability & Trace Forensics (`mate-ai-observability`):** Audits **OpenTelemetry / OpenInference** traces (from **Langfuse**, **Arize Phoenix**, or local JSON) via `npm run eval:traces` to catch infinite tool loops, token spikes, and isolate `[RETRIEVER_DEFECT]` vs. `[GENERATOR_DEFECT]`.
+
+---
+
+## Q8: What if our project has ZERO documentation (no PRD, no Swagger, no User Stories, no AI Datasets)?
+M.A.T.E. is specifically engineered to **discover and formalize truth from zero documentation** without hallucinating:
+1. **For Web Apps with Zero Docs (`mate-pw-recon`):** Opens the live staging/production URL via `playwright-cli open <url>`, captures compact YAML ARIA snapshots (`snapshot`), maps user flows and DOM components, and tags findings as `[OBSERVED]`.
+2. **For Backend APIs with Zero Swagger (`mate-pw-recon` — `network-api-discovery.md`):** Captures live XHR/Fetch/GraphQL network traffic (`playwright-cli network`) while navigating the UI to reverse-engineer endpoints, headers, status codes, and payload schemas into `specs/[module].mate-spec.md`.
+3. **For AI Agents / Chatbots / RAGs with Zero Datasets (`mate-ai-dataset` — `socratic-dataset-interview.md`):** Never invents test cases blindly. Conducts the **5-Dimension Socratic Interview** with the tester/product owner, validates **5 Seed Cases** (`SEED-01` to `SEED-05`), and synthesizes a grounded Golden & Adversarial Dataset (`DS-<module>.json`).
+4. **Epistemic Isolation (`[OBSERVED]`, `[INFERRED]`, `[TBD]`):** Anything that cannot be empirically observed from the live system is tagged `[TBD]` and surfaced as a targeted question for the team—preventing Context Poisoning.
+
+---
+
+## Q9: Can we use M.A.T.E. if our team writes tests in Java (Selenium/Playwright/REST Assured) or Python (Pytest)?
+**Yes!** While M.A.T.E.'s default starter templates use TypeScript/Playwright, the **Spec-Driven Testing (`*.mate-spec.md`) model, 4-Quadrant Test Case Matrices (`TC-*.md` & `.csv`), Context Engineering (`MATE-PROJECT-MAP.md`), and AI Evals (`DeepEval` in Python)** are stack-agnostic. Consult `skills/mate-core/references/polyglot-stacks-java-python.md` for the official **Java 21 + Maven + JUnit 5** and **Python 3.12 + Pytest + Pydantic** OOP/SOLID mapping patterns.

@@ -64,6 +64,10 @@ Its purpose is to ensure that any software project implements a quality architec
 | **`mate-explore`** | **Pillar E (Explore)** | Human SBTM exploratory charters (`npx mate-sdt charter`), WCAG 2.1 AA audits, Release Waivers (`npx mate-sdt waiver`), and Release Verdicts. | `mate-pw-forensics` + `mate-triage` |
 | **`mate-triage`** | **Day-2 Operations** | Classifying CI or live test failures (Real Bug vs. Flaky vs. Env vs. Drift) and generating spec-linked Bug Reports (`npx mate-sdt bug`). | `mate-pw-forensics` + `mate-maintenance` |
 | **`mate-maintenance`** | **Day-2 Operations** | Auditing test codebase health (`A`–`F`) via `npx mate-sdt audit` to eliminate `waitForTimeout`, `.only`, and DIP violations. | `mate-assert-playwright` + `mate-triage` |
+| **`mate-ai-dataset`** *(On-Demand AI Pack)* | **AI Dataset Discovery** | Testing an AI Agent, Chatbot, or RAG with no dataset: runs the **5-Dimension Socratic Interview**, **5-Seed Human Gate**, and synthetic evolutions (`npx mate-sdt dataset <mod>`). | `mate-ai-evals` + `mate-ai-redteam` + `mate-ai-observability` |
+| **`mate-ai-evals`** *(On-Demand AI Pack)* | **AI Functional & RAG Evals** | Evaluating RAG Triad (*Faithfulness*, *Relevancy*, *Precision*) and Agent Tool Trajectories (`ToolCorrectness`, `TaskCompletion`) with **Promptfoo** & **DeepEval**. | `mate-ai-dataset` + `mate-ai-observability` |
+| **`mate-ai-redteam`** *(On-Demand AI Pack)* | **AI Pillar T (Red Team)** | Running OWASP LLM Top 10 security scans (Prompt Injection, Indirect RAG Poisoning, RBAC/BOLA, PII leaks) via `promptfoo redteam`. | `mate-threat` + `mate-ai-dataset` + `mate-triage` |
+| **`mate-ai-observability`** *(On-Demand AI Pack)* | **AI Trace Forensics** | Auditing **OpenTelemetry / OpenInference** traces (Langfuse, Arize Phoenix, JSON) for infinite tool loops, token/step budgets, and `[RETRIEVER_DEFECT]` vs. `[GENERATOR_DEFECT]`. | `mate-ai-evals` + `mate-ai-dataset` + `mate-triage` |
 
 ---
 
@@ -83,7 +87,8 @@ project-root/
 │   ├── threats/                 <-- Concurrency, race conditions, idempotency, fuzzing
 │   ├── nfr/                     <-- Performance (k6) and resilience scripts (*.k6.js)
 │   ├── charters/                <-- Human exploratory testing sessions (CHR-*.md)
-│   └── bugs/                    <-- Structured bug reports linked to invariants (BUG-*.md)
+│   ├── bugs/                    <-- Structured bug reports linked to invariants (BUG-*.md)
+│   └── ai-evals/                <-- [On-Demand AI Pack] Datasets, Promptfoo, DeepEval & OTel Trace Auditor
 ├── src/
 │   ├── pages/                   <-- Page Object Model extending BasePage (OOP / SOLID)
 │   ├── components/              <-- Reusable UI Component Objects extending BaseComponent
@@ -98,8 +103,12 @@ project-root/
 
 ## ⚡ CLI Commands & Reference Resources
 
-- **Interactive Installer:** `npx mate-sdt install` (or `--with-playwright-cli`)
+- **Interactive Installer:** `npx mate-sdt install` (or `--with-playwright-cli` / `--with-ai-evals`)
 - **Install `@playwright/cli`:** `npx mate-sdt setup-playwright`
+- **Install On-Demand AI Quality Pack:** `npx mate-sdt setup-ai`
+- **Generate AI Dataset Discovery & Golden JSON:** `npx mate-sdt dataset <module>`
+- **Context Engineering & JIT Context Pack:** `npx mate-sdt context [module]`
+- **5-Gate Harness Verification Loop:** `npx mate-sdt gate`
 - **Validate Specs:** `npx mate-sdt validate`
 - **Generate Test Case Matrix (`.md` + `.csv`):** `npx mate-sdt cases <module>`
 - **Audit Test Suite Health (`A`–`F`):** `npx mate-sdt audit`

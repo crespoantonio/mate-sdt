@@ -58,6 +58,17 @@ When your team has zero Test Strategy, zero Test Plan, and zero tests on an alre
 
 ---
 
+### Scenario C: Testing an AI Agent, Chatbot, or RAG Pipeline (`/mate-flow-ai-agent`)
+When testing an AI system (even if you have zero evaluation datasets today):
+1.  **Install the On-Demand AI Pack:** Run `npx mate-sdt setup-ai` (adds `mate-ai-dataset`, `mate-ai-evals`, `mate-ai-redteam`, and `mate-ai-observability`).
+2.  **Socratic 5-Dimension Interview & 5-Seed Gate (`mate-ai-dataset`):** Run `npx mate-sdt dataset <agent>`. Your AI agent interviews you across 5 dimensions (Taxonomy, Ground Truth, Tool Guardrails, Compliance, and Trace SLAs) and gets your sign-off on **5 Seed Cases** before synthesizing `tests/ai-evals/datasets/DS-<agent>.json`.
+3.  **Dual-Engine Evals & Red Teaming (`mate-ai-evals` + `mate-ai-redteam`):** Run **Promptfoo** (`npm run eval:promptfoo` & `npm run eval:redteam`) and **DeepEval** (`npm run eval:deepeval`) to verify RAG Faithfulness, Tool Correctness, and OWASP LLM Top 10 security.
+4.  **OpenTelemetry Trace Forensics (`mate-ai-observability`):** Audit **Langfuse / Arize Phoenix / OTel** traces (`npm run eval:traces`) to catch infinite tool loops, token spikes, and isolate `[RETRIEVER_DEFECT]` vs. `[GENERATOR_DEFECT]`.
+
+> 📖 Read the complete guide in [`docs/AI_AGENT_AND_RAG_TESTING.md`](./AI_AGENT_AND_RAG_TESTING.md).
+
+---
+
 ## 4. Context Engineering & Harness Verification Gates (`v1.6+`)
 
 M.A.T.E. enforces the two foundational disciplines of modern AI Agent systems:

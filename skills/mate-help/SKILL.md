@@ -19,18 +19,26 @@ Whenever a QA Engineer, SDET, Developer, or Tech Lead asks a question about how 
 
 ---
 
-## 🔗 Skill Synergy & Handoff Protocol
+## 🔗 1. Interactive Diagnostic Protocol (Any System × Any Documentation Level)
 
-| User's Question / Situation | Recommended Workflow | Skills Activated | CLI Command |
-| :--- | :--- | :--- | :--- |
-| *"We have a live app in prod/staging, zero testing, and QA works in a separate folder."* | **`/mate-flow-zero-to-one`** | `mate-strategy` ➔ `mate-pw-recon` ➔ `mate-pw-codegen` | `npx mate-sdt strategy` & `npx mate-sdt plan initial` |
-| *"I have a User Story (in Jira/Atlassian MCP, Notion, Excel, or text) and need to test it."* | **`/mate-flow-user-story`** | `mate-story-testcases` ➔ `mate-model` ➔ `mate-pw-recon` ➔ `mate-pw-codegen` + `mate-assert-playwright` | `npx mate-sdt cases <module>` |
-| *"We are building a brand-new feature or greenfield app from scratch."* | **`/mate-flow-greenfield`** | `mate-model` ➔ `mate-assert-playwright` / `mate-assert-api` ➔ `mate-threat` ➔ `mate-explore` | `npx mate-sdt validate` |
-| *"We have legacy code or an undocumented live URL and need to reverse-engineer specs."* | **`/mate-flow-brownfield`** | `mate-pw-recon` + `mate-model` | `npx mate-sdt validate` |
-| *"We want to test APIs (from Swagger/OpenAPI or reverse-engineered from browser traffic)."* | **`/mate-flow-api-contract`** | `mate-pw-recon` ➔ `mate-assert-api` ➔ `mate-threat` | `npm run test:api` |
-| *"We need load, stress, or spike performance testing with Grafana k6."* | **`/mate-flow-performance`** | `mate-performance-k6` | `npx mate-sdt k6 tests/nfr/<script>.k6.js` |
-| *"Our tests failed in CI or our existing test suite is flaky and full of sleeps."* | **`/mate-flow-triage`** | `mate-triage` + `mate-pw-forensics` + `mate-maintenance` | `npx mate-sdt audit` & `npx mate-sdt bug <mod>` |
-| *"We need to test an AI Agent, Chatbot, or RAG system (Promptfoo, DeepEval, Datasets, OTel Traces)."* | **`/mate-flow-ai-agent`** | `mate-ai-dataset` ➔ `mate-ai-evals` ➔ `mate-ai-redteam` ➔ `mate-ai-observability` | `npx mate-sdt setup-ai` & `npx mate-sdt dataset <mod>` |
+Whenever a tester asks *"How do I use M.A.T.E. in my project?"* or *"Where do I start?"*, first identify (or ask if not stated):
+1. **What System Are You Testing?** (`Web/UI App`, `Backend API/Microservice`, `AI Agent / Chatbot / RAG`, or `Polyglot Java/Python Stack`)
+2. **What Documentation & Testing Do You Currently Have?** (`Level 0: Nothing — only a live app/bot`, `Level 1: User Stories in Jira/Notion/Excel`, `Level 2: Manual test cases only`, `Level 3: Swagger/Docs only`, or `Level 4: Flaky existing tests`)
+
+Then prescribe the exact workflow, skills, and CLI commands from this **Universal Scenario Matrix**:
+
+| System Under Test | Documentation & QA Maturity Level | Recommended M.A.T.E. Workflow | Skills Activated in Sequence | Exact CLI Commands to Run |
+| :--- | :--- | :--- | :--- | :--- |
+| **Web / Full-Stack App** | **Level 0: Zero Docs & Zero Tests** (Live app in Prod/Staging, often in a separate QA folder) | **`/mate-flow-zero-to-one`** | `mate-pw-recon` (Live DOM & Network API discovery) ➔ `mate-strategy` (Risk Matrix + Wave 1 Smoke Shield) ➔ `mate-pw-codegen` | `npx mate-sdt install --with-playwright-cli`<br>`npx mate-sdt strategy`<br>`npx mate-sdt plan wave1-smoke` |
+| **Web / API Feature** | **Level 1: User Story / Ticket Only** (Atlassian/Jira MCP, Notion MCP, Linear, Excel/CSV, or pasted text) | **`/mate-flow-user-story`** | `mate-story-testcases` (4-Quadrant Matrix + Automate vs. Manual vs. Exploratory split) ➔ `mate-model` ➔ `mate-pw-recon` ➔ `mate-pw-codegen` + `mate-assert-playwright` | `npx mate-sdt context <mod>`<br>`npx mate-sdt cases <mod>`<br>`npx mate-sdt gate` |
+| **Web / Enterprise App** | **Level 2: Legacy Manual Suite Only** (100+ manual tests in Excel/Xray/TestRail, 0% automation) | **`/mate-flow-zero-to-one`** *(Manual Migration Playbook)* | `mate-strategy` + `mate-story-testcases` (`legacy-manual-migration.md`: P0/P1 pareto filtering & deduplication) ➔ `mate-pw-codegen` | `npx mate-sdt strategy`<br>`npx mate-sdt cases <mod>` |
+| **Backend REST / GraphQL API** | **Level 0: Undocumented API** (No Swagger/OpenAPI; only a live frontend or Postman requests) | **`/mate-flow-api-contract`** *(Network Discovery Mode)* | `mate-pw-recon` (`network-api-discovery.md`: capture live XHR/Fetch traffic) ➔ `mate-model` (`[OBSERVED]` contracts) ➔ `mate-assert-api` + `mate-threat` | `npx mate-sdt validate`<br>`npm run test:api`<br>`npx mate-sdt gate` |
+| **Backend REST / GraphQL API** | **Level 3: Swagger / OpenAPI Exists** (Contract exists, but zero contract/BOLA/fuzzing tests) | **`/mate-flow-api-contract`** | `mate-model` ➔ `mate-assert-api` (`BaseApiClient` + `2xx/400/401/403/409/422` matrix) ➔ `mate-threat` | `npx mate-sdt cases <api-mod>`<br>`npm run test:api` |
+| **AI Agent (MCP/Tools), Chatbot, or RAG** | **Level 0: Zero Golden Dataset & Zero Evals** (Only a prompt, bot URL, or PDF docs exist) | **`/mate-flow-ai-agent`** | `mate-ai-dataset` (**5-Dimension Socratic Interview** + **5-Seed Human Gate** + Synthetic Evolutions) ➔ `mate-ai-evals` (Promptfoo + DeepEval) ➔ `mate-ai-redteam` ➔ `mate-ai-observability` (OTel/Langfuse/Phoenix traces) | `npx mate-sdt setup-ai`<br>`npx mate-sdt dataset <agent>`<br>`npm run eval:promptfoo`<br>`npm run eval:redteam`<br>`npm run eval:traces` |
+| **AI Agent / RAG System** | **Level 3: Docs / Existing Dataset & Production Traces** (Langfuse / Arize Phoenix / OpenTelemetry) | **`/mate-flow-ai-agent`** | `mate-ai-observability` (Trace forensics & fault isolation: `[RETRIEVER_DEFECT]` vs `[GENERATOR_DEFECT]`) ➔ `mate-ai-evals` ➔ `mate-ai-redteam` | `npm run eval:traces`<br>`npm run eval:deepeval`<br>`npx mate-sdt bug <agent>` |
+| **Greenfield Feature (Any Stack)** | **Level 5: Spec-First Idea** (Building a brand-new module before code exists) | **`/mate-flow-greenfield`** | `mate-model` (`*.mate-spec.md` + Forbidden Transitions) ➔ `mate-assert-playwright` / `mate-assert-api` ➔ `mate-threat` (`>=85%` Podman mutation) ➔ `mate-explore` | `npx mate-sdt validate`<br>`npx mate-sdt mutate`<br>`npx mate-sdt charter <mod>` |
+| **Legacy / Brownfield Repo** | **Level 4: Existing Flaky Suite** (Tests full of `waitForTimeout`, `.only`, or raw locators) | **`/mate-flow-triage`** & **`/mate-flow-brownfield`** | `mate-maintenance` (`npx mate-sdt audit`) + `mate-triage` + `mate-pw-forensics` ➔ Refactor to `BasePage` / `BaseComponent` | `npx mate-sdt audit`<br>`npx mate-sdt gate` |
+| **High-Traffic API / Checkout** | **Non-Functional SLA Verification** (Need Load, Stress, Spike, or Soak testing) | **`/mate-flow-performance`** | `mate-performance-k6` (Podman k6 execution enforcing `<performance_oracles>`) | `npx mate-sdt k6 tests/nfr/<script>.k6.js` |
 
 ---
 
