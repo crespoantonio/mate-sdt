@@ -18,6 +18,10 @@ This skill governs **Phase 1 of `@playwright/cli` in M.A.T.E.**: using the brows
 > **Tool-First Grounding (Zero Reasoning Speculation):**  
 > When operating on frontier reasoning models (e.g., Claude 5.5 with Extended Thinking, OpenAI GPT-6, DeepSeek V4), **NEVER burn reasoning/thinking tokens trying to deduce or guess DOM selectors, CSS classes, or component hierarchies in internal thoughts.**  
 > **Invoke `@playwright/cli` (`open`, `snapshot`, `eval`) immediately.** Every locator and assertion must be grounded on live accessibility snapshots, not internal speculation.
+>
+> **The Discrepancy Escalation Gate (Never Adapt Silently):**  
+> If during `@playwright/cli` live exploration you discover ANY mismatch with the User Story (e.g. an undocumented mandatory field like `house_number`, differing error message copy, unexpected state reset, or account lockout):  
+> **STOP IMMEDIATELY.** Do NOT unilaterally patch Page Objects, use permissive regexes, or bypass flows with silent workarounds. Ask the human engineer whether the behavior represents a Defect (`test.fail()`) or an intentional Specification Update before proceeding.
 
 ---
 

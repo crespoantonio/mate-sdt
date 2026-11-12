@@ -38,6 +38,11 @@ Its purpose is to ensure that any software project implements a quality architec
 3. **The Anti-Greenwashing Mandate (Never Only Write Tests That Pass):**  
    - **Specification Over Implementation:** The User Story and `*.mate-spec.md` are the source of truth—never the potentially buggy application.
    - **4-Quadrant Coverage:** Every feature must have Test Cases and Automated Tests covering **Happy Paths, Border/Boundary Cases, Negative Paths, and Forbidden State Transitions**.
+   - **Zero Permissive Regexes (`MATE-ANTI-06`):** Never write ambiguous alternative regex assertions (e.g. `toContainText(/A|B/)` or `/already in use|already exists/i`) to artificially mask copy or behavior mismatches between the User Story and the live application.
+   - **Zero Silent Workarounds:** Never silently inject undocumented mandatory fields into Page Objects, switch test accounts without explaining why, or bypass broken navigation paths without human consultation.
+   - **Mandatory Discrepancy Escalation:** Whenever a gap or discrepancy between User Story and live app is discovered, the agent **MUST PAUSE and ask the human engineer**:
+     - *Is this a real defect?* ➔ Assert the literal User Story requirement, mark with `test.fail(true, 'BUG-XXX: ...')`, and file `tests/bugs/BUG-*.md`.
+     - *Or is this an intentional spec update?* ➔ Update `specs/*.mate-spec.md` and `docs/test-cases/` first, then automate against the approved new criteria.
    - **Keep & Flag Failing Tests:** If a test that *should* pass according to the User Story / Spec **fails** against the live app, **NEVER delete the test or weaken the assertion** to make the suite green. Keep the test with its real assertion, annotate it with `test.fail(true, 'BUG-XXX: violates INV-YY / TC-ZZ')` (or `test.fixme()`), generate `tests/bugs/BUG-*.md` (`npx mate-sdt bug`), and report it clearly to the tester.
 4. **Strict Handling Uncertainty Protocol:**  
    - **Never Assume:** Do not invent SLAs, authentication flows, or undocumented business rules.

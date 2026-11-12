@@ -49,6 +49,15 @@ const AUDIT_RULES = [
     remediation: 'Prefer semantic accessibility locators: getByRole, getByLabel, or getByTestId.',
     testFilesOnly: false,
   },
+  {
+    code: 'MATE-ANTI-06',
+    name: 'Permissive Discrepancy Regex in Assertions (Silent Greenwashing)',
+    severity: 'HIGH',
+    penalty: 8,
+    regex: /(?:toContainText|toHaveText|toHaveValue|toHaveTitle|toHaveURL)\s*\(\s*\/[^/]+\|[^/]+\/[a-z]*\s*\)/,
+    remediation: 'Do not use permissive alternative regexes (/A|B/) to paper over copy/spec discrepancies. Escalate to the user: assert the exact requirement and use test.fail() if it is a defect, or update the spec if intentional.',
+    testFilesOnly: true,
+  },
 ];
 
 function isScannableFile(fileName) {

@@ -78,6 +78,18 @@ AI agents frequently fall into the **"Greenwashing Trap"**: only writing happy-p
      ```
    - **Generate the Bug Report:** Run `npx mate-sdt bug <module>` to create `tests/bugs/BUG-*.md`.
    - **Alert the Tester Clearly:** Always present an explicit summary table distinguishing passing tests (`✅ PASS`) from tests exposing real application defects (`⚠️ KNOWN FAIL — test.fail() linked to BUG-XXX`).
+3. **The Discrepancy Escalation Protocol (Zero Silent Adaptations & Anti-Permissive Regex):**  
+   Whenever live application behavior contradicts or deviates from the User Story / Spec (e.g., copy mismatches, undocumented mandatory fields, unexpected state reset on refresh, account lockouts on shared seed data):
+   - **ABSOLUTE PROHIBITION ON PERMISSIVE REGEXES (`MATE-ANTI-06`):** Never write ambiguous alternative regexes like `/already in use|already exists/i` to make a test pass when the copy differs from the Acceptance Criteria. This is silent greenwashing.
+   - **ABSOLUTE PROHIBITION ON SILENT WORKAROUNDS:** Never silently add undocumented mandatory fields to Page Objects without notifying the engineer, and never silently bypass a failing user journey (e.g., direct URL navigation vs. SPA click) without asking if the URL behavior is a bug.
+   - **MANDATORY ESCALATION TO USER:** The agent MUST PAUSE and ask the human engineer:
+     > ⚠️ **DISCREPANCIA DETECTADA: [Módulo / Campo / Comportamiento]**  
+     > • **Lo que especifica la User Story:** `[Texto exacto del AC / Invariante]`  
+     > • **Lo que hace la aplicación en vivo:** `[Texto o comportamiento real observado]`  
+     >  
+     > **¿Cómo procedemos?**  
+     > 1. **Opción A (Defecto / Bug):** La app está violando la especificación. Mantenemos el assert literal estricto de la User Story, marcamos el test con `test.fail(true, 'BUG-XXX: ...')` y generamos el bug report.  
+     > 2. **Opción B (Actualizar Especificación):** La User Story estaba desactualizada y la app refleja el comportamiento deseado por Producto. Actualizamos `specs/*.mate-spec.md` y `docs/test-cases/`, y luego automatizamos con el nuevo criterio aprobado.
 
 ---
 
