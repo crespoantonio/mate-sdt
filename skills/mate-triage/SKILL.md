@@ -51,8 +51,23 @@ Every failing test must be classified with an explicit confidence level (`High`,
 
 Unlike generic bug tickets, a **M.A.T.E. Bug Report** explicitly traces the defect back to the User Story and specification clause it violated:
 - **Violated Specification & Test Case:** `specs/[module].mate-spec.md` (`INV-XX`) & `docs/test-cases/TC-[module].md` (`TC-XX`)
-- **Automated Test Guard:** Points to the exact `test.fail()` spec in `tests/e2e/[module].spec.ts` so once developers fix the bug, Playwright automatically alerts QA that the `test.fail()` test is now passing!
+- **Automated Test Guard:** Points to the exact `test.fail()` spec in `tests/e2e/[module].spec.ts`.
 - **External Issue Tracker Sync:** If an Atlassian (Jira), GitHub Issues, Linear, or Notion MCP is connected, offer to create or link the bug ticket directly in the issue tracker.
+
+---
+
+## 🚨 The Active Defect Canary Pattern (`test.fail()` Lifecycle & Fix Alerting)
+
+In M.A.T.E., known product defects are NEVER swept under the rug with `test.skip()` or permissive regexes (`/A|B/`). We use `test.fail()` as an **Active Defect Canary**:
+
+1. **Defect Tracking Without Pipeline Blockage:**  
+   Annotating a test with `test.fail(true, 'BUG-XXX: ...')` keeps the test running against the live app. While the bug is present, Playwright marks it with `x` (expected failure). The CI run remains green, preventing pipeline blockage while transparently reporting the defect.
+2. **The Active Tripwire (Automatic Fix Alerting):**  
+   The moment developers fix the application and the test starts passing, Playwright **INTENTIONALLY FAILS THE RUN** with:  
+   `Error: Expected test to fail, but it passed!`  
+   This provides instant feedback to QA that the bug has been resolved, forcing the team to remove `test.fail()`, promote the test to standard green status, and close the bug report in `tests/bugs/`.
+3. **Absolute Prohibition of `test.skip()` for Known Bugs:**  
+   Never use `test.skip()` to handle application defects. Skipped tests do not execute, cannot alert when fixed, and become dead rotting code. Always use `test.fail()` with strict literal assertions from the Acceptance Criteria.
 
 ---
 

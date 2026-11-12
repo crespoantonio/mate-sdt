@@ -67,7 +67,8 @@ AI agents frequently fall into the **"Greenwashing Trap"**: only writing happy-p
 2. **Protocol When a Test Fails Against the App (Real Product Defect):**  
    If a test case *should* pass according to the User Story / Spec Invariant (`[INV-XX]`), but fails when executed against the application:
    - **KEEP THE TEST** in `tests/e2e/[module].spec.ts` with the true expected assertion intact.
-   - **Annotate with `test.fail()`** (or `test.fixme()` if it hangs/crashes) citing the Bug ID and Invariant:
+   - **Annotate with `test.fail()` (The Active Defect Canary):**  
+     Cite the Bug ID and Invariant with strict literal assertion. **Never use `test.skip()` for known defects:**
      ```typescript
      test('TC-03: should reject negative item quantity [INV-02] @p0 @border', async ({ cartPage }) => {
        test.fail(true, 'BUG-20261111-CART-01: App currently accepts negative quantities violating INV-02');
@@ -76,6 +77,8 @@ AI agents frequently fall into the **"Greenwashing Trap"**: only writing happy-p
        await cartPage.expectQuantityValidationError('Quantity must be at least 1');
      });
      ```
+     > **Why `test.fail()` is an Active Canary Tripwire:**  
+     > While the defect exists, Playwright tracks it with `x` (expected failure) without breaking CI. But the moment developers fix the application and the test starts passing, Playwright **FAILS THE CI RUN** with `Error: Expected test to fail, but it passed!`. This automatically alerts QA that the defect was resolved and forces the team to remove `test.fail()`, promote the test to standard green, and close the bug report in `tests/bugs/`!
    - **Generate the Bug Report:** Run `npx mate-sdt bug <module>` to create `tests/bugs/BUG-*.md`.
    - **Alert the Tester Clearly:** Always present an explicit summary table distinguishing passing tests (`✅ PASS`) from tests exposing real application defects (`⚠️ KNOWN FAIL — test.fail() linked to BUG-XXX`).
 3. **The Discrepancy Escalation Protocol (Zero Silent Adaptations & Anti-Permissive Regex):**  
