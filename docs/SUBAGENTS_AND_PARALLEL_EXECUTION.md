@@ -86,6 +86,22 @@ CONSTRAINTS:
 4. Output only: Executive verdict, defect classification, and recommended Golden Dataset entries.
 ```
 
+### Template 4: The Playwright Execution & Triage Runner (`mate-triage` + `mate-assert-playwright`)
+```text
+ROLE: M.A.T.E. Test Execution & Triage Specialist
+TASK: Execute test suite `[SPEC_PATH_OR_CMD]` (e.g. `npx playwright test tests/e2e/[module].spec.ts`).
+CONSTRAINTS (CRITICAL CONTEXT BUDGET):
+1. Do NOT dump raw stdout, color ANSI codes, or verbose 500-line stack traces to the parent cockpit thread.
+2. If tests PASS: Return only exit code, test count, and total duration (e.g., "✅ 4/4 tests passed in 3.2s").
+3. If tests FAIL: Extract ONLY:
+   - Failing test case name and line number.
+   - Exact assertion difference (`Expected` vs `Received`).
+   - Spec Invariant violated (`INV-XX`).
+   - Attached screenshot, video, or trace zip path.
+4. If an application bug is confirmed, draft or update tests/bugs/BUG-[module].md.
+5. Output only: 5-to-10 line compressed execution verdict.
+```
+
 ---
 
 ## ⚡ 4. Workflows with Parallel Eligibility (`[PARALLEL_SUBAGENT_ELIGIBLE]`)
@@ -94,7 +110,10 @@ The following M.A.T.E. workflows explicitly flag steps that can be run concurren
 
 1. **`/mate-flow-user-story`:**
    - *Phase 1:* Sub-Agent A generates `TC-*.md` matrices while Sub-Agent B runs `@playwright/cli` live recon on the staging environment.
+   - *Phase 5:* Test execution and triage run in an isolated Sub-Agent, keeping the main cockpit thread under 3,000 tokens.
 2. **`/mate-flow-zero-to-one`:**
    - *Phase 2:* Sub-Agent A builds the Risk Matrix (`TEST-STRATEGY.md`) while Sub-Agent B maps the smoke journey locators in `src/pages/`.
 3. **`/mate-flow-ai-agent`:**
    - *Phase 2 & 3:* Promptfoo functional evals and OWASP Red-Teaming run concurrently in separate sub-agent execution runs.
+4. **`/mate-flow-brownfield` & `/mate-flow-triage`:**
+   - Full suite execution and Stryker mutation testing run in isolated runner sub-agents without polluting the parent transcript.

@@ -14,6 +14,11 @@ description: >-
 
 This skill governs post-execution analysis when live CLI validation, automated test runs, or exploratory charters uncover failures. It enforces M.A.T.E.'s **Anti-Greenwashing Protocol** by ensuring real product defects are documented, linked to specification invariants, and tracked transparently.
 
+> ⚡ **CRITICAL CONTEXT ENGINEERING RULE (Log Compression & Sub-Agents):**  
+> Never dump 300+ lines of raw terminal test logs or ANSI stack traces into the primary conversation thread!  
+> 1. **Sub-Agent Execution:** Whenever possible, run `npx playwright test` inside an isolated sub-agent (see Template 4 in [`docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md`](../../docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md)). The sub-agent consumes the verbose logs in its own thread and returns only a 5-line summary to the main cockpit.  
+> 2. **Log Redirection:** If sub-agents are unavailable, run test commands with output redirected (e.g., `npx playwright test --reporter=list > .mate/test-run.log`) and read only the failure summary and diff.
+
 > **CRITICAL RULE:** Always read `MATE-PROJECT-MAP.md` and the relevant `specs/[module].mate-spec.md` before triaging failures or drafting bug reports.
 
 ---

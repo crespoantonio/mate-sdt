@@ -73,6 +73,7 @@ flowchart LR
 
 ## Step 5: Forensic Evidence & Bug Reporting (`mate-triage` + `mate-pw-forensics`)
 1. Execute the automated test suite (`npx playwright test tests/e2e/<module>.spec.ts`).
+   > ⚡ **Parallel Sub-Agent Execution:** Delegate test execution to an isolated sub-agent (Template 4 in `docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md`) so verbose terminal output and stack traces do not burn tokens in the primary conversation cockpit.
 2. For every test case that exposed a real application bug:
    - Capture screenshot/trace/video evidence via `mate-pw-forensics` if not already captured.
    - Generate a spec-linked Bug Report in `tests/bugs/` via `npx mate-sdt bug <module>`.
