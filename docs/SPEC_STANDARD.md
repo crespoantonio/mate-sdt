@@ -57,3 +57,26 @@ Must define at least one time-boxed human exploratory mission (30–60 minutes) 
 *   UX ergonomics and emotional trust.
 *   WCAG 2.1 AA accessibility (keyboard-only + screen reader).
 *   Real-world network/device interruptions.
+
+---
+
+## 3. Epistemic Provenance Tags (Context Isolation)
+
+To prevent **Context Poisoning** (where an AI agent hallucinates a business rule and later treats its own assumption as ground truth), every discovered rule, transition, or invariant in a `*.mate-spec.md` or `tests/cases/TC-*.md` file must carry an **Epistemic Provenance Tag**:
+
+*   **`[OBSERVED]`**: Empirically verified against live application behavior (`playwright-cli` session, network capture) or explicit source code/documentation.
+*   **`[INFERRED]`**: Logically deduced from UI labels, HTTP status codes, or standard domain conventions, pending stakeholder confirmation.
+*   **`[TBD]`**: Ambiguous, missing, or contradictory requirement. **AI agents are strictly forbidden from writing permanent automated assertions on `[TBD]` items** until resolved.
+
+Audited automatically via `npx mate-sdt context [module]`.
+
+---
+
+## 4. Pragmatic Execution Mode Classification (`tests/cases/TC-*.md`)
+
+Not every test case belongs in an automated E2E script. Every test case designed from a `*.mate-spec.md` or User Story must be classified into one of four **Execution Modes** with an explicit engineering rationale:
+
+1.  **`[AUTOMATE_UI]`**: Deterministic, repeatable user journeys and critical DOM state transitions (`tests/e2e/<module>.spec.ts`).
+2.  **`[AUTOMATE_API]`**: Fast boundary value analysis (BVA), combinatorial data permutations, schema validations, and HTTP status codes (`tests/api/<module>.spec.ts`).
+3.  **`[MANUAL_TEST]`**: Scenarios where automation has negative ROI or requires human perception/physical hardware (e.g., visual print/PDF/email layout, physical camera/QR scanning, third-party CAPTCHA/SMS/OAuth gates, or one-off migrations). Documented with step-by-step instructions and an explicit *"Why Manual"* justification in `tests/cases/TC-<module>.md`.
+4.  **`[EXPLORATORY_CHARTER]`**: Context-aware human exploratory testing missions (`tests/charters/CHR-*.md`) targeting complex UX heuristics and edge cases.

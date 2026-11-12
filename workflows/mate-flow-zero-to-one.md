@@ -42,7 +42,7 @@ flowchart LR
 2. Walk through each P0 Golden Path in `playwright-cli` (`mate-pw-recon`), extracting semantic locators (`getByRole`, `getByLabel`, `getByTestId`).
 3. Encapsulate shared widgets in `src/components/*.component.ts` (`BaseComponent`), pages in `src/pages/*.page.ts` (`BasePage`), and register them in `src/fixtures/mate.fixtures.ts` and `MATE-PROJECT-MAP.md`.
 4. Automate the `@smoke @p0` suite (`tests/e2e/smoke.spec.ts` and `tests/api/health.spec.ts`).
-5. Run `npm run test:smoke` and `npx mate-sdt audit` (`Grade A` verification). The team now has an automated 2-minute production safety net!
+5. Run `npm run test:smoke` and `npx mate-sdt gate` (verifying `GATE-01-CONTEXT` through `GATE-04-SOLID-AUDIT` and writing `.mate/harness-state.json`). The team now has an automated 2-minute production safety net!
 
 ---
 

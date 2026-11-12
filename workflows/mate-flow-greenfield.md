@@ -12,9 +12,9 @@ Execute this step-by-step workflow when building or testing a new feature from s
 
 ---
 
-## Step 1: Context Check (`mate-core`)
-1. Read `MATE-PROJECT-MAP.md` at the root of the repository (or run `npx mate-sdt init` if missing).
-2. Apply the **Handling Uncertainty Protocol**: if actors, state transitions, or SLAs are ambiguous, ask the user before proceeding.
+## Step 1: Context Engineering & JIT Slice (`mate-core`)
+1. Read `MATE-PROJECT-MAP.md` at the root of the repository (or run `npx mate-sdt init` if missing) and run `npx mate-sdt context [module]` to check the Tier-1 RAM token budget (`<= 3,000 tokens`) and generate `.mate/context-pack-[module].md`.
+2. Apply the **Handling Uncertainty & Epistemic Isolation Protocol**: tag empirical facts as `[OBSERVED]`, deductions as `[INFERRED]`, and ambiguous requirements as `[TBD]`.
 
 ## Step 2: Pillar M — Model Intent & Forbidden Transitions (`mate-model`)
 1. Create `specs/[module].mate-spec.md` from `specs/TEMPLATE_MATE_SPEC.md`.
@@ -47,4 +47,4 @@ Execute this step-by-step workflow when building or testing a new feature from s
    ```bash
    npx mate-sdt charter [module]
    ```
-2. After the human Quality Engineer completes exploratory & WCAG 2.1 AA testing, record the formal Release Verdict (`[PASS]`, `[CONCERNS]` with `npx mate-sdt waiver [module]`, or `[FAIL]`) in `MATE-PROJECT-MAP.md`.
+2. After the human Quality Engineer completes exploratory & WCAG 2.1 AA testing, run the **5-Gate Harness Verification Loop** (`npx mate-sdt gate`) and record the formal Release Verdict (`[PASS]`, `[CONCERNS]` with `npx mate-sdt waiver [module]`, or `[FAIL]`) in `MATE-PROJECT-MAP.md`.

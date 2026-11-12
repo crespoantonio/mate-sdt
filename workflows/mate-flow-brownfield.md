@@ -12,10 +12,10 @@ Execute this workflow when onboarding an existing/legacy repository or an undocu
 
 ---
 
-## Step 1: Surface Reconnaissance (`mate-core` & `mate-model`)
+## Step 1: Surface Reconnaissance (`mate-core`, `mate-pw-recon` & `mate-model`)
 Choose the appropriate reconnaissance path (or combine both):
-- **Path A (Source Code Scan):** Inspect `package.json` / `pom.xml` / `pyproject.toml`, API routing tables, controllers, ORM models, and existing test suites.
-- **Path B (Live Page Exploration via Playwright MCP):** Follow `skills/mate-model/references/live-page-reconnaissance.md` to navigate the live URL, inventory DOM elements/forms, and observe state transitions without executing destructive actions.
+- **Path A (Source Code & Legacy Suite Scan):** Inspect `package.json` / `pom.xml` / `pyproject.toml`, API routing tables, controllers, ORM models, and existing manual/legacy test suites (`skills/mate-story-testcases/references/legacy-manual-migration.md`).
+- **Path B (Live Browser & Network Reconnaissance via `@playwright/cli`):** Activate `mate-pw-recon` (`playwright-cli open <url>`, `snapshot`, `network`) and follow `skills/mate-pw-recon/references/network-api-discovery.md` to inventory DOM elements, observe state transitions, and reverse-engineer backend API endpoints without executing destructive actions.
 
 ## Step 2: Initialize or Update `MATE-PROJECT-MAP.md` (`mate-core`)
 1. Run `npx mate-sdt init` if the project has not been initialized yet.
@@ -30,9 +30,7 @@ Choose the appropriate reconnaissance path (or combine both):
    npx mate-sdt validate specs/[module].mate-spec.md
    ```
 
-## Step 4: Audit Existing Tests & Freeze P0 Invariants (`mate-maintenance` & `mate-assert-playwright`)
-1. Audit any existing test suite for flaky anti-patterns:
-   ```bash
-   npx mate-sdt audit
-   ```
+## Step 4: Audit Existing Tests, Freeze P0 Invariants & Run Harness Gate (`mate-maintenance` & `mate-assert-playwright`)
+1. Audit any existing test suite for flaky anti-patterns (`npx mate-sdt audit`).
 2. Automate and lock the P0 business invariants (`tests/e2e/` and `tests/api/`) so legacy refactoring cannot silently break production behavior.
+3. Run `npx mate-sdt context [module]` and `npx mate-sdt gate` to verify all 5 Harness Engineering gates (`GATE-01-CONTEXT` through `GATE-04-SOLID-AUDIT` + `.mate/harness-state.json`).

@@ -17,13 +17,13 @@ flowchart LR
 
 ---
 
-## Step 1: Read Living Map & Ingest User Story (`mate-core` + `mate-story-testcases`)
-1. Read `MATE-PROJECT-MAP.md` first to understand the project's domain modules, existing Page Objects, Component Objects, and Fixtures.
+## Step 1: Read Living Map, Slice JIT Context & Ingest User Story (`mate-core` + `mate-story-testcases`)
+1. Read `MATE-PROJECT-MAP.md` first and run `npx mate-sdt context <module>` to verify the Tier-1 RAM token budget (`<= 3,000 tokens`) and generate the Just-In-Time Context Pack (`.mate/context-pack-<module>.md`).
 2. Ingest the User Story from the source provided by the tester:
    - **Atlassian MCP (Jira / Confluence / Xray):** Fetch the issue summary, description, acceptance criteria, and linked pages via MCP.
    - **Notion / Linear / GitHub Issues MCP:** Fetch the requirement page or ticket via MCP.
    - **Local File (`.xlsx`, `.csv`, `.md`, `.txt`) or Pasted Text:** Read the file or text directly.
-3. Apply the **Handling Uncertainty Protocol**: if an acceptance criterion is ambiguous or contradictory, ask the tester or flag `[TBD]`.
+3. Apply the **Handling Uncertainty & Epistemic Isolation Protocol**: tag empirical facts as `[OBSERVED]`, deductions as `[INFERRED]`, and ambiguous acceptance criteria as `[TBD]`.
 
 ---
 
@@ -76,9 +76,9 @@ flowchart LR
 
 ---
 
-## Step 6: Architectural Health Gate & Final Tester Report (`mate-maintenance`)
-1. Run `npx mate-sdt audit` to confirm `Grade A (100/100)` compliance (zero `waitForTimeout`, zero `.only`, 100% DIP fixture usage).
+## Step 6: 5-Gate Harness Verification Loop & Final Tester Report (`mate-maintenance`)
+1. Run `npx mate-sdt gate` (which executes `GATE-01-CONTEXT`, `GATE-02-SPEC-MODEL`, `GATE-03-ANTI-GREENWASHING`, `GATE-04-SOLID-AUDIT`, and persists `.mate/harness-state.json`). If any gate fails, follow the `[SELF-CORRECTION]` prompts until all 5 gates pass.
 2. Present a clear **Daily QA Execution Summary** to the tester:
-   - **Total Test Cases Designed & Automated:** `N` (`Happy`, `Border`, `Negative`, `State`)
-   - **Passing Tests (`✅ PASS`):** List of verified working scenarios.
+   - **Total Test Cases Designed (`N` across `Happy`, `Border`, `Negative`, `State`):** Breakdown of `[AUTOMATE_UI]`, `[AUTOMATE_API]`, `[MANUAL_TEST]` (with rationale), and `[EXPLORATORY_CHARTER]`.
+   - **Passing Automated Tests (`✅ PASS`):** List of verified working scenarios.
    - **Failing Tests Exposing Real Bugs (`⚠️ KNOWN FAIL — test.fail()`):** Explicit callout of which User Story requirements failed, the generated `tests/bugs/BUG-*.md` file paths, and the exact `test.fail()` guards added to the suite.
