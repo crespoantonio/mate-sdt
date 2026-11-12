@@ -48,7 +48,7 @@ Use the **`/mate-flow-user-story`** workflow:
     *   Classifies every test case (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) into **`AUTOMATE_UI`**, **`AUTOMATE_API`**, **`MANUAL_TEST`**, or **`EXPLORATORY_CHARTER`** with an explicit engineering rationale.
     *   Includes a step-by-step **Manual Test Execution Guide** for cases that should not be automated, plus tailored **Exploratory Testing Recommendations**.
 3.  **Live Browser Verification (`mate-pw-recon`):** Opens the live app with `playwright-cli` to verify whether the User Story and border cases actually work and extracts semantic locators.
-4.  **SOLID Automation & Anti-Greenwashing (`mate-pw-codegen` + `mate-assert-playwright`):** Automates all `AUTOMATE_UI` and `AUTOMATE_API` cases. If a test fails because the app has a bug, M.A.T.E. **keeps the test**, marks it with `test.fail(true, 'BUG-XXX')`, generates `tests/bugs/BUG-*.md` (`npx mate-sdt bug <module>`), and reports it clearly.
+4.  **SOLID Automation & Anti-Greenwashing (`mate-pw-codegen` + `mate-assert-playwright`):** Automates all `AUTOMATE_UI` and `AUTOMATE_API` cases. If a test fails because the app has a bug, M.A.T.E. **keeps the test**, marks it with `test.fail(true, 'BUG-XXX')`, generates `docs/bugs/BUG-*.md` (`npx mate-sdt bug <module>`), and reports it clearly.
 
 ---
 

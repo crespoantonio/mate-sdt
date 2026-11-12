@@ -63,4 +63,4 @@ If an AI evaluation fails on a Golden test case:
    - **Retriever Failure:** Relevant chunk was missing from `retrieval_context`.
    - **Prompt/Generator Hallucination:** Chunk was present, but LLM ignored it or extrapolated.
    - **Tool Schema Ambiguity:** Agent called the wrong tool or passed malformed arguments.
-3. Generate a forensic bug report via `npx mate-sdt bug <module>` (`tests/bugs/BUG-*.md`) documenting the exact prompt, retrieved chunks, tool trajectory, and metric score.
+3. Generate a forensic bug report via `npx mate-sdt bug <module>` (`docs/bugs/BUG-*.md`) documenting the exact prompt, retrieved chunks, tool trajectory, and metric score.

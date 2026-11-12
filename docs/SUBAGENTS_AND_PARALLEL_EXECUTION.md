@@ -98,7 +98,7 @@ CONSTRAINTS (CRITICAL CONTEXT BUDGET):
    - Exact assertion difference (`Expected` vs `Received`).
    - Spec Invariant violated (`INV-XX`).
    - Attached screenshot, video, or trace zip path.
-4. If an application bug is confirmed, draft or update tests/bugs/BUG-[module].md.
+4. If an application bug is confirmed, draft or update docs/bugs/BUG-[module].md.
 5. Output only: 5-to-10 line compressed execution verdict.
 ```
 

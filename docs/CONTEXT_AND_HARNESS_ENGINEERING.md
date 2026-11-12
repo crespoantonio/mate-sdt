@@ -81,7 +81,7 @@ sequenceDiagram
 2. **Deterministic Guardrails (`src/cli/validator.js` & `src/cli/auditor.js`):**
    Hard-coded static analyzers that reject specs missing **Explicit Forbidden Transitions** and block test code containing `waitForTimeout()` (`MATE-ANTI-01`), `.only` (`MATE-ANTI-02`), direct `new *Page()` DIP violations (`MATE-ANTI-03`), weak assertions (`MATE-ANTI-04`), fragile XPath (`MATE-ANTI-05`), or hardcoded secrets (`MATE-ANTI-06`).
 3. **Anti-Greenwashing Guardrail (`GATE-03`):**
-   Deterministically cross-checks `test.fail()` / `test.fixme()` annotations in `tests/**/*.spec.ts` against `tests/bugs/BUG-*.md` so an AI agent can never silently hide a failing product requirement without generating a traceable Bug Report.
+   Deterministically cross-checks `test.fail()` / `test.fixme()` annotations in `tests/**/*.spec.ts` against `docs/bugs/BUG-*.md` so an AI agent can never silently hide a failing product requirement without generating a traceable Bug Report.
 4. **Closed-Loop Verification & Self-Correction (`npx mate-sdt gate`):**
    Runs all 4 deterministic gates in a single pass and emits machine-actionable `[SELF-CORRECTION]` instructions (plus `--json` output) so the agent repairs its own mistakes before ending its turn.
 5. **Durable State Persistence & Sandboxing (`.mate/harness-state.json` & Rootless Podman):**

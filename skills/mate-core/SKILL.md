@@ -41,9 +41,9 @@ Its purpose is to ensure that any software project implements a quality architec
    - **Zero Permissive Regexes (`MATE-ANTI-06`):** Never write ambiguous alternative regex assertions (e.g. `toContainText(/A|B/)` or `/already in use|already exists/i`) to artificially mask copy or behavior mismatches between the User Story and the live application.
    - **Zero Silent Workarounds:** Never silently inject undocumented mandatory fields into Page Objects, switch test accounts without explaining why, or bypass broken navigation paths without human consultation.
    - **Mandatory Discrepancy Escalation:** Whenever a gap or discrepancy between User Story and live app is discovered, the agent **MUST PAUSE and ask the human engineer**:
-     - *Is this a real defect?* ➔ Assert the literal User Story requirement, mark with `test.fail(true, 'BUG-XXX: ...')`, and file `tests/bugs/BUG-*.md`.
+     - *Is this a real defect?* ➔ Assert the literal User Story requirement, mark with `test.fail(true, 'BUG-XXX: ...')`, and file `docs/bugs/BUG-*.md`.
      - *Or is this an intentional spec update?* ➔ Update `specs/*.mate-spec.md` and `docs/test-cases/` first, then automate against the approved new criteria.
-   - **Keep & Flag Failing Tests:** If a test that *should* pass according to the User Story / Spec **fails** against the live app, **NEVER delete the test or weaken the assertion** to make the suite green. Keep the test with its real assertion, annotate it with `test.fail(true, 'BUG-XXX: violates INV-YY / TC-ZZ')` (or `test.fixme()`), generate `tests/bugs/BUG-*.md` (`npx mate-sdt bug`), and report it clearly to the tester.
+   - **Keep & Flag Failing Tests:** If a test that *should* pass according to the User Story / Spec **fails** against the live app, **NEVER delete the test or weaken the assertion** to make the suite green. Keep the test with its real assertion, annotate it with `test.fail(true, 'BUG-XXX: violates INV-YY / TC-ZZ')` (or `test.fixme()`), generate `docs/bugs/BUG-*.md` (`npx mate-sdt bug`), and report it clearly to the tester.
 4. **Strict Handling Uncertainty Protocol:**  
    - **Never Assume:** Do not invent SLAs, authentication flows, or undocumented business rules.
    - **Ask First or Mark `[TBD]`:** When critical context is missing, ask targeted clarifying questions or mark `[TBD: needs input on X]` with explicit confidence levels (`Observed` vs. `Inferred`). See [`references/handling-uncertainty.md`](./references/handling-uncertainty.md).
@@ -87,7 +87,8 @@ project-root/
 ├── docs/                        <-- QA Documentation & Strategy
 │   ├── TEST-STRATEGY.md
 │   ├── test-plans/              <-- Sprint / Release Test Plans (TP-*.md)
-│   └── test-cases/              <-- Test Case Matrices (TC-[module].md & .csv for Jira/Xray/Excel/Notion)
+│   ├── test-cases/              <-- Test Case Matrices (TC-[module].md & .csv for Jira/Xray/Excel/Notion)
+│   └── bugs/                    <-- Structured bug reports linked to invariants (BUG-*.md)
 ├── specs/                       <-- M.A.T.E. specifications & release waivers
 │   ├── TEMPLATE_MATE_SPEC.md
 │   ├── waivers/                 <-- Formal Release Waivers (WVR-*.md)
@@ -98,7 +99,6 @@ project-root/
 │   ├── threats/                 <-- Concurrency, race conditions, idempotency, fuzzing
 │   ├── nfr/                     <-- Performance (k6) and resilience scripts (*.k6.js)
 │   ├── charters/                <-- Human exploratory testing sessions (CHR-*.md)
-│   ├── bugs/                    <-- Structured bug reports linked to invariants (BUG-*.md)
 │   └── ai-evals/                <-- [On-Demand AI Pack] Datasets, Promptfoo, DeepEval & OTel Trace Auditor
 ├── src/
 │   ├── pages/                   <-- Page Object Model extending BasePage (OOP / SOLID)

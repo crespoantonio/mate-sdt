@@ -27,7 +27,7 @@ This skill governs **Pillar A (Assert — UI Architecture)** of the M.A.T.E. Met
 | :--- | :--- | :--- |
 | **Upstream** | **`mate-story-testcases`, `mate-model` & `mate-pw-recon`** | Supplies the validated `*.mate-spec.md`, the 4-quadrant Test Case Matrix (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`), and live-verified DOM locators. |
 | **Companion (CLI Codegen)** | **`mate-pw-codegen`** | Executes `@playwright/cli` code generation, `storageState` auth capture, and `route` network mocking following the architectural rules defined here. |
-| **Downstream (Defects)** | **`mate-triage` & `mate-pw-forensics`** | When a test fails against the app due to a real product bug, captures trace/video evidence, creates `tests/bugs/BUG-*.md` (`npx mate-sdt bug`), and links it to the `test.fail()` annotation. |
+| **Downstream (Defects)** | **`mate-triage` & `mate-pw-forensics`** | When a test fails against the app due to a real product bug, captures trace/video evidence, creates `docs/bugs/BUG-*.md` (`npx mate-sdt bug`), and links it to the `test.fail()` annotation. |
 | **Downstream (Health Gate)** | **`mate-maintenance`** | Verifies via `npx mate-sdt audit` that the generated code scores `Grade A (100/100)` with zero sleeps, zero `.only`, and 100% DIP compliance. |
 
 ---
@@ -78,8 +78,8 @@ AI agents frequently fall into the **"Greenwashing Trap"**: only writing happy-p
      });
      ```
      > **Why `test.fail()` is an Active Canary Tripwire:**  
-     > While the defect exists, Playwright tracks it with `x` (expected failure) without breaking CI. But the moment developers fix the application and the test starts passing, Playwright **FAILS THE CI RUN** with `Error: Expected test to fail, but it passed!`. This automatically alerts QA that the defect was resolved and forces the team to remove `test.fail()`, promote the test to standard green, and close the bug report in `tests/bugs/`!
-   - **Generate the Bug Report:** Run `npx mate-sdt bug <module>` to create `tests/bugs/BUG-*.md`.
+     > While the defect exists, Playwright tracks it with `x` (expected failure) without breaking CI. But the moment developers fix the application and the test starts passing, Playwright **FAILS THE CI RUN** with `Error: Expected test to fail, but it passed!`. This automatically alerts QA that the defect was resolved and forces the team to remove `test.fail()`, promote the test to standard green, and close the bug report in `docs/bugs/`!
+   - **Generate the Bug Report:** Run `npx mate-sdt bug <module>` to create `docs/bugs/BUG-*.md`.
    - **Alert the Tester Clearly:** Always present an explicit summary table distinguishing passing tests (`✅ PASS`) from tests exposing real application defects (`⚠️ KNOWN FAIL — test.fail() linked to BUG-XXX`).
 3. **The Discrepancy Escalation Protocol (Zero Silent Adaptations & Anti-Permissive Regex):**  
    Whenever live application behavior contradicts or deviates from the User Story / Spec (e.g., copy mismatches, undocumented mandatory fields, unexpected state reset on refresh, account lockouts on shared seed data):

@@ -15,7 +15,7 @@
 This Master Test Strategy governs the end-to-end quality engineering process for **[Project Name]** under the **M.A.T.E. Method (Spec-Driven Testing Framework)**.
 
 * **Primary Objective:** Protect business-critical user journeys and domain invariants while maintaining a fast, deterministic, zero-flakiness automated suite (`Grade A` on `npx mate-sdt audit`).
-* **Anti-Greenwashing Policy:** Tests validate **what the specification and User Stories require**, never what buggy implementation code happens to do. Any test that fails due to a real application defect is kept in the suite, annotated with `test.fail(true, 'BUG-XXX')`, and tracked in `tests/bugs/`.
+* **Anti-Greenwashing Policy:** Tests validate **what the specification and User Stories require**, never what buggy implementation code happens to do. Any test that fails due to a real application defect is kept in the suite, annotated with `test.fail(true, 'BUG-XXX')`, and tracked in `docs/bugs/`.
 
 ---
 

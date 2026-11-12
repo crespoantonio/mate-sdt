@@ -14,6 +14,7 @@ const STANDARD_DIRECTORIES = [
   'docs',
   'docs/test-plans',
   'docs/test-cases',
+  'docs/bugs',
   'specs',
   'specs/waivers',
   'tests/e2e',
@@ -21,7 +22,6 @@ const STANDARD_DIRECTORIES = [
   'tests/threats',
   'tests/charters',
   'tests/nfr',
-  'tests/bugs',
   'src/pages',
   'src/components',
   'src/api',
@@ -236,12 +236,12 @@ function installCursor(targetDir) {
     'mate-pw-recon': 'specs/**/*.mate-spec.md,docs/test-cases/**/*,src/pages/**/*.ts,src/components/**/*.ts',
     'mate-assert-playwright': 'tests/e2e/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/fixtures/**/*.ts',
     'mate-pw-codegen': 'tests/e2e/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/mocks/**/*.ts,src/fixtures/**/*.ts',
-    'mate-pw-forensics': 'tests/threats/**/*.ts,tests/charters/**/*.md,tests/bugs/**/*.md',
+    'mate-pw-forensics': 'tests/threats/**/*.ts,tests/charters/**/*.md,docs/bugs/**/*.md',
     'mate-assert-api': 'tests/api/**/*.ts,src/api/**/*.ts,src/models/**/*.ts',
     'mate-threat': 'tests/threats/**/*.ts,stryker.config.json',
     'mate-performance-k6': 'tests/nfr/**/*.js,tests/nfr/**/*.ts',
     'mate-explore': 'tests/charters/**/*.md,specs/waivers/**/*.md',
-    'mate-triage': 'tests/bugs/**/*.md,MATE-PROJECT-MAP.md',
+    'mate-triage': 'docs/bugs/**/*.md,MATE-PROJECT-MAP.md',
     'mate-maintenance': 'tests/**/*.ts,src/**/*.ts',
   };
 
@@ -301,12 +301,12 @@ function installWindsurf(targetDir) {
     'mate-pw-recon': 'specs/**/*.mate-spec.md,docs/test-cases/**/*,src/pages/**/*.ts,src/components/**/*.ts',
     'mate-assert-playwright': 'tests/e2e/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/fixtures/**/*.ts',
     'mate-pw-codegen': 'tests/e2e/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/mocks/**/*.ts,src/fixtures/**/*.ts',
-    'mate-pw-forensics': 'tests/threats/**/*.ts,tests/charters/**/*.md,tests/bugs/**/*.md',
+    'mate-pw-forensics': 'tests/threats/**/*.ts,tests/charters/**/*.md,docs/bugs/**/*.md',
     'mate-assert-api': 'tests/api/**/*.ts,src/api/**/*.ts,src/models/**/*.ts',
     'mate-threat': 'tests/threats/**/*.ts,stryker.config.json',
     'mate-performance-k6': 'tests/nfr/**/*.js,tests/nfr/**/*.ts',
     'mate-explore': 'tests/charters/**/*.md,specs/waivers/**/*.md',
-    'mate-triage': 'tests/bugs/**/*.md,MATE-PROJECT-MAP.md',
+    'mate-triage': 'docs/bugs/**/*.md,MATE-PROJECT-MAP.md',
     'mate-maintenance': 'tests/**/*.ts,src/**/*.ts',
   };
 
@@ -1286,7 +1286,7 @@ function generateBugReport(moduleName, targetDir = '.') {
   const today = new Date().toISOString().slice(0, 10);
   const dateStr = today.replace(/-/g, '');
   const fileName = `BUG-${dateStr}-${safeName}.md`;
-  const destPath = path.join(resolved, 'tests', 'bugs', fileName);
+  const destPath = path.join(resolved, 'docs', 'bugs', fileName);
 
   const templatePath = path.join(
     PACKAGE_ROOT,

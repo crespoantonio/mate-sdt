@@ -46,7 +46,10 @@ function analyzeContextEngineering(targetDir = '.', moduleName = null) {
   );
   const componentFiles = listFilesWithExt(path.join(resolved, 'src', 'components'), '.ts');
   const caseFiles = listFilesWithExt(path.join(resolved, 'docs', 'test-cases'), '.md');
-  const bugFiles = listFilesWithExt(path.join(resolved, 'tests', 'bugs'), '.md');
+  const bugFiles = [
+    ...listFilesWithExt(path.join(resolved, 'docs', 'bugs'), '.md'),
+    ...listFilesWithExt(path.join(resolved, 'tests', 'bugs'), '.md'),
+  ];
 
   const unindexedArtifacts = [];
   if (hasMap) {
@@ -204,16 +207,19 @@ function runHarnessGate(targetDir = '.') {
   const specTestFiles = listFilesWithExt(path.join(resolved, 'tests'), '.spec.ts');
   const allTestCode = specTestFiles.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
   const hasTestFailAnnotations = /test\.(fail|fixme)\s*\(/.test(allTestCode);
-  const bugReports = listFilesWithExt(path.join(resolved, 'tests', 'bugs'), '.md');
+  const bugReports = [
+    ...listFilesWithExt(path.join(resolved, 'docs', 'bugs'), '.md'),
+    ...listFilesWithExt(path.join(resolved, 'tests', 'bugs'), '.md'),
+  ];
 
   let greenwashingViolation = false;
   let greenwashingDetail = 'Anti-Greenwashing traceability intact.';
   if (hasTestFailAnnotations && bugReports.length === 0) {
     greenwashingViolation = true;
     greenwashingDetail =
-      'Found `test.fail()` / `test.fixme()` in test specs without a corresponding Bug Report in `tests/bugs/BUG-*.md`.';
+      'Found `test.fail()` / `test.fixme()` in test specs without a corresponding Bug Report in `docs/bugs/BUG-*.md`.';
     selfCorrectionPrompts.push(
-      '[SELF-CORRECTION GATE-03]: Every `test.fail()` / `test.fixme()` annotation must have a corresponding spec-linked Bug Report in `tests/bugs/`. Run `npx mate-sdt bug <module>`.'
+      '[SELF-CORRECTION GATE-03]: Every `test.fail()` / `test.fixme()` annotation must have a corresponding spec-linked Bug Report in `docs/bugs/`. Run `npx mate-sdt bug <module>`.'
     );
   }
 

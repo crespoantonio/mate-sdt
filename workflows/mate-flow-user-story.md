@@ -76,7 +76,7 @@ flowchart LR
    > ⚡ **Parallel Sub-Agent Execution:** Delegate test execution to an isolated sub-agent (Template 4 in `docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md`) so verbose terminal output and stack traces do not burn tokens in the primary conversation cockpit.
 2. For every test case that exposed a real application bug:
    - Capture screenshot/trace/video evidence via `mate-pw-forensics` if not already captured.
-   - Generate a spec-linked Bug Report in `tests/bugs/` via `npx mate-sdt bug <module>`.
+   - Generate a spec-linked Bug Report in `docs/bugs/` via `npx mate-sdt bug <module>`.
    - If an Atlassian/Jira, GitHub Issues, or Notion MCP is connected and the tester requests it, sync or comment the bug report and test cases back to the ticket.
 
 ---
@@ -86,4 +86,4 @@ flowchart LR
 2. Present a clear **Daily QA Execution Summary** to the tester:
    - **Total Test Cases Designed (`N` across `Happy`, `Border`, `Negative`, `State`):** Breakdown of `[AUTOMATE_UI]`, `[AUTOMATE_API]`, `[MANUAL_TEST]` (with rationale), and `[EXPLORATORY_CHARTER]`.
    - **Passing Automated Tests (`✅ PASS`):** List of verified working scenarios.
-   - **Failing Tests Exposing Real Bugs (`⚠️ KNOWN FAIL — test.fail()`):** Explicit callout of which User Story requirements failed, the generated `tests/bugs/BUG-*.md` file paths, and the exact `test.fail()` guards added to the suite.
+   - **Failing Tests Exposing Real Bugs (`⚠️ KNOWN FAIL — test.fail()`):** Explicit callout of which User Story requirements failed, the generated `docs/bugs/BUG-*.md` file paths, and the exact `test.fail()` guards added to the suite.

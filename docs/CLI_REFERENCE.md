@@ -121,7 +121,7 @@ npx mate-sdt context checkout-flow
 Executes the **5-Gate Harness Engineering Closed Verification Loop**:
 1. `GATE-01-CONTEXT`: Living Map existence & Tier-1 token budget (`< 3,000 tokens`).
 2. `GATE-02-SPEC-MODEL`: Pillar M spec determinism & Explicit Forbidden Transitions.
-3. `GATE-03-ANTI-GREENWASHING`: Verifies every `test.fail()` / `test.fixme()` annotation has a corresponding Bug Report in `tests/bugs/`.
+3. `GATE-03-ANTI-GREENWASHING`: Verifies every `test.fail()` / `test.fixme()` annotation has a corresponding Bug Report in `docs/bugs/`.
 4. `GATE-04-SOLID-AUDIT`: Pillar A SOLID/DIP and zero-sleep guardrail (`Grade A/B`).
 5. `GATE-05`: Persists verification state to `.mate/harness-state.json` and emits `[SELF-CORRECTION]` prompts if any gate fails. Supports `--json`.
 
@@ -180,7 +180,7 @@ npx mate-sdt charter checkout-flow
 ---
 
 ### 8. `bug <module-name>`
-Generates a Structured Bug Report in `tests/bugs/BUG-YYYYMMDD-<module-name>.md` explicitly linked to the violated M.A.T.E. specification clause (`INV-XX`, Forbidden Transition, or `THR-XX`).
+Generates a Structured Bug Report in `docs/bugs/BUG-YYYYMMDD-<module-name>.md` explicitly linked to the violated M.A.T.E. specification clause (`INV-XX`, Forbidden Transition, or `THR-XX`).
 
 ```bash
 npx mate-sdt bug checkout-flow

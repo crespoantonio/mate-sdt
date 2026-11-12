@@ -65,7 +65,7 @@ In M.A.T.E., known product defects are NEVER swept under the rug with `test.skip
 2. **The Active Tripwire (Automatic Fix Alerting):**  
    The moment developers fix the application and the test starts passing, Playwright **INTENTIONALLY FAILS THE RUN** with:  
    `Error: Expected test to fail, but it passed!`  
-   This provides instant feedback to QA that the bug has been resolved, forcing the team to remove `test.fail()`, promote the test to standard green status, and close the bug report in `tests/bugs/`.
+   This provides instant feedback to QA that the bug has been resolved, forcing the team to remove `test.fail()`, promote the test to standard green status, and close the bug report in `docs/bugs/`.
 3. **Absolute Prohibition of `test.skip()` for Known Bugs:**  
    Never use `test.skip()` to handle application defects. Skipped tests do not execute, cannot alert when fixed, and become dead rotting code. Always use `test.fail()` with strict literal assertions from the Acceptance Criteria.
 

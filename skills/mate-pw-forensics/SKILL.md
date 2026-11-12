@@ -21,7 +21,7 @@ This skill governs **Phase 3 of `@playwright/cli` in M.A.T.E.**: using multi-ses
 | :--- | :--- | :--- |
 | **Companion (Pillar T)** | **`mate-threat`** | Uses named sessions (`playwright-cli -s=buyer-a`, `-s=buyer-b`) to execute race conditions, double-spends, and stale-state overwrites defined in `<threat_scenarios>`. |
 | **Companion (Pillar E)** | **`mate-explore`** | Records traces (`tracing-start`) and annotated WebM videos (`video-start --cursor --fps=60`) during human/AI exploratory charters (`tests/charters/CHR-*.md`). |
-| **Companion (Day-2 Ops)** | **`mate-triage`** | Analyzes `.playwright-cli/traces/` to classify CI failures into the 4 M.A.T.E. root-cause buckets and embeds screenshots/videos into `tests/bugs/BUG-*.md` (`npx mate-sdt bug`). |
+| **Companion (Day-2 Ops)** | **`mate-triage`** | Analyzes `.playwright-cli/traces/` to classify CI failures into the 4 M.A.T.E. root-cause buckets and embeds screenshots/videos into `docs/bugs/BUG-*.md` (`npx mate-sdt bug`). |
 | **Upstream** | **`mate-pw-recon` & `mate-pw-codegen`** | Triggered automatically whenever live story verification or automated test execution uncovers a real defect (`test.fail()`). |
 
 ---
@@ -54,7 +54,7 @@ playwright-cli tracing-stop
 
 ### 60fps Video Recording with Chapters (`video-start` / `video-chapter`)
 ```bash
-playwright-cli video-start tests/bugs/bug-repro.webm --cursor --fps=60
+playwright-cli video-start docs/bugs/bug-repro.webm --cursor --fps=60
 playwright-cli video-show-actions
 playwright-cli video-chapter "BUG-01 Reproduction" --description="Violates INV-01" --duration=1800
 playwright-cli click e8

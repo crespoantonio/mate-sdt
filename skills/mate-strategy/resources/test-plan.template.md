@@ -50,5 +50,5 @@
 
 ### Exit Criteria
 - [ ] All 4 quadrants of Test Cases have been executed and automated.
-- [ ] Every failing test exposing a real product bug is documented in `tests/bugs/BUG-*.md` and annotated with `test.fail()`.
+- [ ] Every failing test exposing a real product bug is documented in `docs/bugs/BUG-*.md` and annotated with `test.fail()`.
 - [ ] Final Release Verdict (`PASS`, `CONCERNS` + Waiver, or `FAIL`) is recorded in `MATE-PROJECT-MAP.md`.

@@ -45,7 +45,7 @@ For every test case, compare what the browser actually did against the User Stor
 | Scenario | Actual Browser Behavior | Action Required |
 | :--- | :--- | :--- |
 | **Behavior matches Spec Oracle** | Validation error shown (`role="alert"`) and invalid request blocked | Mark `Live CLI Check = ✅ PASS` in `TC-[module].md`. Hand off to `mate-pw-codegen` to write a standard passing test. |
-| **Behavior violates Spec Oracle (BUG!)** | App accepts `-5 kg` and creates an order with `-$25.00` total | 1. Mark `Live CLI Check = ❌ FAIL (BUG-XXX)` in `TC-[module].md`.<br>2. Capture screenshot (`playwright-cli screenshot --filename=tests/bugs/bug-negative-weight.png`).<br>3. Generate bug report (`npx mate-sdt bug orders`).<br>4. **Still automate the test** in `tests/e2e/orders.spec.ts` with the real oracle (`expect(errorAlert).toBeVisible()`) and mark it with `test.fail(true, 'BUG-XXX: App accepts negative weight violating INV-01')`. |
+| **Behavior violates Spec Oracle (BUG!)** | App accepts `-5 kg` and creates an order with `-$25.00` total | 1. Mark `Live CLI Check = ❌ FAIL (BUG-XXX)` in `TC-[module].md`.<br>2. Capture screenshot (`playwright-cli screenshot --filename=docs/bugs/bug-negative-weight.png`).<br>3. Generate bug report (`npx mate-sdt bug orders`).<br>4. **Still automate the test** in `tests/e2e/orders.spec.ts` with the real oracle (`expect(errorAlert).toBeVisible()`) and mark it with `test.fail(true, 'BUG-XXX: App accepts negative weight violating INV-01')`. |
 
 ### Step 5: Close Session Cleanly
 ```bash

@@ -25,7 +25,7 @@ Categorize each failure using the M.A.T.E. matrix with explicit confidence level
 
 ## Step 3: Action Branch — File Bug Report or Refactor Suite
 - **If `[BUG - INVARIANT BROKEN]`:**
-  1. Run `npx mate-sdt bug [module]` to scaffold `tests/bugs/BUG-YYYYMMDD-[module].md`.
+  1. Run `npx mate-sdt bug [module]` to scaffold `docs/bugs/BUG-YYYYMMDD-[module].md`.
   2. Populate exact reproduction steps, forensic logs, and the violated clause from `specs/[module].mate-spec.md`.
 - **If `[FLAKY TEST]` or `[CONTRACT DRIFT]`:**
   1. Invoke `mate-maintenance` and run `npx mate-sdt audit`.

@@ -59,7 +59,7 @@ When explaining or applying M.A.T.E., always emphasize its **5 Foundational Prin
      - `[EXPLORATORY_CHARTER]` — Context-aware exploratory testing missions with border-case heuristics tailored to the feature.
 3. **The Anti-Greenwashing Mandate:**
    - M.A.T.E. never writes only the tests that pass. It automates all automatable Happy, Border, Negative, and State-Transition cases.
-   - If a test that *should* pass per the User Story **fails** against the live app, M.A.T.E. **keeps the test** with its true assertion, marks it with `test.fail(true, 'BUG-XXX: ...')`, creates `tests/bugs/BUG-*.md` (`npx mate-sdt bug`), and alerts the tester.
+   - If a test that *should* pass per the User Story **fails** against the live app, M.A.T.E. **keeps the test** with its true assertion, marks it with `test.fail(true, 'BUG-XXX: ...')`, creates `docs/bugs/BUG-*.md` (`npx mate-sdt bug`), and alerts the tester.
 4. **Token-Efficient Living Map (`MATE-PROJECT-MAP.md`):**
    - Every skill reads and updates `MATE-PROJECT-MAP.md` first so AI agents never waste tokens scanning the whole repo or duplicating Page Objects.
 5. **Works Anywhere (Monorepo or Standalone Black-Box QA Folder):**
@@ -86,7 +86,7 @@ When explaining or applying M.A.T.E., always emphasize its **5 Foundational Prin
 | `npx mate-sdt mutate [dir]` | Runs Stryker Mutator (`>= 85%`) inside a rootless Podman container. |
 | `npx mate-sdt k6 [script]` | Runs Grafana k6 performance suite inside a rootless Podman container. |
 | `npx mate-sdt charter <module>` | Generates a human Exploratory Testing Charter (SBTM) in `tests/charters/`. |
-| `npx mate-sdt bug <module>` | Generates a Spec-Linked Bug Report in `tests/bugs/`. |
+| `npx mate-sdt bug <module>` | Generates a Spec-Linked Bug Report in `docs/bugs/`. |
 | `npx mate-sdt waiver <module>` | Generates a Formal Release Waiver in `specs/waivers/` when a release verdict is `[CONCERNS]`. |
 | `npx mate-sdt status [dir]` | Prints a complete health and compliance dashboard of the repository. |
 

@@ -143,7 +143,7 @@ function printHelp() {
     `    ${color('charter <module>', COLORS.brightGreen, COLORS.bold)}     Create a human Exploratory Testing Charter (SBTM) in tests/charters/`
   );
   console.log(
-    `    ${color('bug <module>', COLORS.brightGreen, COLORS.bold)}         Create a Structured Bug Report linked to spec invariants in tests/bugs/`
+    `    ${color('bug <module>', COLORS.brightGreen, COLORS.bold)}         Create a Structured Bug Report linked to spec invariants in docs/bugs/`
   );
   console.log(
     `    ${color('waiver <module>', COLORS.brightGreen, COLORS.bold)}      Create a Formal Release Waiver in specs/waivers/`

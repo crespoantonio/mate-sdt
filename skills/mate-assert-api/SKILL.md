@@ -25,7 +25,7 @@ This skill is responsible for **Pillar A (Assert — API & Service Layer)** of t
 | **Upstream** | **`mate-story-testcases` & `mate-model`** | Provides the endpoint contracts, `<intent_model>` Forbidden Transitions, and 4-quadrant Test Cases (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`). |
 | **Companion (UI Mocks)** | **`mate-pw-codegen`** | Shares strict response schemas (`src/models/`) so UI network mocks (`src/mocks/`) never drift from real backend API contracts. |
 | **Downstream (Chaos)** | **`mate-threat` & `mate-performance-k6`** | Reuses typed API endpoints for concurrent race-condition suites (`tests/threats/`) and Grafana k6 load scripts (`tests/nfr/`). |
-| **Downstream (Defects)** | **`mate-triage`** | When an endpoint violates its contract or returns `500` on a border/negative case, marks the test with `test.fail(true, 'BUG-XXX')` and files `tests/bugs/BUG-*.md`. |
+| **Downstream (Defects)** | **`mate-triage`** | When an endpoint violates its contract or returns `500` on a border/negative case, marks the test with `test.fail(true, 'BUG-XXX')` and files `docs/bugs/BUG-*.md`. |
 
 ---
 

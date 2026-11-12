@@ -169,4 +169,4 @@ When a test fails in CI or locally:
      - Confirm with the user, update `specs/<module>.mate-spec.md` first, validate via `npx mate-sdt validate`, and update the Page Object method.
    - **Case C — Production Bug / Broken Invariant (`INV-XX` or Forbidden Transition violated):**
      - **NEVER weaken or delete an assertion to make a broken application pass!**
-     - Run `npx mate-sdt bug <module>` (`mate-triage` skill) to generate a formal Bug Report in `tests/bugs/` citing the exact broken invariant, and mark the test with `test.fixme()` referencing the bug ID.
+     - Run `npx mate-sdt bug <module>` (`mate-triage` skill) to generate a formal Bug Report in `docs/bugs/` citing the exact broken invariant, and mark the test with `test.fixme()` referencing the bug ID.

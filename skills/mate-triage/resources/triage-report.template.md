@@ -24,7 +24,7 @@
 - **Spec & Invariant:** `specs/[module].mate-spec.md` (`INV-XX`)
 - **Failure Evidence:** `[Assertion message / trace]`
 - **Confidence Level:** `[OBSERVED - High Confidence]`
-- **Bug Report Created:** `./tests/bugs/BUG-YYYYMMDD-module.md`
+- **Bug Report Created:** `./docs/bugs/BUG-YYYYMMDD-module.md`
 
 ---
 

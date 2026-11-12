@@ -19,7 +19,7 @@ Traditional AI assistants either delete the failing test or change the `expect()
 **M.A.T.E. strictly forbids this:**
 1. The test is **still written** in `tests/e2e/` or `tests/api/` with the **true expected assertion** from the User Story.
 2. The test is annotated with `test.fail(true, 'BUG-XXX: App violates AC-02 / INV-01')` so Playwright tracks it as an expected failure until developers fix the bug.
-3. A formal bug report is generated in `tests/bugs/BUG-*.md` (`npx mate-sdt bug <module>`).
+3. A formal bug report is generated in `docs/bugs/BUG-*.md` (`npx mate-sdt bug <module>`).
 4. Once developers fix the bug, Playwright automatically fails the `test.fail()` annotation ("Expected to fail, but passed!"), alerting QA to remove `test.fail()` and promote the test to standard green status!
 
 ---
@@ -55,7 +55,7 @@ To keep your AI agent's context window lean and ensure the right rules apply at 
 M.A.T.E. (`v1.6+`) is built around the two foundational disciplines of reliable AI Agent systems:
 
 1. **Context Engineering (*Write, Select, Compress, Isolate*):**
-   - **Write:** Persists truth outside the ephemeral chat history in `MATE-PROJECT-MAP.md`, `specs/*.mate-spec.md`, `docs/test-cases/TC-*.md`, `tests/bugs/BUG-*.md`, and `.mate/harness-state.json`.
+   - **Write:** Persists truth outside the ephemeral chat history in `MATE-PROJECT-MAP.md`, `specs/*.mate-spec.md`, `docs/test-cases/TC-*.md`, `docs/bugs/BUG-*.md`, and `.mate/harness-state.json`.
    - **Select:** Uses a 3-Tier Progressive Context Architecture (`MATE-PROJECT-MAP.md` `< 3,000 tokens` + phase-scoped skills) and **`npx mate-sdt context <module>`** to generate a single-file Just-In-Time (JIT) Context Pack (`.mate/context-pack-<module>.md`).
    - **Compress:** Uses `@playwright/cli` concise YAML accessibility snapshots (`< 800 tokens`) instead of 80,000-token raw HTML dumps, immediately promoting locators into `src/pages/*.page.ts`.
    - **Isolate:** Requires Epistemic Provenance tags (`[OBSERVED]`, `[INFERRED]`, `[TBD]`) so AI agents never confuse assumptions with verified facts (*Context Poisoning*).
@@ -64,7 +64,7 @@ M.A.T.E. (`v1.6+`) is built around the two foundational disciplines of reliable 
    - Executes a deterministic **5-Gate Closed Verification Loop** via **`npx mate-sdt gate`** (or `npx mate-sdt verify`):
      - `GATE-01-CONTEXT`: Checks `MATE-PROJECT-MAP.md` token budget (`<= 3,000 tokens`) and ensures zero unindexed Page Objects, Component Objects, or Specs (*Context Drift*).
      - `GATE-02-SPEC-MODEL`: Validates `specs/*.mate-spec.md` XML blocks, forbidden transitions, and `TC-XXX` matrices.
-     - `GATE-03-ANTI-GREENWASHING`: Scans `tests/**/*.spec.ts` for `test.fail()` annotations and blocks the gate if any `test.fail()` lacks a matching `BUG-XXX` reference and a forensic report in `tests/bugs/BUG-*.md`.
+     - `GATE-03-ANTI-GREENWASHING`: Scans `tests/**/*.spec.ts` for `test.fail()` annotations and blocks the gate if any `test.fail()` lacks a matching `BUG-XXX` reference and a forensic report in `docs/bugs/BUG-*.md`.
      - `GATE-04-SOLID-AUDIT`: Enforces `Grade A (100/100)` zero-sleep (`waitForTimeout`) and SOLID Dependency Inversion rules.
      - `GATE-05` State Persistence: Writes `.mate/harness-state.json` with actionable `[SELF-CORRECTION]` prompts that tell the AI agent how to fix any violation before finishing its turn.
 
