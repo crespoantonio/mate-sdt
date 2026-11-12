@@ -21,7 +21,7 @@ npx mate status
 ## Commands
 
 ### 1. `install` (Default Command)
-Launches the interactive installer to scaffold directories, templates, ready-to-run Playwright/TypeScript harness files (`playwright.config.ts`, `tsconfig.json`, `.env.example`, `.github/workflows/mate-qa.yml`), **16 synergistic AI agent skills** (including `mate-party` Council of Experts and `mate-help`), and **7 E2E workflows**, with optional automatic installation of `@playwright/cli` and `@playwright/test`.
+Launches the interactive installer to scaffold directories, templates, ready-to-run Playwright/TypeScript harness files (`playwright.config.ts`, `tsconfig.json`, `.env.example`, `.github/workflows/mate-qa.yml`), **16 core synergistic AI agent skills** (including `mate-party` Council of Experts and `mate-help`), and **7 core E2E workflows** (expandable to 20 skills and 8 workflows via `setup-ai`), with optional automatic installation of `@playwright/cli` and `@playwright/test`.
 
 > 💡 **Smart Upgrade Detection:** If executed inside an existing M.A.T.E. project, `install` automatically recognizes the existing configuration, prompts to update skills and workflows to the latest framework version, and **guarantees 100% preservation** of your existing specs, Page Objects, and test files.
 

@@ -23,9 +23,9 @@ npx mate-sdt install
 ### Interactive Wizard Steps
 1.  **Select Project Lifecycle Mode:**
     *   `Standalone QA Repository (Separate QA Folder for a Live App)`: Scaffolds the complete SDT layout, `docs/TEST-STRATEGY.md`, `MATE-PROJECT-MAP.md`, `playwright.config.ts`, `tsconfig.json`, `.env.example`, `.github/workflows/mate-qa.yml`, and `package.json` scripts (`test:smoke`, `test:e2e`, `test:api`, `test:threats`).
-    *   `Greenfield`: Full SDT architecture, 16 synergistic AI skills (including `mate-party`), 7 E2E workflows, and SOLID starter templates for new projects.
+    *   `Greenfield`: Full SDT architecture, 16 core synergistic AI skills (including `mate-party`), 7 core E2E workflows, and SOLID starter templates for new projects.
     *   `Brownfield`: Installs the Living Map, spec governance, and AI agent skills for reverse-engineering existing code.
-    *   `AI Skills, Workflows & IDE Rules Only`: Installs the 16 skills, 7 workflows, and `specs/` directory without scaffolding `src/` or `tests/` folders.
+    *   `AI Skills, Workflows & IDE Rules Only`: Installs the 16 core skills, 7 core workflows, and `specs/` directory without scaffolding `src/` or `tests/` folders.
 
 > 💡 **Upgrading an Existing Project:**  
 > Running `npx mate-sdt install` inside an existing project automatically detects your current configuration, prompts whether you want to update all skills and workflows to the latest version, and leaves your tests and specs completely untouched.

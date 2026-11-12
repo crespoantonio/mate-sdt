@@ -193,7 +193,7 @@ function installClaudeCode(targetDir) {
     '<!-- MATE-SDT-START -->',
     '## 🧉 M.A.T.E. Method — Context Engineering & Harness Engineering Governance',
     '',
-    'This repository is governed by the **M.A.T.E. Method** (`mate-sdt` — 15 Synergistic Skills & 7 E2E Workflows) built on **Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** ($\\text{Agent} = \\text{Model} + \\text{Harness}$):',
+    'This repository is governed by the **M.A.T.E. Method** (`mate-sdt` — 20 Synergistic AI Skills [16 Core + 4 AI Agent/RAG] & 8 E2E Workflows) built on **Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** ($\\text{Agent} = \\text{Model} + \\text{Harness}$):',
     '- **Context Engineering (Tier-1 Living Map):** Always read and update `MATE-PROJECT-MAP.md` (`< 3,000 tokens`) before scanning the repository. Run `npx mate-sdt context [module]` to check token budgets, detect unindexed artifacts, and assemble Just-In-Time (JIT) Context Packs.',
     '- **Epistemic Isolation (Anti-Poisoning):** Never guess SLAs, auth mechanisms, or undocumented contracts. Isolate uncertainty with `[OBSERVED]`, `[INFERRED]`, and `[TBD]` tags.',
     '- **User Story Ingestion & Pragmatic QA Companion (`mate-story-testcases`):** Ingest stories from Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text. Generate `docs/test-cases/TC-*.md` & `.csv` (`npx mate-sdt cases <mod>`) covering 4 quadrants (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) and classifying each into `AUTOMATE_UI`, `AUTOMATE_API`, `MANUAL_TEST` (with rationale), or `EXPLORATORY_CHARTER`.',

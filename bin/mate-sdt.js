@@ -98,7 +98,7 @@ function printHelp() {
   console.log('    npx mate-sdt <command> [options]\n');
   console.log(color('  COMMANDS:', COLORS.bold, COLORS.cyan));
   console.log(
-    `    ${color('install', COLORS.brightGreen, COLORS.bold)}              Interactive installer (15 AI skills, 7 E2E workflows, IDE rules & SDT layout)`
+    `    ${color('install', COLORS.brightGreen, COLORS.bold)}              Interactive installer (16 core AI skills, 7 E2E workflows, IDE rules & SDT layout; +4 AI Agent skills with setup-ai)`
   );
   console.log(
     `    ${color('init [dir]', COLORS.brightGreen, COLORS.bold)}           Quick-scaffold M.A.T.E. directories, Living Map & templates`
@@ -192,7 +192,7 @@ async function handleInstall(flags) {
         console.log(`     • Living Map (MATE-PROJECT-MAP.md): ${existing.hasProjectMap ? color('Found', COLORS.brightGreen) : color('Not found', COLORS.gray)}`);
         console.log(`     • Configured IDEs: ${color(existing.detectedIdes.join(', '), COLORS.brightGreen)}`);
         if (existing.installedSkillsCount > 0) {
-          console.log(`     • Installed Skills: ${color(`${existing.installedSkillsCount} skills`, COLORS.yellow)} (Framework v${pkg.version} provides 16 core skills)`);
+          console.log(`     • Installed Skills: ${color(`${existing.installedSkillsCount} skills`, COLORS.yellow)} (Framework v${pkg.version} provides 16 core skills + 4 on-demand AI skills; 20 total)`);
         }
         console.log('');
 
@@ -246,7 +246,7 @@ async function handleInstall(flags) {
               value: 'standalone-qa',
             },
             {
-              label: 'Greenfield (Full SDT Architecture + 16 AI Skills + 7 Workflows + SOLID Templates)',
+              label: 'Greenfield (Full SDT Architecture + 16 Core AI Skills + 7 Workflows + SOLID Templates)',
               description: 'Best for new projects or establishing a complete UI, API, k6 & SDT harness.',
               value: 'greenfield',
             },
@@ -321,7 +321,7 @@ async function handleInstall(flags) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
   }
 
-  console.log(color('\n  🤖 Installed 16 Synergistic AI Skills, 7 E2E Workflows & IDE Rules:', COLORS.bold, COLORS.cyan));
+  console.log(color('\n  🤖 Installed 16 Core Synergistic AI Skills, 7 E2E Workflows & IDE Rules (Add 4 AI Agent/RAG skills via `setup-ai`):', COLORS.bold, COLORS.cyan));
   for (const item of result.ideFiles) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
   }

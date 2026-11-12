@@ -2,13 +2,12 @@
 name: mate-core
 description: >-
   Master orchestrator of the M.A.T.E. Spec-Driven Testing (SDT) Framework by Tony Crespo (Un Junior En Apuros).
-  USE WHEN: Starting any QA/Testing task, reading or updating `MATE-PROJECT-MAP.md`, deciding which of the 16 M.A.T.E.
-  skills or 7 E2E workflows to activate, enforcing OOP/SOLID architecture, applying the Handling Uncertainty Protocol,
+  USE WHEN: Starting any QA/Testing task, reading or updating `MATE-PROJECT-MAP.md`, deciding which of the 20 M.A.T.E. skills (16 core + 4 AI pack) or 8 E2E workflows to activate, enforcing OOP/SOLID architecture, applying the Handling Uncertainty Protocol,
   or enforcing the Anti-Greenwashing Mandate.
-  SYNERGY: Orchestrates and routes tasks across all 16 M.A.T.E. skills (`mate-party`, `mate-help`, `mate-strategy`,
+  SYNERGY: Orchestrates and routes tasks across all 20 M.A.T.E. skills: 16 core skills (`mate-party`, `mate-help`, `mate-strategy`,
   `mate-story-testcases`, `mate-model`, `mate-pw-recon`, `mate-assert-playwright`, `mate-pw-codegen`,
   `mate-pw-forensics`, `mate-assert-api`, `mate-threat`, `mate-performance-k6`, `mate-explore`, `mate-triage`,
-  and `mate-maintenance`).
+  `mate-maintenance`) + 4 On-Demand AI Pack skills (`mate-ai-dataset`, `mate-ai-evals`, `mate-ai-redteam`, `mate-ai-observability`).
 ---
 
 # 🧉 Master Skill: M.A.T.E. Core (`mate-core`)
@@ -49,11 +48,11 @@ Its purpose is to ensure that any software project implements a quality architec
    - **Never Assume:** Do not invent SLAs, authentication flows, or undocumented business rules.
    - **Ask First or Mark `[TBD]`:** When critical context is missing, ask targeted clarifying questions or mark `[TBD: needs input on X]` with explicit confidence levels (`Observed` vs. `Inferred`). See [`references/handling-uncertainty.md`](./references/handling-uncertainty.md).
 5. **Skill Synergy & Lifecycle Routing:**  
-   Orchestrates the **16 M.A.T.E. Skills** and **7 End-to-End Workflows** so the exact right skill activates at the exact right moment.
+   Orchestrates the **20 M.A.T.E. Skills** (16 Core + 4 AI Agent/RAG Pack) and **8 End-to-End Workflows** so the exact right skill activates at the exact right moment.
 
 ---
 
-## 🧩 The 16 M.A.T.E. Skills & Synergy Routing Matrix
+## 🧩 The 16 Core M.A.T.E. Skills & Synergy Routing Matrix (Plus 4 AI Agent Skills via `setup-ai`)
 
 | Skill | Pillar / Phase | Exact Moment to Activate (`USE WHEN`) | Companion / Synergy Skills |
 | :--- | :--- | :--- | :--- |

@@ -1,6 +1,6 @@
 # 🧉 M.A.T.E. Method (`mate-sdt`)
 
-### Spec-Driven Testing (SDT) Framework & QA Companion — 16 Synergistic AI Agent Skills & 7 E2E Workflows for the Agentic Coding Era
+### Spec-Driven Testing (SDT) Framework & QA Companion — 20 Synergistic AI Agent Skills (16 Core + 4 AI Pack) & 8 E2E Workflows for the Agentic Coding Era
 
 [![npm version](https://img.shields.io/npm/v/mate-sdt.svg?style=flat-square&color=2ea44f)](https://www.npmjs.com/package/mate-sdt)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
@@ -38,7 +38,7 @@ In the Agentic Era (2026+), autonomous AI agents write thousands of lines of cod
 *   **BDD (Behavior-Driven Development)** drowns engineering teams in brittle Gherkin (`Given/When/Then`) step-definition bureaucracy that gets abandoned within three sprints.
 *   **"Vibe Coding" + AI-Generated Tests** produce cosmetic "happy-path" checks (`expect(res).toBeDefined()`) that paint the CI pipeline green while silently shipping race conditions, security exploits, and broken business invariants to production.
 
-**The M.A.T.E. Method** is a **Spec-Driven Testing (SDT)** framework and **Daily QA/QE Companion** that flips the paradigm: **the specification belongs to the Quality Engineer**. Built on the two foundational pillars of modern AI systems—**Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** ($\text{Agent} = \text{Model} + \text{Harness}$)—`mate-sdt` equips both human engineers and AI coding agents (Google Antigravity, Claude Code, Cursor, Windsurf, GitHub Copilot, OpenAI Codex CLI) with a rigorous, token-efficient architecture governed by four pillars, **16 specialized & synergistic AI skills**, and **7 end-to-end workflows**.
+**The M.A.T.E. Method** is a **Spec-Driven Testing (SDT)** framework and **Daily QA/QE Companion** that flips the paradigm: **the specification belongs to the Quality Engineer**. Built on the two foundational pillars of modern AI systems—**Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** ($\text{Agent} = \text{Model} + \text{Harness}$)—`mate-sdt` equips both human engineers and AI coding agents (Google Antigravity, Claude Code, Cursor, Windsurf, GitHub Copilot, OpenAI Codex CLI) with a rigorous, token-efficient architecture governed by four pillars, **20 specialized & synergistic AI skills** (16 core + 4 on-demand AI Agent/RAG pack), and **8 end-to-end workflows**.
 
 ---
 
@@ -46,7 +46,7 @@ In the Agentic Era (2026+), autonomous AI agents write thousands of lines of cod
 
 | AI Agent Pillar | Problem Solved | How M.A.T.E. Enforces It | CLI Command |
 | :--- | :--- | :--- | :--- |
-| **1. Context Engineering**<br>*(Write, Select, Compress, Isolate)* | Prevents **Context Rot** (token bloat), **Context Poisoning** (hallucinated SLAs/contracts), and **Context Confusion** (monolithic skill overload). | • **Write:** `MATE-PROJECT-MAP.md` (`< 3,000 tokens` Tier-1 RAM) + XML spec blocks.<br>• **Select:** 3-Tier JIT routing across 15 granular skills + module JIT Context Packs.<br>• **Compress:** `@playwright/cli` compact YAML ARIA snapshots (`< 800 tokens`) instead of raw DOM dumps.<br>• **Isolate:** Epistemic tags (`[OBSERVED]`, `[INFERRED]`, `[TBD]`). | `npx mate-sdt context [module]` |
+| **1. Context Engineering**<br>*(Write, Select, Compress, Isolate)* | Prevents **Context Rot** (token bloat), **Context Poisoning** (hallucinated SLAs/contracts), and **Context Confusion** (monolithic skill overload). | • **Write:** `MATE-PROJECT-MAP.md` (`< 3,000 tokens` Tier-1 RAM) + XML spec blocks.<br>• **Select:** 3-Tier JIT routing across 20 modular skills + module JIT Context Packs.<br>• **Compress:** `@playwright/cli` compact YAML ARIA snapshots (`< 800 tokens`) instead of raw DOM dumps.<br>• **Isolate:** Epistemic tags (`[OBSERVED]`, `[INFERRED]`, `[TBD]`). | `npx mate-sdt context [module]` |
 | **2. Harness Engineering**<br>*($\text{Agent} = \text{Model} + \text{Harness}$)* | Replaces wishful prompt instructions with **deterministic code guardrails**, **closed verification loops**, **sandboxed execution**, and **durable state**. | • **5-Gate Closed Verification Loop:** Validates Context Budget (`GATE-01`), Spec Forbidden Transitions (`GATE-02`), Anti-Greenwashing `test.fail()` Traceability (`GATE-03`), and SOLID/Zero-Sleep AST/Regex rules (`GATE-04`).<br>• **Self-Correction & State:** Emits `[SELF-CORRECTION]` prompts and persists `.mate/harness-state.json` (`GATE-05`). | `npx mate-sdt gate` |
 
 ---
@@ -69,14 +69,14 @@ flowchart LR
 
 ---
 
-## 🧩 The 16 Synergistic AI Agent Skills & 7 End-to-End Workflows
+## 🧩 The 20 Synergistic AI Agent Skills & 8 End-to-End Workflows
 
-When you run `npx mate-sdt install`, your AI agents gain **16 specialized skills** (each with exact `USE WHEN:` triggers and `SYNERGY:` handoff protocols) and **7 orchestrated E2E workflows**:
+When you run `npx mate-sdt install`, your AI agents gain **16 core specialized skills** and **7 orchestrated E2E workflows** (expandable to **20 skills and 8 workflows** via `npx mate-sdt setup-ai`):
 
-### 1. The 16 M.A.T.E. Skills (`skills/`)
+### 1. The 16 Core M.A.T.E. Skills (`skills/`)
 | Skill | Scope | Exact Responsibility & Synergy |
 | :--- | :--- | :--- |
-| **`mate-core`** | **Orchestrator** | Manages `MATE-PROJECT-MAP.md`, SOLID/OOP rules, Anti-Greenwashing Mandate, Handling Uncertainty Protocol (`[OBSERVED]` vs `[INFERRED]`), and routes tasks across all 16 skills. |
+| **`mate-core`** | **Orchestrator** | Manages `MATE-PROJECT-MAP.md`, SOLID/OOP rules, Anti-Greenwashing Mandate, Handling Uncertainty Protocol (`[OBSERVED]` vs `[INFERRED]`), and routes tasks across all 20 skills. |
 | **`mate-party`** | **Entry Point ("Party Mode")** | **Council of QA Experts & Dynamic Router**: activates when the user is uncertain, provides an unstructured or ambiguous prompt, asks "Where do I start?", or says "party mode". Simulates a multi-voice round-table debate (Tony Strategist, Exploratory Sleuth, Automation Architect, Threat Specialist, AI Evaluator, Team Stakeholders), loads domain discovery questions on demand, and synthesizes the exact action plan. |
 | **`mate-help`** | **Coach & Advisor** | Interactive M.A.T.E. Framework Coach (`/mate-help`). Answers any question about how M.A.T.E. works, diagnoses the tester's scenario, and recommends the exact workflow or command to run. |
 | **`mate-strategy`** | **Phase 0 (Strategy & Plan)** | Authors `docs/TEST-STRATEGY.md` and `docs/test-plans/TP-*.md`, builds the `P0/P1/P2` Business Risk Matrix, orchestrates the **2-Wave Smoke-First Rollout** for live apps without testing, and guides manual suite migration. |
@@ -93,7 +93,7 @@ When you run `npx mate-sdt install`, your AI agents gain **16 specialized skills
 | **`mate-triage`** | **Day-2 Ops** | Triages failures (`Real Bug` vs `Flaky` vs `Infra` vs `Drift`), tracks `test.fail()` known bugs, and generates spec-linked Bug Reports (`npx mate-sdt bug`). |
 | **`mate-maintenance`** | **Day-2 Ops** | Audits test codebase health (`A`–`F`), detecting `waitForTimeout`/sleeps, `.only` locks, and DIP violations (`npx mate-sdt audit`). |
 
-### 2. The 7 End-to-End Workflows (`workflows/`)
+### 2. The 8 End-to-End Workflows (`workflows/`)
 | Workflow Command | End-to-End Pipeline |
 | :--- | :--- |
 | **`/mate-flow-zero-to-one`** | **Zero Testing + Live App in Prod (Standalone QA Folder)** ➔ Global Live Recon (`mate-pw-recon`) ➔ `TEST-STRATEGY.md` & Risk Matrix (`mate-strategy`) ➔ **Wave 1: 72h P0 Smoke Shield** ➔ **Wave 2: 4-Quadrant Deepening** |
