@@ -6,11 +6,15 @@ description: End-to-End Daily QA Workflow — From User Story (Atlassian/Jira MC
 
 This workflow orchestrates the complete daily engineering loop for a Quality Engineer working with a **User Story, Ticket, or Requirement Document** across 7 synergistic M.A.T.E. skills.
 
+> ⚡ **Parallel Sub-Agent Execution (`[PARALLEL_SUBAGENT_ELIGIBLE]`):**  
+> If the host environment supports sub-agents (`invoke_subagent` in Antigravity, `Agent` in Claude Code), **Step 2 (Spec & Test Case Design)** and **Step 3 (Live Playwright Reconnaissance)** can be dispatched concurrently to isolated sub-agents. The primary cockpit thread receives only the synthesized `.page.ts` and `TC-*.md` paths without burning context tokens on raw DOM dumps. See [`docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md`](../docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md).
+
 ```mermaid
 flowchart LR
-    S1["1. Ingest Story & Design Cases<br/>(mate-story-testcases)"] --> S2["2. Model Spec & Invariants<br/>(mate-model)"]
-    S2 --> S3["3. Live CLI Recon & Verify<br/>(mate-pw-recon)"]
-    S3 --> S4["4. SOLID POM/COM Codegen<br/>(mate-pw-codegen + mate-assert-playwright)"]
+    S1["1. Ingest Story & Slice Context<br/>(mate-core)"] --> S2["2. Design Test Cases & Spec<br/>[PARALLEL SUBAGENT A]<br/>(mate-story-testcases + mate-model)"]
+    S1 --> S3["3. Live CLI Recon & Locators<br/>[PARALLEL SUBAGENT B]<br/>(mate-pw-recon)"]
+    S2 --> S4["4. SOLID POM/COM Codegen<br/>(mate-pw-codegen + mate-assert-playwright)"]
+    S3 --> S4
     S4 --> S5["5. Anti-Greenwashing Triage<br/>(mate-triage + mate-pw-forensics)"]
     S5 --> S6["6. Architecture Health Audit<br/>(mate-maintenance)"]
 ```

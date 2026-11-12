@@ -62,12 +62,13 @@ Rather than saturating the context window with generic templates, `mate-party` i
 ### Step 3: Simulate the Round-Table Debate ("Ronda de Mates")
 Present a concise, structured dialogue among the 2–4 relevant experts. Each expert gives 1–2 sharp, practical paragraphs highlighting risks, opportunities, or trade-offs.
 
-### Step 4: Deliver the Unified Party Verdict
+### Step 4: Deliver the Unified Party Verdict & Parallel Sub-Agent Delegation
 Synthesize the discussion into an immediate, actionable output using the format in [`resources/party-verdict.template.md`](./resources/party-verdict.template.md):
 1. **Diagnosis & Scope:** Executive summary of the challenge.
-2. **Human Team to Consult:** Who to ping on Slack/Teams (e.g., "Ask the Backend Dev for the OpenAPI spec", "Ask Product for the refund limit").
-3. **M.A.T.E. Skill & Workflow Sequence:** Ordered path (e.g., `mate-pw-recon` ➔ `mate-story-testcases` ➔ `mate-assert-playwright`).
-4. **Immediate Next Step & CLI Commands:** Ready-to-copy commands (e.g., `npx mate-sdt context checkout` or `/mate-flow-user-story`).
+2. **Sub-Agent Delegation Plan (`[PARALLEL_SUBAGENT_ELIGIBLE]`):** If the host assistant supports sub-agents (Antigravity `invoke_subagent`, Claude Code `Agent`), spawn isolated sub-threads for browser recon or test case matrices so the main thread never suffers context bloat (see [`docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md`](../../docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md)).
+3. **Human Team to Consult:** Who to ping on Slack/Teams (e.g., "Ask the Backend Dev for the OpenAPI spec", "Ask Product for the refund limit").
+4. **M.A.T.E. Skill & Workflow Sequence:** Ordered path (e.g., `mate-pw-recon` ➔ `mate-story-testcases` ➔ `mate-assert-playwright`).
+5. **Immediate Next Step & CLI Commands:** Ready-to-copy commands (e.g., `npx mate-sdt context checkout` or `/mate-flow-user-story`).
 
 ---
 

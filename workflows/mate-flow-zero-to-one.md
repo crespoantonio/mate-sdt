@@ -6,10 +6,15 @@ description: Zero-to-One QA Onboarding Workflow — For QA teams starting with Z
 
 Use this workflow when a QA team lands in a project that has **no Test Strategy, no Test Plan, no documented test cases, and no automation**, while the application is **already running in production/staging with real users** (including when M.A.T.E. is installed in a standalone QA folder outside the frontend/backend repositories).
 
+> ⚡ **Parallel Sub-Agent Execution (`[PARALLEL_SUBAGENT_ELIGIBLE]`):**  
+> If the host environment supports sub-agents, **Phase 1 (Global Live Browser Recon)** can run in an isolated sub-thread to crawl routes, network traffic, and ARIA snapshots, while the primary cockpit thread drafts **Phase 2 (`TEST-STRATEGY.md`)**. The sub-agent returns only populated `src/pages/*.page.ts` stubs and discovered API routes. See [`docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md`](../docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md).
+
 ```mermaid
 flowchart LR
-    P1["Phase 1: Standalone Harness & Global Live Recon<br/>(mate-pw-recon + mate-core)"] --> P2["Phase 2: Master Strategy & P0/P1/P2 Risk Matrix<br/>(mate-strategy)"]
-    P2 --> P3["Phase 3: Wave 1 — 72h P0 Smoke Survival Shield<br/>(mate-pw-codegen + mate-assert-playwright)"]
+    P0["Bootstrap Harness"] --> P1["Phase 1: Global Live Recon<br/>[PARALLEL SUBAGENT]<br/>(mate-pw-recon)"]
+    P0 --> P2["Phase 2: Master Strategy & Risk Matrix<br/>(mate-strategy)"]
+    P1 --> P3["Phase 3: Wave 1 — 72h P0 Smoke Survival Shield<br/>(mate-pw-codegen + mate-assert-playwright)"]
+    P2 --> P3
     P3 --> P4["Phase 4: Wave 2 — Module-by-Module 4-Quadrant Depth<br/>(mate-story-testcases + mate-model + mate-triage)"]
 ```
 

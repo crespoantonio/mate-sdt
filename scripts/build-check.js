@@ -19,6 +19,7 @@ const REQUIRED_FILES = [
   'src/cli/installer.js',
   'docs/CONTEXT_AND_HARNESS_ENGINEERING.md',
   'docs/AI_AGENT_AND_RAG_TESTING.md',
+  'docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md',
   'templates/TEMPLATE_MATE_SPEC.md',
   'templates/standalone/playwright.config.template.ts',
   'templates/standalone/tsconfig.template.json',

@@ -27,7 +27,9 @@ Its purpose is to ensure that any software project implements a quality architec
    - **Isolate:** Prevent Context Poisoning by tagging every statement with epistemic provenance (`[OBSERVED]`, `[INFERRED]`, or `[TBD]`).
 2. **Harness Engineering ($\text{Agent} = \text{Model} + \text{Harness}$ — Closed Verification Loop):**  
    Never rely on prompt instructions alone. After creating or modifying specs, Page Objects, or tests, run **`npx mate-sdt gate`** to execute the 5 deterministic guardrails (`GATE-01` Context Budget, `GATE-02` Spec Linter, `GATE-03` Anti-Greenwashing Traceability, `GATE-04` SOLID/Zero-Sleep Audit, and `GATE-05` State Persistence in `.mate/harness-state.json`). If any gate fails, follow the `[SELF-CORRECTION]` prompts until `npx mate-sdt gate` passes.
-3. **Object-Oriented Design and SOLID Principles in Testing:**  
+3. **Sub-Agent Forking & Parallel Isolation Mandate:**  
+   Whenever the host platform supports sub-agent execution (`invoke_subagent` in Antigravity, `Agent` in Claude Code, or background task runners), **DELEGATE high-token operations** (live `@playwright/cli` DOM recon, heavy OpenTelemetry trace audits, or multi-quadrant test case generation) to **isolated sub-agents running in parallel**. The primary conversation thread must remain a lean cockpit (`< 3,000 tokens`), receiving only synthesized artifacts and file paths. See [`docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md`](../../docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md).
+4. **Object-Oriented Design and SOLID Principles in Testing:**  
    - **Single Responsibility (SRP):** Atomic Page Objects (`BasePage`), dedicated Component Objects (`BaseComponent`), and typed API Clients (`BaseApiClient`).
    - **Open/Closed (OCP):** Extensible base classes and fixtures that allow extending behavior without modifying existing code.
    - **Liskov Substitution (LSP):** Base page abstractions and API clients must be substitutable by their derivatives without breaking test contracts.
