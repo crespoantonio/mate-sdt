@@ -13,7 +13,7 @@
 ### In-Scope Modules & User Stories
 | Story / Ticket ID | Module | M.A.T.E. Spec | Test Case Matrix (`.md` / `.csv`) | Priority |
 | :--- | :--- | :--- | :--- | :---: |
-| `[e.g., JIRA-101]` | `[Module Name]` | `specs/[scope].mate-spec.md` | `tests/cases/TC-[scope].md` | `P0` |
+| `[e.g., JIRA-101]` | `[Module Name]` | `specs/[scope].mate-spec.md` | `docs/test-cases/TC-[scope].md` | `P0` |
 
 ### Out-of-Scope
 * [List any modules, third-party sandboxes, or legacy screens explicitly excluded from this cycle and why.]
@@ -46,7 +46,7 @@
 
 ### Entry Criteria
 - [ ] Target environment (`BASE_URL` / `API_BASE_URL`) is deployed and reachable.
-- [ ] User Stories and Acceptance Criteria are ingested and mapped in `tests/cases/TC-[scope].md`.
+- [ ] User Stories and Acceptance Criteria are ingested and mapped in `docs/test-cases/TC-[scope].md`.
 
 ### Exit Criteria
 - [ ] All 4 quadrants of Test Cases have been executed and automated.

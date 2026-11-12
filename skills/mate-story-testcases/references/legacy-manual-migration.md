@@ -34,4 +34,4 @@ Inspect the migrated cases against M.A.T.E.'s 4 quadrants (`HAPPY_PATH`, `BORDER
 
 ### Step 4: Output Clean M.A.T.E. Artifacts
 1. Generate `specs/[module].mate-spec.md` synthesizing the business rules and invariants.
-2. Output the clean, deduplicated matrix in `tests/cases/TC-[module].md` and `tests/cases/TC-[module].csv` (with a `Migration_Source_ID` reference so traceability to old Jira/Excel IDs is 100% preserved).
+2. Output the clean, deduplicated matrix in `docs/test-cases/TC-[module].md` and `docs/test-cases/TC-[module].csv` (with a `Migration_Source_ID` reference so traceability to old Jira/Excel IDs is 100% preserved).

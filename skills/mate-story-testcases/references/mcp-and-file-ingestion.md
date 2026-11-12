@@ -17,7 +17,7 @@ If an Atlassian/Jira MCP server is available in the environment:
 
 ### Syncing Back to Jira / Xray / Zephyr
 - **Option A (MCP Comment / Sub-task):** Post the M.A.T.E. Test Case Matrix summary and any discovered bugs (`BUG-XXX`) directly as a structured comment or linked Bug issue on the Jira story (only when requested by the tester).
-- **Option B (CSV Import):** Use the generated `tests/cases/TC-<module>.csv` file, which includes standard columns (`TC_ID, Story_Key, Title, Category, Priority, Preconditions, Steps, Expected_Result, Invariant_ID, Execution_Status, Bug_ID`) compatible with Jira Xray, Zephyr Scale, and TestRail importers.
+- **Option B (CSV Import):** Use the generated `docs/test-cases/TC-<module>.csv` file, which includes standard columns (`TC_ID, Story_Key, Title, Category, Priority, Preconditions, Steps, Expected_Result, Invariant_ID, Execution_Status, Bug_ID`) compatible with Jira Xray, Zephyr Scale, and TestRail importers.
 
 ---
 
@@ -26,7 +26,7 @@ If an Atlassian/Jira MCP server is available in the environment:
 If the team manages PRDs, User Stories, or QA Test Plans in Notion:
 1. Search or fetch the Notion page/database item using the Notion MCP tools.
 2. Parse acceptance criteria callouts, toggle lists, and state tables.
-3. Generate `specs/[module].mate-spec.md` and `tests/cases/TC-[module].md` / `.csv`.
+3. Generate `specs/[module].mate-spec.md` and `docs/test-cases/TC-[module].md` / `.csv`.
 4. Optionally append the Test Case coverage table and execution verdict back to the Notion page if requested.
 
 ---
@@ -44,4 +44,4 @@ If the team manages PRDs, User Stories, or QA Test Plans in Notion:
 Many QA teams receive requirements or existing manual test suites in Excel or CSV files:
 1. **CSV / Markdown / JSON:** Read directly using file reading tools.
 2. **Excel (`.xlsx`):** If a `.xlsx` file is provided in the workspace, inspect it using a lightweight Node.js or Python script in a scratch/command execution, extracting all rows and sheets without modifying the source file.
-3. **Output:** Always write the updated/expanded Test Case Matrix to `tests/cases/TC-[module].csv` and `tests/cases/TC-[module].md` so the tester can open `.csv` directly in Excel with 100% formatting preservation.
+3. **Output:** Always write the updated/expanded Test Case Matrix to `docs/test-cases/TC-[module].csv` and `docs/test-cases/TC-[module].md` so the tester can open `.csv` directly in Excel with 100% formatting preservation.

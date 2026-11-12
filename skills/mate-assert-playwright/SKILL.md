@@ -13,7 +13,11 @@ description: >-
 
 # 🎯 Pillar A Skill: SOLID Playwright Architecture & Anti-Greenwashing (`mate-assert-playwright`)
 
-This skill governs **Pillar A (Assert — UI Architecture)** of the M.A.T.E. Method. Its purpose is to translate specification invariants (`specs/*.mate-spec.md`) and Test Case Matrices (`tests/cases/TC-*.md`) into **maintainable, deterministic, SOLID automated test suites that never hide product defects**.
+This skill governs **Pillar A (Assert — UI Architecture)** of the M.A.T.E. Method. Its purpose is to translate specification invariants (`specs/*.mate-spec.md`) and Test Case Matrices (`docs/test-cases/TC-*.md`) into **maintainable, deterministic, SOLID automated test suites that never hide product defects**.
+
+> [!IMPORTANT]
+> **Anti-Hallucination & Tool-First Invariant:**  
+> When running with reasoning models, **NEVER hallucinate or deduce selectors in thinking loops**. Use verified accessibility locators (`page.getByRole`, `page.getByLabel`, `page.getByTestId`) obtained through `@playwright/cli` live discovery or live DOM inspection. Every assertion must map strictly to an invariant in `specs/*.mate-spec.md` and a test case in `docs/test-cases/TC-*.md`.
 
 ---
 

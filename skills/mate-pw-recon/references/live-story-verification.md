@@ -6,7 +6,7 @@ How to use `@playwright/cli` (`mate-pw-recon`) to validate User Story Acceptance
 
 ## 1. The 5-Step Live Verification Loop
 
-Given a User Story (from Atlassian/Jira MCP, Notion MCP, Excel/CSV, or Markdown) and its Test Case Matrix (`tests/cases/TC-[module].md`):
+Given a User Story (from Atlassian/Jira MCP, Notion MCP, Excel/CSV, or Markdown) and its Test Case Matrix (`docs/test-cases/TC-[module].md`):
 
 ### Step 1: Open & Snapshot the Entry State
 ```bash

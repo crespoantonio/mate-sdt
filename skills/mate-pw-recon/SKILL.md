@@ -14,6 +14,11 @@ description: >-
 
 This skill governs **Phase 1 of `@playwright/cli` in M.A.T.E.**: using the browser from the command line to **explore, verify User Stories in real time, test border cases interactively, and map semantic DOM/ARIA elements** before writing a single line of automated test code.
 
+> [!IMPORTANT]
+> **Tool-First Grounding (Zero Reasoning Speculation):**  
+> When operating on frontier reasoning models (e.g., Claude 5.5 with Extended Thinking, OpenAI GPT-6, DeepSeek V4), **NEVER burn reasoning/thinking tokens trying to deduce or guess DOM selectors, CSS classes, or component hierarchies in internal thoughts.**  
+> **Invoke `@playwright/cli` (`open`, `snapshot`, `eval`) immediately.** Every locator and assertion must be grounded on live accessibility snapshots, not internal speculation.
+
 ---
 
 ## 🔗 Skill Synergy & Handoff Protocol

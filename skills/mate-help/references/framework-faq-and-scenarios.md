@@ -9,7 +9,7 @@ Answers to the most common questions from QA Engineers, SDETs, and Teams adoptin
 When you give M.A.T.E. a User Story (via `mate-story-testcases` or `/mate-flow-user-story`), it evaluates every scenario and assigns an **Execution Mode**:
 1. **`[AUTOMATE_UI]`**: Deterministic, repeatable user flows and critical DOM state transitions (`tests/e2e/`).
 2. **`[AUTOMATE_API]`**: Data permutations, boundary value tables, schema validations, and HTTP status codes (`tests/api/`).
-3. **`[MANUAL_TEST]`**: Scenarios where automation has negative ROI or requires human perception/external devices (e.g., real SMS/Email rendering, physical camera/QR scanning, third-party OAuth/CAPTCHA gates, print/PDF aesthetics, or one-time migration checks). M.A.T.E. documents step-by-step manual instructions and explains *why* they should remain manual in `tests/cases/TC-[module].md`.
+3. **`[MANUAL_TEST]`**: Scenarios where automation has negative ROI or requires human perception/external devices (e.g., real SMS/Email rendering, physical camera/QR scanning, third-party OAuth/CAPTCHA gates, print/PDF aesthetics, or one-time migration checks). M.A.T.E. documents step-by-step manual instructions and explains *why* they should remain manual in `docs/test-cases/TC-[module].md`.
 4. **`[EXPLORATORY_CHARTER]`**: Contextual exploratory testing missions (`tests/charters/CHR-*.md`) with tailored border-case heuristics for the human tester.
 
 ---
@@ -39,7 +39,7 @@ Traditional AI assistants either delete the failing test or change the `expect()
 **Yes.** `mate-story-testcases` is 100% source-agnostic:
 - **Atlassian MCP / Notion MCP / Linear MCP / GitHub MCP:** Fetches tickets and pages directly if configured.
 - **Excel (`.xlsx`) / CSV (`.csv`) / Markdown (`.md`):** Reads local files directly from your workspace.
-- **Export Compatibility:** Every time M.A.T.E. generates test cases (`npx mate-sdt cases <module>`), it creates both `tests/cases/TC-<module>.md` (rich QA companion document) and `tests/cases/TC-<module>.csv` (ready to import into Jira Xray, Zephyr, TestRail, Notion, or Excel).
+- **Export Compatibility:** Every time M.A.T.E. generates test cases (`npx mate-sdt cases <module>`), it creates both `docs/test-cases/TC-<module>.md` (rich QA companion document) and `docs/test-cases/TC-<module>.csv` (ready to import into Jira Xray, Zephyr, TestRail, Notion, or Excel).
 
 ---
 
@@ -55,7 +55,7 @@ To keep your AI agent's context window lean and ensure the right rules apply at 
 M.A.T.E. (`v1.6+`) is built around the two foundational disciplines of reliable AI Agent systems:
 
 1. **Context Engineering (*Write, Select, Compress, Isolate*):**
-   - **Write:** Persists truth outside the ephemeral chat history in `MATE-PROJECT-MAP.md`, `specs/*.mate-spec.md`, `tests/cases/TC-*.md`, `tests/bugs/BUG-*.md`, and `.mate/harness-state.json`.
+   - **Write:** Persists truth outside the ephemeral chat history in `MATE-PROJECT-MAP.md`, `specs/*.mate-spec.md`, `docs/test-cases/TC-*.md`, `tests/bugs/BUG-*.md`, and `.mate/harness-state.json`.
    - **Select:** Uses a 3-Tier Progressive Context Architecture (`MATE-PROJECT-MAP.md` `< 3,000 tokens` + phase-scoped skills) and **`npx mate-sdt context <module>`** to generate a single-file Just-In-Time (JIT) Context Pack (`.mate/context-pack-<module>.md`).
    - **Compress:** Uses `@playwright/cli` concise YAML accessibility snapshots (`< 800 tokens`) instead of 80,000-token raw HTML dumps, immediately promoting locators into `src/pages/*.page.ts`.
    - **Isolate:** Requires Epistemic Provenance tags (`[OBSERVED]`, `[INFERRED]`, `[TBD]`) so AI agents never confuse assumptions with verified facts (*Context Poisoning*).

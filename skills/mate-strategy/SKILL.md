@@ -25,7 +25,7 @@ When a QA team lands in a project—especially when working in a **standalone QA
 | :--- | :--- | :--- |
 | **Companion (Discovery)** | **`mate-pw-recon` & `mate-core`** | Uses `@playwright/cli` (`open`, `snapshot`, `network`) to crawl the live application, inventory all business modules and hidden API endpoints, and populate `MATE-PROJECT-MAP.md`. |
 | **Downstream (Wave 1: Smoke)** | **`mate-assert-playwright` & `mate-pw-codegen`** | Automates the **Wave 1 P0 Smoke Suite (`@smoke @p0`)** covering the 5–10 critical Golden Paths that keep the business alive in production. |
-| **Downstream (Wave 2: Depth)** | **`mate-story-testcases` & `mate-model`** | Iterates module by module in priority order (`P0` ➔ `P1` ➔ `P2`) to create formal `specs/*.mate-spec.md` and 4-Quadrant Test Case Matrices (`tests/cases/TC-*.md` & `.csv`). |
+| **Downstream (Wave 2: Depth)** | **`mate-story-testcases` & `mate-model`** | Iterates module by module in priority order (`P0` ➔ `P1` ➔ `P2`) to create formal `specs/*.mate-spec.md` and 4-Quadrant Test Case Matrices (`docs/test-cases/TC-*.md` & `.csv`). |
 | **Downstream (Rescue)** | **`mate-maintenance` & `mate-triage`** | When the team already has legacy flaky tests or manual Excel sheets, coordinates the audit, deduplication, and incremental migration. |
 
 ---

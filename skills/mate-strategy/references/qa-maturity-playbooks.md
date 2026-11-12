@@ -45,7 +45,7 @@ How to apply M.A.T.E. depending on what the QA team currently has (or doesn't ha
      - `BUCKET 4: @charter (Keep Manual Exploratory)` — Subjective UX, visual layout, or low-ROI one-off scenarios.
      - `BUCKET 5: DEPRECATED / DUPLICATE` — Merge redundant steps.
 3. **Synthesize Specs & Automate Incrementally:**
-   - Generate `specs/[module].mate-spec.md` and clean `tests/cases/TC-[module].md` / `.csv` from the triaged cases, then automate Bucket 1 (`@smoke`) and Bucket 2 (`@api`) first.
+   - Generate `specs/[module].mate-spec.md` and clean `docs/test-cases/TC-[module].md` / `.csv` from the triaged cases, then automate Bucket 1 (`@smoke`) and Bucket 2 (`@api`) first.
 
 ---
 

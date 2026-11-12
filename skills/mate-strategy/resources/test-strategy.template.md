@@ -41,7 +41,7 @@ This Master Test Strategy governs the end-to-end quality engineering process for
 ### Wave 2: Incremental 4-Quadrant M.A.T.E. Deepening
 For each module in priority order (`P0` ➔ `P1` ➔ `P2`):
 1. **Model (`mate-model`):** Author `specs/[module].mate-spec.md` with explicit Forbidden Transitions.
-2. **Test Cases (`mate-story-testcases`):** Generate `tests/cases/TC-[module].md` and `.csv` covering `HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, and `STATE_TRANSITION`.
+2. **Test Cases (`mate-story-testcases`):** Generate `docs/test-cases/TC-[module].md` and `.csv` covering `HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, and `STATE_TRANSITION`.
 3. **Assert (`mate-assert-playwright` / `mate-assert-api`):** Automate UI and API suites.
 4. **Threat & Performance (`mate-threat` / `mate-performance-k6`):** Add concurrency, fuzzing, and k6 load scripts.
 5. **Explore (`mate-explore`):** Execute 30–60 min human SBTM charters (`tests/charters/`).

@@ -11,7 +11,7 @@
 
 ### 1.1 System Taxonomy & Invocation Target
 - **AI System Type:** `[ ] Single-Turn LLM  [ ] Multi-Turn Chatbot  [ ] RAG Pipeline  [x] Tool-Calling Agent  [ ] Multi-Agent Swarm`
-- **Invocation Endpoint / Provider:** `[TBD: e.g., http://localhost:3000/api/agent | python agent.py | openai:gpt-4o]`
+- **Invocation Endpoint / Provider:** `[TBD: e.g., http://localhost:3000/api/agent | python agent.py | openai:gpt-5.6 | anthropic:claude-sonnet-5.5]`
 - **Provenance Tag:** `[TBD]`
 
 ### 1.2 Ground Truth & Knowledge Boundaries
