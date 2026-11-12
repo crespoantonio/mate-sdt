@@ -45,7 +45,7 @@ function analyzeContextEngineering(targetDir = '.', moduleName = null) {
     (f) => !f.endsWith('base.page.ts')
   );
   const componentFiles = listFilesWithExt(path.join(resolved, 'src', 'components'), '.ts');
-  const caseFiles = listFilesWithExt(path.join(resolved, 'tests', 'cases'), '.md');
+  const caseFiles = listFilesWithExt(path.join(resolved, 'docs', 'test-cases'), '.md');
   const bugFiles = listFilesWithExt(path.join(resolved, 'tests', 'bugs'), '.md');
 
   const unindexedArtifacts = [];

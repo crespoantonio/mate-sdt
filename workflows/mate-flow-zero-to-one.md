@@ -54,7 +54,7 @@ flowchart LR
 ## Phase 4: Wave 2 — Iterative 4-Quadrant Deepening & Anti-Greenwashing (`mate-story-testcases` + `mate-model` + `mate-triage`)
 Once Wave 1 (`npm run test:smoke`) is active, iterate through each module in priority order (`P0` ➔ `P1` ➔ `P2`) using `/mate-flow-user-story`:
 1. **Model (`mate-model`):** Author `specs/[module].mate-spec.md` with Finite State Machines, **Explicit Forbidden Transitions**, and `<invariants>`. Validate with `npx mate-sdt validate`.
-2. **4-Quadrant Test Cases (`mate-story-testcases`):** Run `npx mate-sdt cases <module>` to generate `tests/cases/TC-[module].md` and `.csv` covering `HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, and `STATE_TRANSITION`.
+2. **4-Quadrant Test Cases (`mate-story-testcases`):** Run `npx mate-sdt cases <module>` to generate `docs/test-cases/TC-[module].md` and `.csv` covering `HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, and `STATE_TRANSITION`.
 3. **Verify & Automate (`mate-pw-recon` + `mate-pw-codegen` + `mate-assert-api`):**
    - Validate border and negative cases live in `playwright-cli`.
    - Automate UI E2E tests (`tests/e2e/[module].spec.ts`) and API Contract tests (`tests/api/[module].spec.ts`).

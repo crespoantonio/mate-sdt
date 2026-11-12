@@ -80,7 +80,7 @@ When explaining or applying M.A.T.E., always emphasize its **5 Foundational Prin
 | `npx mate-sdt plan <scope>` | Generates a Release / Sprint Test Plan (`docs/test-plans/TP-YYYYMMDD-<scope>.md`). |
 | `npx mate-sdt context [module]` | Audits Context Engineering token budgets, checks for Context Drift, and builds a JIT Context Pack (`.mate/context-pack-<module>.md`). |
 | `npx mate-sdt gate [dir]` | Runs the **5-Gate Harness Engineering Closed Verification Loop** with `[SELF-CORRECTION]` prompts. |
-| `npx mate-sdt cases <module>` | Generates the QA Companion Test Case Matrix (`tests/cases/TC-<module>.md` & `.csv` with Automated, Manual & Exploratory sections). |
+| `npx mate-sdt cases <module>` | Generates the QA Companion Test Case Matrix (`docs/test-cases/TC-<module>.md` & `.csv` with Automated, Manual & Exploratory sections). |
 | `npx mate-sdt validate [path]` | Validates `*.mate-spec.md` files (enforcing YAML frontmatter, 4 XML blocks, Forbidden Transitions, and `INV-XX` IDs). |
 | `npx mate-sdt audit [dir]` | Scans test code for anti-patterns (`waitForTimeout`, `.only`, DIP violations) and computes Health Score (`A`–`F`). |
 | `npx mate-sdt mutate [dir]` | Runs Stryker Mutator (`>= 85%`) inside a rootless Podman container. |

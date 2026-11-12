@@ -5,7 +5,7 @@ description: >-
   Exploratory Recommendation specialist for the M.A.T.E. Method.
   USE WHEN: The tester references a User Story, ticket, PRD, or legacy manual test suite from an external MCP
   (Atlassian Jira/Confluence/Xray, Notion, Linear, GitHub Issues, Azure DevOps), a local file (Excel .xlsx/.csv,
-  Markdown, PDF), or pasted text, and needs a complete QA Companion Document (`tests/cases/TC-[module].md` & `.csv`)
+  Markdown, PDF), or pasted text, and needs a complete QA Companion Document (`docs/test-cases/TC-[module].md` & `.csv`)
   covering Happy Paths, Border/Boundary Cases, Negative Paths, State Transitions, what to Automate vs. what to
   run Manually (with explicit rationale), and tailored Exploratory Testing recommendations.
   SYNERGY: Hands off to `mate-model` (to formalize `specs/*.mate-spec.md`), `mate-pw-recon` (to validate the
@@ -73,14 +73,14 @@ For **every** User Story or feature, design test cases across all 4 quadrants—
 
 ---
 
-## 📊 4. Dual QA Companion Artifacts (`tests/cases/TC-[module].md` + `.csv`)
+## 📊 4. Dual QA Companion Artifacts (`docs/test-cases/TC-[module].md` + `.csv`)
 
-Whenever you analyze a User Story, generate **both** files in `tests/cases/` (or run `npx mate-sdt cases <module>`):
+Whenever you analyze a User Story, generate **both** files in `docs/test-cases/` (or run `npx mate-sdt cases <module>`):
 
-1. **`tests/cases/TC-[module].md`** (Template: [`resources/test-cases.template.md`](./resources/test-cases.template.md)) — A comprehensive **QA Companion Document** containing:
+1. **`docs/test-cases/TC-[module].md`** (Template: [`resources/test-cases.template.md`](./resources/test-cases.template.md)) — A comprehensive **QA Companion Document** containing:
    - **Section 1:** Acceptance Criteria Traceability.
    - **Section 2:** Complete 4-Quadrant Test Case Matrix with **`Execution Mode` (`AUTOMATE_UI` / `AUTOMATE_API` / `MANUAL_TEST`)** and **`Engineering Rationale (Why Automate vs. Why Manual)`**.
    - **Section 3:** **Step-by-Step Manual Test Execution Guide** (dedicated playbook for the cases marked `MANUAL_TEST` so the human tester can execute them cleanly).
    - **Section 4:** **Tailored Exploratory Testing Recommendations & Border-Case Heuristics** (explaining *what* to explore, *why* automation cannot replace it, and concrete edge-case prompts based on the User Story).
    - **Section 5:** **Discovered Bugs & Anti-Greenwashing Log** (tracking any automated or manual test that failed due to a real application defect).
-2. **`tests/cases/TC-[module].csv`** (Template: [`resources/test-cases.template.csv`](./resources/test-cases.template.csv)) — Ready for one-click import into **Excel, Google Sheets, Jira (Xray / Zephyr), TestRail, or Notion**.
+2. **`docs/test-cases/TC-[module].csv`** (Template: [`resources/test-cases.template.csv`](./resources/test-cases.template.csv)) — Ready for one-click import into **Excel, Google Sheets, Jira (Xray / Zephyr), TestRail, or Notion**.

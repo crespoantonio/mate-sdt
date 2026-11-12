@@ -128,7 +128,7 @@ function printHelp() {
     `    ${color('gate [dir]', COLORS.brightGreen, COLORS.bold)}           Execute the 5-Gate Harness Engineering Closed Verification Loop`
   );
   console.log(
-    `    ${color('cases <module>', COLORS.brightGreen, COLORS.bold)}       Create a 4-Quadrant Test Case Matrix (.md & .csv) in tests/cases/`
+    `    ${color('cases <module>', COLORS.brightGreen, COLORS.bold)}       Create a 4-Quadrant Test Case Matrix (.md & .csv) in docs/test-cases/`
   );
   console.log(
     `    ${color('audit [dir]', COLORS.brightGreen, COLORS.bold)}          Scan test codebase for anti-patterns & compute Health Score (A-F)`

@@ -13,9 +13,9 @@ const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 const STANDARD_DIRECTORIES = [
   'docs',
   'docs/test-plans',
+  'docs/test-cases',
   'specs',
   'specs/waivers',
-  'tests/cases',
   'tests/e2e',
   'tests/api',
   'tests/threats',
@@ -187,7 +187,7 @@ function installClaudeCode(targetDir) {
     'This repository is governed by the **M.A.T.E. Method** (`mate-sdt` — 15 Synergistic Skills & 7 E2E Workflows) built on **Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** ($\\text{Agent} = \\text{Model} + \\text{Harness}$):',
     '- **Context Engineering (Tier-1 Living Map):** Always read and update `MATE-PROJECT-MAP.md` (`< 3,000 tokens`) before scanning the repository. Run `npx mate-sdt context [module]` to check token budgets, detect unindexed artifacts, and assemble Just-In-Time (JIT) Context Packs.',
     '- **Epistemic Isolation (Anti-Poisoning):** Never guess SLAs, auth mechanisms, or undocumented contracts. Isolate uncertainty with `[OBSERVED]`, `[INFERRED]`, and `[TBD]` tags.',
-    '- **User Story Ingestion & Pragmatic QA Companion (`mate-story-testcases`):** Ingest stories from Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text. Generate `tests/cases/TC-*.md` & `.csv` (`npx mate-sdt cases <mod>`) covering 4 quadrants (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) and classifying each into `AUTOMATE_UI`, `AUTOMATE_API`, `MANUAL_TEST` (with rationale), or `EXPLORATORY_CHARTER`.',
+    '- **User Story Ingestion & Pragmatic QA Companion (`mate-story-testcases`):** Ingest stories from Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text. Generate `docs/test-cases/TC-*.md` & `.csv` (`npx mate-sdt cases <mod>`) covering 4 quadrants (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) and classifying each into `AUTOMATE_UI`, `AUTOMATE_API`, `MANUAL_TEST` (with rationale), or `EXPLORATORY_CHARTER`.',
     '- **Anti-Greenwashing Guardrail:** Never only write tests that pass! If an automatable test fails against the app due to a real bug, KEEP the test with its real assertion, mark it with `test.fail(true, "BUG-XXX: ...")`, generate `npx mate-sdt bug <mod>`, and alert the tester.',
     '- **Pillar M (`mate-model` + `mate-pw-recon`):** Specifications live in `specs/*.mate-spec.md` (`npx mate-sdt validate`). Verify live behavior and compress DOM context using `@playwright/cli` YAML ARIA snapshots (`playwright-cli open/snapshot`).',
     '- **Pillar A (`mate-assert-playwright` + `mate-pw-codegen` + `mate-assert-api`):** Follow OOP & SOLID principles (`src/pages/`, `src/components/`, `src/api/`, `src/mocks/`, `src/fixtures/`). Zero arbitrary sleeps (`waitForTimeout` is strictly forbidden).',
@@ -221,9 +221,9 @@ function installCursor(targetDir) {
     'mate-core': '**/*',
     'mate-help': '**/*',
     'mate-strategy': 'docs/**/*.md,MATE-PROJECT-MAP.md',
-    'mate-story-testcases': 'tests/cases/**/*,specs/**/*.mate-spec.md',
+    'mate-story-testcases': 'docs/test-cases/**/*,specs/**/*.mate-spec.md',
     'mate-model': 'specs/**/*.mate-spec.md,MATE-PROJECT-MAP.md',
-    'mate-pw-recon': 'specs/**/*.mate-spec.md,tests/cases/**/*,src/pages/**/*.ts,src/components/**/*.ts',
+    'mate-pw-recon': 'specs/**/*.mate-spec.md,docs/test-cases/**/*,src/pages/**/*.ts,src/components/**/*.ts',
     'mate-assert-playwright': 'tests/e2e/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/fixtures/**/*.ts',
     'mate-pw-codegen': 'tests/e2e/**/*.ts,src/pages/**/*.ts,src/components/**/*.ts,src/mocks/**/*.ts,src/fixtures/**/*.ts',
     'mate-pw-forensics': 'tests/threats/**/*.ts,tests/charters/**/*.md,tests/bugs/**/*.md',
@@ -1019,7 +1019,7 @@ function generateTestCases(moduleName, targetDir = '.') {
   const today = new Date().toISOString().slice(0, 10);
   const dateStr = today.replace(/-/g, '');
 
-  const casesDir = path.join(resolved, 'tests', 'cases');
+  const casesDir = path.join(resolved, 'docs', 'test-cases');
   fs.mkdirSync(casesDir, { recursive: true });
 
   const mdDest = path.join(casesDir, `TC-${safeName}.md`);

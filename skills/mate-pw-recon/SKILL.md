@@ -69,7 +69,7 @@ Before automating a User Story (`mate-story-testcases`), walk through the critic
    - Test boundary values (`0`, negative numbers, max length + 1, empty strings, special characters) directly via `playwright-cli fill`.
    - Verify whether the UI displays accessible error messages (`role="alert"`, `aria-invalid="true"`).
 3. **Record Honest Observations (`PASS` vs `FAIL`):**
-   - Update the `Live CLI Check` column in `tests/cases/TC-[module].md` and `.csv`.
+   - Update the `Live CLI Check` column in `docs/test-cases/TC-[module].md` and `.csv`.
    - **CRITICAL:** If a border case or acceptance criterion **fails** in the live browser (e.g., applying a 100% discount results in `-10` or a `500` error), mark it as `❌ FAIL (BUG-XXX)` and pass it to `mate-pw-codegen` + `mate-assert-playwright` so the automated test is **still created** with `test.fail()`!
 
 ---

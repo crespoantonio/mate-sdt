@@ -35,8 +35,8 @@ flowchart LR
 1. Create or update `specs/[module].mate-spec.md` with `<intent_model>` (including **Explicit Forbidden Transitions**), `<invariants>` (`INV-01..INV-NN`), `<threat_scenarios>`, and `<exploratory_charters>`.
 2. Run `npx mate-sdt validate specs/[module].mate-spec.md`.
 3. Generate the dual QA Companion Test Case Matrix (`npx mate-sdt cases <module>`):
-   - `tests/cases/TC-[module].md` (Rich QA Companion document with traceability, Automated vs. Manual rationale, Manual Test Execution Guide, and tailored Exploratory Testing Recommendations)
-   - `tests/cases/TC-[module].csv` (CSV ready for Jira/Xray/Zephyr/Excel/Notion import)
+   - `docs/test-cases/TC-[module].md` (Rich QA Companion document with traceability, Automated vs. Manual rationale, Manual Test Execution Guide, and tailored Exploratory Testing Recommendations)
+   - `docs/test-cases/TC-[module].csv` (CSV ready for Jira/Xray/Zephyr/Excel/Notion import)
 4. Ensure mandatory coverage across all 4 quadrants (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) and classify each scenario using the **Pragmatic Execution Mode Decision Engine**:
    - **`[AUTOMATE_UI]`**: High-ROI end-to-end user flows and DOM state transitions (`tests/e2e/`).
    - **`[AUTOMATE_API]`**: Fast boundary value matrices, field validations, and status codes (`tests/api/`).
@@ -49,7 +49,7 @@ flowchart LR
 1. Open the running application via `playwright-cli open <url>`.
 2. Inspect the ARIA tree (`playwright-cli snapshot`) and walk through the designed test cases (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`) interactively using `fill`, `click`, `select`, `eval`, `console`, and `network`.
 3. Extract semantic locators (`getByRole`, `getByLabel`, `getByTestId`) and identify reusable `BaseComponent` vs. `BasePage` boundaries.
-4. Record the honest live result (`✅ PASS` vs. `❌ FAIL`) for each `TC-XX` in `tests/cases/TC-[module].md` and `.csv`.
+4. Record the honest live result (`✅ PASS` vs. `❌ FAIL`) for each `TC-XX` in `docs/test-cases/TC-[module].md` and `.csv`.
 5. Close the CLI browser session (`playwright-cli close`).
 
 ---
@@ -61,7 +61,7 @@ flowchart LR
    - `src/api/<module>.client.ts` (extending `BaseApiClient`)
    - `src/fixtures/mate.fixtures.ts` (`test.extend<MateFixtures>`)
 2. Register new classes and fixtures in `MATE-PROJECT-MAP.md`.
-3. Write the automated suites in `tests/e2e/<module>.spec.ts` (for cases marked `AUTOMATE_UI`) and `tests/api/<module>.spec.ts` (for cases marked `AUTOMATE_API`), while leaving `MANUAL_TEST` and `EXPLORATORY_CHARTER` cases clearly documented in `tests/cases/TC-<module>.md` for the human QA engineer.
+3. Write the automated suites in `tests/e2e/<module>.spec.ts` (for cases marked `AUTOMATE_UI`) and `tests/api/<module>.spec.ts` (for cases marked `AUTOMATE_API`), while leaving `MANUAL_TEST` and `EXPLORATORY_CHARTER` cases clearly documented in `docs/test-cases/TC-<module>.md` for the human QA engineer.
 4. **ENFORCE THE ANTI-GREENWASHING MANDATE:**
    - **Never skip, delete, or weaken a test case just because the application currently fails it!**
    - If `TC-XX` fails against the live application (because of a real product bug violating the User Story / `INV-YY`), **write the test with the true expected assertion** and annotate it with:

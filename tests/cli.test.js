@@ -188,6 +188,8 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
       const { mdDest, csvDest } = generateTestCases('checkout-payment', tmpDir);
       assert.ok(fs.existsSync(mdDest));
       assert.ok(fs.existsSync(csvDest));
+      assert.ok(mdDest.includes(path.join('docs', 'test-cases')));
+      assert.ok(csvDest.includes(path.join('docs', 'test-cases')));
       assert.ok(fs.readFileSync(mdDest, 'utf8').includes('HAPPY_PATH'));
       assert.ok(fs.readFileSync(mdDest, 'utf8').includes('BORDER_CASE'));
       assert.ok(fs.readFileSync(csvDest, 'utf8').includes('TC_ID,Story_Key,Category'));
@@ -276,8 +278,8 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
         { encoding: 'utf8' }
       );
       assert.equal(casesRun.status, 0, `CLI cases failed: ${casesRun.stderr}`);
-      assert.ok(fs.existsSync(path.join(tmpDir, 'tests', 'cases', 'TC-order-service.md')));
-      assert.ok(fs.existsSync(path.join(tmpDir, 'tests', 'cases', 'TC-order-service.csv')));
+      assert.ok(fs.existsSync(path.join(tmpDir, 'docs', 'test-cases', 'TC-order-service.md')));
+      assert.ok(fs.existsSync(path.join(tmpDir, 'docs', 'test-cases', 'TC-order-service.csv')));
 
       const planRun = spawnSync(
         process.execPath,

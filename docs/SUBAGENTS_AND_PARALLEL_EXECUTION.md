@@ -67,7 +67,7 @@ CONSTRAINTS:
 ### Template 2: The 4-Quadrant Test Case Designer (`mate-story-testcases`)
 ```text
 ROLE: 4-Quadrant QA Test Case Architect
-TASK: Ingest User Story [TICKET_REF_OR_TEXT] and generate tests/cases/TC-[module].md and .csv.
+TASK: Ingest User Story [TICKET_REF_OR_TEXT] and generate docs/test-cases/TC-[module].md and .csv.
 CONSTRAINTS:
 1. Cover Happy Paths, Border/Boundary limits, Negative Paths, and Forbidden Transitions.
 2. Classify every test into [AUTOMATE_UI], [AUTOMATE_API], [MANUAL_TEST], or [EXPLORATORY_CHARTER].

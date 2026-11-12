@@ -43,7 +43,7 @@ npx mate-sdt install
 
 ### Scenario A: Working on a User Story (From Jira/Atlassian MCP, Notion, Excel, or Text)
 Use the **`/mate-flow-user-story`** workflow:
-1.  **Ingest & Design (`mate-story-testcases`):** Reads the User Story from your MCP (Jira/Notion/Linear) or local file (`.xlsx`/`.csv`/`.md`) and generates `tests/cases/TC-[module].md` and `.csv` (`npx mate-sdt cases <module>`).
+1.  **Ingest & Design (`mate-story-testcases`):** Reads the User Story from your MCP (Jira/Notion/Linear) or local file (`.xlsx`/`.csv`/`.md`) and generates `docs/test-cases/TC-[module].md` and `.csv` (`npx mate-sdt cases <module>`).
 2.  **Pragmatic Automation vs. Manual vs. Exploratory Split:**
     *   Classifies every test case (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) into **`AUTOMATE_UI`**, **`AUTOMATE_API`**, **`MANUAL_TEST`**, or **`EXPLORATORY_CHARTER`** with an explicit engineering rationale.
     *   Includes a step-by-step **Manual Test Execution Guide** for cases that should not be automated, plus tailored **Exploratory Testing Recommendations**.

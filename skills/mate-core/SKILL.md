@@ -55,7 +55,7 @@ Its purpose is to ensure that any software project implements a quality architec
 | **`mate-party`** | **Conversational Entry Point ("Party Mode")** | User is uncertain, requirements are ambiguous/unstructured, asks "Where do I start?", or doesn't invoke a specific skill. Convenes virtual Council of Experts, loads JIT discovery questions, identifies human collaborators, and synthesizes action plan. | Routes to `mate-strategy`, `mate-story-testcases`, `mate-pw-recon`, or `mate-ai-dataset` |
 | **`mate-help`** | **Coach & Advisor** | User asks any question about how M.A.T.E. works, which workflow/command to use, or how to implement SDT in their scenario. | Diagnoses context & routes to the exact skill/workflow |
 | **`mate-strategy`** | **Phase 0 (Strategy & Plan)** | QA team starts from zero on a live app (Standalone QA Repo), needs `docs/TEST-STRATEGY.md`, `docs/test-plans/TP-*.md`, a `P0/P1/P2` Risk Matrix, a 2-Wave Smoke-First plan, or manual suite migration. | `mate-pw-recon` ➔ `mate-story-testcases` + `mate-model` |
-| **`mate-story-testcases`** | **Ingestion & QA Companion** | Tester provides a User Story (Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text) to design 4-Quadrant Test Cases (`tests/cases/TC-*.md` & `.csv`), decide What to Automate vs. Keep Manual (with rationale), and recommend Exploratory Charters. | `mate-model` ➔ `mate-pw-recon` ➔ `mate-assert-playwright` + `mate-explore` |
+| **`mate-story-testcases`** | **Ingestion & QA Companion** | Tester provides a User Story (Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text) to design 4-Quadrant Test Cases (`docs/test-cases/TC-*.md` & `.csv`), decide What to Automate vs. Keep Manual (with rationale), and recommend Exploratory Charters. | `mate-model` ➔ `mate-pw-recon` ➔ `mate-assert-playwright` + `mate-explore` |
 | **`mate-model`** | **Pillar M (Model)** | Authoring or validating `specs/*.mate-spec.md`, Finite State Machines, and **Explicit Forbidden Transitions**. | `mate-story-testcases` + `mate-pw-recon` |
 | **`mate-pw-recon`** | **Pillar M/A (Live CLI Recon)** | Opening live URLs (`playwright-cli open/snapshot`), verifying User Story & border cases live in the browser, and mapping semantic DOM/ARIA locators before coding. | `mate-story-testcases` + `mate-model` ➔ `mate-pw-codegen` |
 | **`mate-assert-playwright`** | **Pillar A (SOLID UI Rules)** | Designing or reviewing `BasePage`, `BaseComponent`, `MateFixtures`, zero-sleep assertions, and applying `test.fail()` on real app bugs. | `mate-pw-codegen` + `mate-story-testcases` |
@@ -79,12 +79,15 @@ Its purpose is to ensure that any software project implements a quality architec
 ```text
 project-root/
 ├── MATE-PROJECT-MAP.md          <-- [CRITICAL] Living architecture & QA context index
+├── docs/                        <-- QA Documentation & Strategy
+│   ├── TEST-STRATEGY.md
+│   ├── test-plans/              <-- Sprint / Release Test Plans (TP-*.md)
+│   └── test-cases/              <-- Test Case Matrices (TC-[module].md & .csv for Jira/Xray/Excel/Notion)
 ├── specs/                       <-- M.A.T.E. specifications & release waivers
 │   ├── TEMPLATE_MATE_SPEC.md
 │   ├── waivers/                 <-- Formal Release Waivers (WVR-*.md)
 │   └── [module].mate-spec.md
 ├── tests/
-│   ├── cases/                   <-- Test Case Matrices (TC-[module].md & .csv for Jira/Xray/Excel/Notion)
 │   ├── e2e/                     <-- P0/P1 UI workflows (Happy + Border + Negative; real bugs marked test.fail)
 │   ├── api/                     <-- Contract and API integration tests
 │   ├── threats/                 <-- Concurrency, race conditions, idempotency, fuzzing
@@ -113,7 +116,7 @@ project-root/
 - **Context Engineering & JIT Context Pack:** `npx mate-sdt context [module]`
 - **5-Gate Harness Verification Loop:** `npx mate-sdt gate`
 - **Validate Specs:** `npx mate-sdt validate`
-- **Generate Test Case Matrix (`.md` + `.csv`):** `npx mate-sdt cases <module>`
+- **Generate Test Case Matrix (`.md` + `.csv`):** `npx mate-sdt cases <module>` (saves to `docs/test-cases/`)
 - **Audit Test Suite Health (`A`–`F`):** `npx mate-sdt audit`
 - **Run Podman Mutation (`>=85%`):** `npx mate-sdt mutate`
 - **Run Podman k6 Performance:** `npx mate-sdt k6 tests/nfr/load.k6.js`

@@ -61,7 +61,7 @@ When an application is already serving real users and has zero test coverage, **
 ### Wave 2: Module-by-Module M.A.T.E. Deepening (4 Quadrants + Pillar T & E)
 - Once Wave 1 is green, pick modules in strict **Risk Matrix order (`P0` ➔ `P1` ➔ `P2`)**:
   1. Author `specs/[module].mate-spec.md` (`mate-model`).
-  2. Generate the 4-Quadrant Test Case Matrix `tests/cases/TC-[module].md` & `.csv` (`mate-story-testcases`: Happy + Border + Negative + Forbidden Transitions).
+  2. Generate the 4-Quadrant Test Case Matrix `docs/test-cases/TC-[module].md` & `.csv` (`mate-story-testcases`: Happy + Border + Negative + Forbidden Transitions).
   3. Automate all cases enforcing the **Anti-Greenwashing Mandate** (keep failing tests marked with `test.fail()` + `npx mate-sdt bug`).
   4. Add Concurrency/Fuzzing (`mate-threat`), k6 SLAs (`mate-performance-k6`), and Exploratory Charters (`mate-explore`).
 

@@ -133,7 +133,7 @@ npx mate-sdt gate --json
 ---
 
 ### 3b. `cases <module-name>` (Aliases: `testcases`, `tc`)
-Generates a 4-Quadrant Test Case Matrix (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) in both Markdown (`tests/cases/TC-<module>.md`) and CSV (`tests/cases/TC-<module>.csv`) ready for Jira/Xray/Zephyr, TestRail, Notion, or Excel import.
+Generates a 4-Quadrant Test Case Matrix (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) in both Markdown (`docs/test-cases/TC-<module>.md`) and CSV (`docs/test-cases/TC-<module>.csv`) ready for Jira/Xray/Zephyr, TestRail, Notion, or Excel import.
 
 ```bash
 npx mate-sdt cases checkout-flow
