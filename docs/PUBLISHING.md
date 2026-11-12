@@ -98,7 +98,7 @@ This repository includes `.github/workflows/publish.yml` pre-configured with `id
 1.  **Publish the first version (`v1.7.0`) interactively from your terminal** (`npm login` + `npm publish --access public`) so the `mate-sdt` package exists on npmjs.com.
 2.  On [npmjs.com](https://www.npmjs.com/), open your package **`mate-sdt`** -> go to **Settings** -> **Publishing access** -> **Trusted publishing (Add a new provider)**.
 3.  Select **GitHub Actions** and fill in:
-    *   **Organization or user:** `crespoantonio`
+    *   **Organization or user:** `mate-sdt`
     *   **Repository:** `mate-sdt`
     *   **Workflow filename:** `publish.yml`
     *   **Environment name:** *(leave empty unless you use a dedicated GitHub environment)*

@@ -29,13 +29,13 @@
     "windsurf",
     "copilot"
   ],
-  "homepage": "https://github.com/crespoantonio/mate-sdt#readme",
+  "homepage": "https://github.com/mate-sdt/mate-sdt#readme",
   "bugs": {
-    "url": "https://github.com/crespoantonio/mate-sdt/issues"
+    "url": "https://github.com/mate-sdt/mate-sdt/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/crespoantonio/mate-sdt.git"
+    "url": "git+https://github.com/mate-sdt/mate-sdt.git"
   },
   "license": "MIT",
   "author": "Antonio \"Tony\" Crespo (Un Junior En Apuros)",
