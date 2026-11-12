@@ -32,6 +32,7 @@ const STANDARD_DIRECTORIES = [
 
 const SKILL_NAMES = [
   'mate-core',
+  'mate-party',
   'mate-help',
   'mate-strategy',
   'mate-story-testcases',

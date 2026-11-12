@@ -1,6 +1,6 @@
 # 🧉 M.A.T.E. Method (`mate-sdt`)
 
-### Spec-Driven Testing (SDT) Framework & QA Companion — 15 Synergistic AI Agent Skills & 7 E2E Workflows for the Agentic Coding Era
+### Spec-Driven Testing (SDT) Framework & QA Companion — 16 Synergistic AI Agent Skills & 7 E2E Workflows for the Agentic Coding Era
 
 [![npm version](https://img.shields.io/npm/v/mate-sdt.svg?style=flat-square&color=2ea44f)](https://www.npmjs.com/package/mate-sdt)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
@@ -69,14 +69,15 @@ flowchart LR
 
 ---
 
-## 🧩 The 15 Synergistic AI Agent Skills & 7 End-to-End Workflows
+## 🧩 The 16 Synergistic AI Agent Skills & 7 End-to-End Workflows
 
-When you run `npx mate-sdt install`, your AI agents gain **15 specialized skills** (each with exact `USE WHEN:` triggers and `SYNERGY:` handoff protocols) and **7 orchestrated E2E workflows**:
+When you run `npx mate-sdt install`, your AI agents gain **16 specialized skills** (each with exact `USE WHEN:` triggers and `SYNERGY:` handoff protocols) and **7 orchestrated E2E workflows**:
 
-### 1. The 15 M.A.T.E. Skills (`skills/`)
+### 1. The 16 M.A.T.E. Skills (`skills/`)
 | Skill | Scope | Exact Responsibility & Synergy |
 | :--- | :--- | :--- |
-| **`mate-core`** | **Orchestrator** | Manages `MATE-PROJECT-MAP.md`, SOLID/OOP rules, Anti-Greenwashing Mandate, Handling Uncertainty Protocol (`[OBSERVED]` vs `[INFERRED]`), and routes tasks across all 15 skills. |
+| **`mate-core`** | **Orchestrator** | Manages `MATE-PROJECT-MAP.md`, SOLID/OOP rules, Anti-Greenwashing Mandate, Handling Uncertainty Protocol (`[OBSERVED]` vs `[INFERRED]`), and routes tasks across all 16 skills. |
+| **`mate-party`** | **Entry Point ("Party Mode")** | **Council of QA Experts & Dynamic Router**: activates when the user is uncertain, provides an unstructured or ambiguous prompt, asks "Where do I start?", or says "party mode". Simulates a multi-voice round-table debate (Tony Strategist, Exploratory Sleuth, Automation Architect, Threat Specialist, AI Evaluator, Team Stakeholders), loads domain discovery questions on demand, and synthesizes the exact action plan. |
 | **`mate-help`** | **Coach & Advisor** | Interactive M.A.T.E. Framework Coach (`/mate-help`). Answers any question about how M.A.T.E. works, diagnoses the tester's scenario, and recommends the exact workflow or command to run. |
 | **`mate-strategy`** | **Phase 0 (Strategy & Plan)** | Authors `docs/TEST-STRATEGY.md` and `docs/test-plans/TP-*.md`, builds the `P0/P1/P2` Business Risk Matrix, orchestrates the **2-Wave Smoke-First Rollout** for live apps without testing, and guides manual suite migration. |
 | **`mate-story-testcases`** | **Ingestion & QA Companion** | Ingests User Stories from **Atlassian/Jira MCP, Notion MCP, GitHub/Linear MCP, Excel/CSV, or text**, designs 4-Quadrant Test Case Matrices (`tests/cases/TC-*.md` & `.csv`), decides **What to Automate vs. Keep Manual (with explicit rationale)**, and recommends **Exploratory Testing Charters**. |

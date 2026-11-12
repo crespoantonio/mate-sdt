@@ -6,7 +6,7 @@ description: >-
   in my situation?", "Which workflow or command should I run?", "Should I automate this or keep it manual?", "How
   do I use M.A.T.E. in a separate QA folder or with Jira/Notion/Excel?"), or wants guidance on implementing
   Spec-Driven Testing (SDT).
-  SYNERGY: Acts as the conversational entry point and coach for the entire framework, diagnosing the tester's
+  SYNERGY: Acts as the conversational documentation advisor for the entire framework (working in synergy with `mate-party` for ambiguous entry points), diagnosing the tester's
   context and recommending the exact skill (`mate-strategy`, `mate-story-testcases`, `mate-pw-recon`, etc.),
   workflow (`/mate-flow-*`), or CLI command (`npx mate-sdt ...`) to execute next.
 ---
@@ -71,7 +71,7 @@ When explaining or applying M.A.T.E., always emphasize its **5 Foundational Prin
 
 | Command | What It Does |
 | :--- | :--- |
-| `npx mate-sdt install` | Interactive installer (scaffolds folders, 15 skills, 7 workflows, `playwright.config.ts`, `TEST-STRATEGY.md`, and optionally `@playwright/cli`). |
+| `npx mate-sdt install` | Interactive installer (scaffolds folders, 16 skills, 7 workflows, `playwright.config.ts`, `TEST-STRATEGY.md`, and optionally `@playwright/cli`). |
 | `npx mate-sdt init [dir]` | Quick-scaffolds M.A.T.E. folders and templates without interactive prompts. |
 | `npx mate-sdt setup-playwright` | Installs `@playwright/cli@latest` and `@playwright/test@latest` and updates `.gitignore`. |
 | `npx mate-sdt setup-ai` | Installs the on-demand **AI Agent, Chatbot & RAG Quality Pack** (4 AI Skills, `/mate-flow-ai-agent`, Promptfoo, DeepEval & OTel Trace Auditor). |

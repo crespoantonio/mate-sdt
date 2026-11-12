@@ -85,10 +85,10 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
     }
   });
 
-  test('3. installMate scaffolds Standalone/Greenfield project, 15 synergistic skills, 7 E2E workflows, and ready-to-run Playwright harness', () => {
+  test('3. installMate scaffolds Standalone/Greenfield project, 16 synergistic skills, 7 E2E workflows, and ready-to-run Playwright harness', () => {
     const tmpDir = createTempDir();
     try {
-      assert.equal(SKILL_NAMES.length, 15);
+      assert.equal(SKILL_NAMES.length, 16);
       assert.equal(WORKFLOW_NAMES.length, 7);
 
       installMate({
@@ -117,7 +117,8 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
       assert.ok(fs.existsSync(path.join(tmpDir, 'src', 'fixtures', 'mate.fixtures.ts')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'tests', 'nfr', 'order-load.k6.js')));
 
-      // Verify all 14 skills installed in Antigravity, Claude, and Cursor, with USE WHEN & SYNERGY in descriptions
+      // Verify all 16 skills installed in Antigravity, Claude, and Cursor, with USE WHEN & SYNERGY in descriptions
+      assert.strictEqual(SKILL_NAMES.length, 16);
       for (const skill of SKILL_NAMES) {
         const skillPath = path.join(tmpDir, '.agents', 'skills', skill, 'SKILL.md');
         assert.ok(fs.existsSync(skillPath));
@@ -128,7 +129,12 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
         assert.ok(fs.existsSync(path.join(tmpDir, '.cursor', 'rules', `${skill}.mdc`)));
       }
 
-      // Verify specialized @playwright/cli skills and mate-story-testcases references are copied
+      // Verify specialized @playwright/cli skills, mate-party and mate-story-testcases references are copied
+      assert.ok(
+        fs.existsSync(
+          path.join(tmpDir, '.agents', 'skills', 'mate-party', 'references', 'party-moderation-guide.md')
+        )
+      );
       assert.ok(
         fs.existsSync(
           path.join(tmpDir, '.agents', 'skills', 'mate-story-testcases', 'references', 'mcp-and-file-ingestion.md')
