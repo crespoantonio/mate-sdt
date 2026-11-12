@@ -15,6 +15,7 @@ const {
 const { validateTarget } = require('../src/cli/validator');
 const { auditTestSuite } = require('../src/cli/auditor');
 const {
+  detectExistingMate,
   initMateProject,
   installMate,
   installPlaywrightCliPackages,
@@ -173,80 +174,130 @@ function printHelp() {
 async function handleInstall(flags) {
   printBanner(pkg.version);
   const targetDir = path.resolve(flags.dir || flags.positional[1] || '.');
+  const existing = detectExistingMate(targetDir);
 
-  let mode = flags.mode || 'greenfield';
+  let mode = flags.mode || (existing.hasProjectMap ? 'skills-only' : 'greenfield');
   let ides = flags.ide
     ? flags.ide.split(',').map((s) => s.trim().toLowerCase())
-    : ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'];
+    : existing.detectedIdes;
   let includeStarterFiles = flags.starter;
   let installPlaywrightCli = flags.playwrightCli;
-  let installAiEvals = flags.aiEvals;
+  let installAiEvals = flags.aiEvals !== undefined ? flags.aiEvals : existing.hasAiPack;
 
   if (!flags.yes && process.stdin.isTTY) {
     const rl = createPromptInterface();
     try {
-      mode = await promptSelect(
-        rl,
-        'Select your project lifecycle mode:',
-        [
-          {
-            label: 'Standalone QA Repository (Separate QA Folder for a Live App — Zero-to-One Harness)',
-            description: 'Best when QA works in a dedicated folder outside Front/Back with playwright.config.ts, TEST-STRATEGY.md & Smoke-First setup.',
-            value: 'standalone-qa',
-          },
-          {
-            label: 'Greenfield (Full SDT Architecture + 15 AI Skills + 7 Workflows + SOLID Templates)',
-            description: 'Best for new projects or establishing a complete UI, API, k6 & SDT harness.',
-            value: 'greenfield',
-          },
-          {
-            label: 'Brownfield / Existing Project (AI Skills + Workflows + Living Map + Spec Governance)',
-            description: 'Best for existing repositories where you want to reverse-engineer specs.',
-            value: 'brownfield',
-          },
-          {
-            label: 'AI Skills, Workflows & IDE Rules Only (No test folder scaffolding)',
-            description: 'Installs M.A.T.E. skills/workflows and specs/ folder without touching src/ or tests/.',
-            value: 'skills-only',
-          },
-        ],
-        0
-      );
+      if (existing.isInstalled) {
+        console.log(color('  🔍 Existing M.A.T.E. project detected in this directory:', COLORS.bold, COLORS.cyan));
+        console.log(`     • Living Map (MATE-PROJECT-MAP.md): ${existing.hasProjectMap ? color('Found', COLORS.brightGreen) : color('Not found', COLORS.gray)}`);
+        console.log(`     • Configured IDEs: ${color(existing.detectedIdes.join(', '), COLORS.brightGreen)}`);
+        if (existing.installedSkillsCount > 0) {
+          console.log(`     • Installed Skills: ${color(`${existing.installedSkillsCount} skills`, COLORS.yellow)} (Framework v${pkg.version} provides 16 core skills)`);
+        }
+        console.log('');
 
-      ides = await promptMultiSelect(
-        rl,
-        'Which AI Coding Agents / IDEs do you want to configure?',
-        [
-          { label: 'Google Antigravity IDE & agy CLI (.agents/skills + .agent/workflows/mate)', value: 'antigravity' },
-          { label: 'Claude Code (.claude/commands + .claude/skills + CLAUDE.md)', value: 'claude' },
-          { label: 'Cursor (.cursor/rules/*.mdc)', value: 'cursor' },
-          { label: 'Windsurf (.windsurf/rules + .windsurf/workflows)', value: 'windsurf' },
-          { label: 'GitHub Copilot (.github/copilot-instructions.md + .github/prompts)', value: 'copilot' },
-        ],
-        [0, 1, 2]
-      );
-
-      if (mode !== 'skills-only') {
-        includeStarterFiles = await promptConfirm(
+        const wantUpdate = await promptConfirm(
           rl,
-          'Include Golden Sample Spec and SOLID starter templates (BasePage, Component, BaseApiClient, Fixtures, k6)?',
+          `Would you like to UPDATE all M.A.T.E. AI skills and workflows to v${pkg.version}? (Your specs, tests, and pages will be 100% preserved)`,
           true
         );
+
+        if (wantUpdate) {
+          mode = 'skills-only';
+          includeStarterFiles = false;
+
+          ides = await promptMultiSelect(
+            rl,
+            'Which AI Coding Agents / IDEs do you want to update/configure?',
+            [
+              { label: 'Google Antigravity IDE & agy CLI (.agents/skills + .agent/workflows/mate)', value: 'antigravity' },
+              { label: 'Claude Code (.claude/commands + .claude/skills + CLAUDE.md)', value: 'claude' },
+              { label: 'Cursor (.cursor/rules/*.mdc)', value: 'cursor' },
+              { label: 'Windsurf (.windsurf/rules + .windsurf/workflows)', value: 'windsurf' },
+              { label: 'GitHub Copilot (.github/copilot-instructions.md + .github/prompts)', value: 'copilot' },
+            ],
+            existing.detectedIdes.map((id) => ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'].indexOf(id)).filter((i) => i >= 0)
+          );
+
+          if (!existing.hasAiPack) {
+            installAiEvals = await promptConfirm(
+              rl,
+              'Also install the on-demand AI Quality Pack? (4 AI Skills + Promptfoo + DeepEval + OTel Trace Auditor)',
+              false
+            );
+          } else {
+            installAiEvals = true;
+          }
+
+          console.log(color('\n🧉 Updating M.A.T.E. skills and workflows...', COLORS.bold, COLORS.brightGreen));
+        } else {
+          console.log(color('\nExiting without making changes. Your existing setup remains untouched.\n', COLORS.gray));
+          return;
+        }
       } else {
-        includeStarterFiles = false;
+        mode = await promptSelect(
+          rl,
+          'Select your project lifecycle mode:',
+          [
+            {
+              label: 'Standalone QA Repository (Separate QA Folder for a Live App — Zero-to-One Harness)',
+              description: 'Best when QA works in a dedicated folder outside Front/Back with playwright.config.ts, TEST-STRATEGY.md & Smoke-First setup.',
+              value: 'standalone-qa',
+            },
+            {
+              label: 'Greenfield (Full SDT Architecture + 16 AI Skills + 7 Workflows + SOLID Templates)',
+              description: 'Best for new projects or establishing a complete UI, API, k6 & SDT harness.',
+              value: 'greenfield',
+            },
+            {
+              label: 'Brownfield / Existing Project (AI Skills + Workflows + Living Map + Spec Governance)',
+              description: 'Best for existing repositories where you want to reverse-engineer specs.',
+              value: 'brownfield',
+            },
+            {
+              label: 'AI Skills, Workflows & IDE Rules Only (No test folder scaffolding)',
+              description: 'Installs M.A.T.E. skills/workflows and specs/ folder without touching src/ or tests/.',
+              value: 'skills-only',
+            },
+          ],
+          0
+        );
+
+        ides = await promptMultiSelect(
+          rl,
+          'Which AI Coding Agents / IDEs do you want to configure?',
+          [
+            { label: 'Google Antigravity IDE & agy CLI (.agents/skills + .agent/workflows/mate)', value: 'antigravity' },
+            { label: 'Claude Code (.claude/commands + .claude/skills + CLAUDE.md)', value: 'claude' },
+            { label: 'Cursor (.cursor/rules/*.mdc)', value: 'cursor' },
+            { label: 'Windsurf (.windsurf/rules + .windsurf/workflows)', value: 'windsurf' },
+            { label: 'GitHub Copilot (.github/copilot-instructions.md + .github/prompts)', value: 'copilot' },
+          ],
+          [0, 1, 2]
+        );
+
+        if (mode !== 'skills-only') {
+          includeStarterFiles = await promptConfirm(
+            rl,
+            'Include Golden Sample Spec and SOLID starter templates (BasePage, Component, BaseApiClient, Fixtures, k6)?',
+            true
+          );
+        } else {
+          includeStarterFiles = false;
+        }
+
+        installPlaywrightCli = await promptConfirm(
+          rl,
+          'Install @playwright/cli & @playwright/test via npm now? (Enables live browser recon, codegen, traces & video)',
+          mode !== 'skills-only'
+        );
+
+        installAiEvals = await promptConfirm(
+          rl,
+          'Install the AI Agent, Chatbot & RAG Quality Pack? (4 AI Skills + Promptfoo + DeepEval + OTel Trace Auditor)',
+          false
+        );
       }
-
-      installPlaywrightCli = await promptConfirm(
-        rl,
-        'Install @playwright/cli & @playwright/test via npm now? (Enables live browser recon, codegen, traces & video)',
-        mode !== 'skills-only'
-      );
-
-      installAiEvals = await promptConfirm(
-        rl,
-        'Install the AI Agent, Chatbot & RAG Quality Pack? (4 AI Skills + Promptfoo + DeepEval + OTel Trace Auditor)',
-        false
-      );
     } finally {
       rl.close();
     }
@@ -268,7 +319,7 @@ async function handleInstall(flags) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
   }
 
-  console.log(color('\n  🤖 Installed 15 Synergistic AI Skills, 7 E2E Workflows & IDE Rules:', COLORS.bold, COLORS.cyan));
+  console.log(color('\n  🤖 Installed 16 Synergistic AI Skills, 7 E2E Workflows & IDE Rules:', COLORS.bold, COLORS.cyan));
   for (const item of result.ideFiles) {
     console.log(`     ${color('✔', COLORS.brightGreen)} ${item}`);
   }

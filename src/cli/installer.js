@@ -1371,12 +1371,57 @@ function runPodmanK6(scriptPath = 'tests/nfr/order-load.k6.js', targetDir = '.')
   return run.status ?? 1;
 }
 
+/**
+ * Detects if a directory has an existing M.A.T.E. installation
+ */
+function detectExistingMate(targetDir = '.') {
+  const resolved = path.resolve(targetDir);
+  const hasProjectMap = fs.existsSync(path.join(resolved, 'MATE-PROJECT-MAP.md'));
+  const hasSpecs = fs.existsSync(path.join(resolved, 'specs'));
+  const hasAntigravity = fs.existsSync(path.join(resolved, '.agents', 'skills', 'mate-core', 'SKILL.md'));
+  const hasClaude = fs.existsSync(path.join(resolved, '.claude', 'commands', 'mate-core.md'));
+  const hasCursor = fs.existsSync(path.join(resolved, '.cursor', 'rules', 'mate-core.mdc'));
+  const hasWindsurf = fs.existsSync(path.join(resolved, '.windsurf', 'rules', 'mate-core.md'));
+  const hasCopilot = fs.existsSync(path.join(resolved, '.github', 'copilot-instructions.md'));
+  const hasAiPack = fs.existsSync(path.join(resolved, '.agents', 'skills', 'mate-ai-dataset', 'SKILL.md'));
+
+  const detectedIdes = [];
+  if (hasAntigravity) detectedIdes.push('antigravity');
+  if (hasClaude) detectedIdes.push('claude');
+  if (hasCursor) detectedIdes.push('cursor');
+  if (hasWindsurf) detectedIdes.push('windsurf');
+  if (hasCopilot) detectedIdes.push('copilot');
+
+  const isInstalled = hasProjectMap || hasSpecs || detectedIdes.length > 0;
+
+  let installedSkillsCount = 0;
+  const antigravitySkillsDir = path.join(resolved, '.agents', 'skills');
+  if (fs.existsSync(antigravitySkillsDir)) {
+    try {
+      const items = fs.readdirSync(antigravitySkillsDir, { withFileTypes: true });
+      installedSkillsCount = items.filter((i) => i.isDirectory() && i.name.startsWith('mate-')).length;
+    } catch {
+      installedSkillsCount = 0;
+    }
+  }
+
+  return {
+    isInstalled,
+    hasProjectMap,
+    hasSpecs,
+    hasAiPack,
+    detectedIdes: detectedIdes.length > 0 ? detectedIdes : ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'],
+    installedSkillsCount,
+  };
+}
+
 module.exports = {
   STANDARD_DIRECTORIES,
   SKILL_NAMES,
   WORKFLOW_NAMES,
   AI_SKILL_NAMES,
   AI_WORKFLOW_NAMES,
+  detectExistingMate,
   initMateProject,
   installMate,
   installPlaywrightCliPackages,

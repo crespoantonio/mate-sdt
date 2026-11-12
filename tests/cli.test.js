@@ -14,6 +14,7 @@ const {
   WORKFLOW_NAMES,
   AI_SKILL_NAMES,
   AI_WORKFLOW_NAMES,
+  detectExistingMate,
   installMate,
   setupAiQualityPack,
   generateAiDataset,
@@ -411,6 +412,32 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
       const parsedTraceReport = JSON.parse(traceRun.stdout);
       assert.equal(parsedTraceReport.passed, true);
       assert.equal(parsedTraceReport.summary.tool_steps, 1);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  test('9. detectExistingMate identifies existing installation, IDEs, and installed skills', () => {
+    const tmpDir = createTempDir();
+    try {
+      // 1. Initially empty directory
+      const emptyCheck = detectExistingMate(tmpDir);
+      assert.equal(emptyCheck.isInstalled, false);
+
+      // 2. Install M.A.T.E. with Antigravity and Claude
+      installMate({
+        targetDir: tmpDir,
+        mode: 'skills-only',
+        ides: ['antigravity', 'claude'],
+        includeStarterFiles: false,
+      });
+
+      // 3. Re-detect existing installation
+      const detected = detectExistingMate(tmpDir);
+      assert.equal(detected.isInstalled, true);
+      assert.ok(detected.detectedIdes.includes('antigravity'));
+      assert.ok(detected.detectedIdes.includes('claude'));
+      assert.equal(detected.installedSkillsCount, 16);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
