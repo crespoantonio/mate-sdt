@@ -1,6 +1,6 @@
 {
   "name": "mate-sdt",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "M.A.T.E. Method — Spec-Driven Testing (SDT) Framework & QA Companion built on Context Engineering & Harness Engineering: 15 Core Skills + 4 On-Demand AI Agent/RAG Quality Skills (Promptfoo, DeepEval, OTel Observability).",
   "keywords": [
     "mate-method",
