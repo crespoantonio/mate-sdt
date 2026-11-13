@@ -135,13 +135,17 @@ your-project/
 │   ├── TEMPLATE_MATE_SPEC.md
 │   ├── waivers/
 │   └── sample-order-lifecycle.mate-spec.md
+├── docs/                        <-- Centralized QA documentation, strategy & defect reports
+│   ├── TEST-STRATEGY.md         <-- Master Test Strategy & Risk Matrix (P0/P1/P2)
+│   ├── test-plans/              <-- Release and sprint test plans (TP-*.md)
+│   ├── test-cases/              <-- 4-quadrant matrices & CSVs (TC-*.md, TC-*.csv)
+│   └── bugs/                    <-- Structured bug reports linked to invariants (BUG-*.md)
 ├── tests/
 │   ├── e2e/                     <-- P0/P1 end-to-end UI workflows
 │   ├── api/                     <-- Contract and API integration suites
 │   ├── threats/                 <-- Concurrency, idempotency, race conditions & fuzzing
 │   ├── nfr/                     <-- Performance (k6) and resilience scripts (*.k6.js)
-│   ├── charters/                <-- Human exploratory testing sessions (CHR-*.md)
-│   └── bugs/                    <-- Structured bug reports linked to invariants (BUG-*.md)
+│   └── charters/                <-- Human exploratory testing sessions (CHR-*.md)
 ├── src/
 │   ├── pages/                   <-- SOLID Page Object Model (SRP / OCP)
 │   ├── components/              <-- Reusable UI Component Objects
