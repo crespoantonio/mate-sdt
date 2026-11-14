@@ -214,11 +214,36 @@ function runHarnessGate(targetDir = '.') {
       specRes = { allValid: true, results: [] };
     }
   }
+
+  // Gate 2: Pillar M & C — Specification Determinism & Test-Design-First Guardrail
+  const specTestFiles = listFilesWithExt(path.join(resolved, 'tests'), '.spec.ts');
+  const testCaseFiles = [
+    ...listFilesWithExt(path.join(resolved, 'docs', 'test-cases'), '.md'),
+    ...listFilesWithExt(path.join(resolved, 'tests', 'test-cases'), '.md'),
+  ];
+
+  let testCaseViolation = false;
+  let testCaseDetail = '';
+  if (specTestFiles.length > 0 && testCaseFiles.length === 0) {
+    testCaseViolation = true;
+    testCaseDetail = `Test-Design-First Mandate violated: ${specTestFiles.length} automated .spec.ts file(s) found in tests/ without any QA Companion test case matrix in docs/test-cases/TC-*.md.`;
+    selfCorrectionPrompts.push(
+      '[SELF-CORRECTION][GATE-02][MISSING_TEST_CASES]: Test-Design-First Mandate violated (MATE-INVARIANT-08). Found automated test(s) in tests/ without any QA Companion test case matrix in docs/test-cases/. Run `npx mate-sdt cases <module>` to generate `docs/test-cases/TC-<module>.md` and classify what to automate vs. test manually before writing test code.'
+    );
+  }
+
+  const gate2Passed = specRes.allValid && !testCaseViolation;
+  const gate2Details = !specRes.allValid
+    ? `${specRes.results.filter((r) => r.valid).length}/${specRes.results.length} spec(s) valid.`
+    : testCaseViolation
+      ? testCaseDetail
+      : `${specRes.results.length} spec(s) valid, ${testCaseFiles.length} QA Companion test case matrix(es) active.`;
+
   gates.push({
     id: 'GATE-02-SPEC-MODEL',
-    name: 'Pillar M Specification Determinism & Forbidden Transitions',
-    passed: specRes.allValid,
-    details: `${specRes.results.filter((r) => r.valid).length}/${specRes.results.length} spec(s) valid.`,
+    name: 'Pillar M & C: Spec Determinism & 4-Quadrant Test Case Design',
+    passed: gate2Passed,
+    details: gate2Details,
   });
   if (!specRes.allValid) {
     for (const r of specRes.results.filter((x) => !x.valid)) {
@@ -233,7 +258,6 @@ function runHarnessGate(targetDir = '.') {
   }
 
   // Gate 3: Anti-Greenwashing & Known-Bug Traceability Guardrail
-  const specTestFiles = listFilesWithExt(path.join(resolved, 'tests'), '.spec.ts');
   const allTestCode = specTestFiles.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
   const hasTestFailAnnotations = /test\.(fail|fixme)\s*\(/.test(allTestCode);
   const bugReports = [

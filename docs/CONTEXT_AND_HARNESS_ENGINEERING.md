@@ -68,10 +68,10 @@ sequenceDiagram
     Sandbox-->>Agent: Compact ARIA Snapshot + Observed Network/DOM State
     Agent->>State: 2. Write Spec, 4-Quadrant Cases & SOLID Page Objects
     Agent->>Harness: 3. Execute Closed Verification Loop (npx mate-sdt gate)
-    Harness->>Harness: Run Gates 1..4 (Context Budget, Spec Linter, Anti-Greenwashing, SOLID Audit)
+    Harness->>Harness: Run Gates 1..5 (Context Budget, Spec & Test-Design-First, Anti-Greenwashing, SOLID Audit, Podman)
     alt Any Deterministic Gate Fails
         Harness-->>Agent: Return Structured [SELF-CORRECTION] Prompt
-        Agent->>State: Self-Correct Code / Spec / Bug Report
+        Agent->>State: Self-Correct Code / Spec / Test Cases / Bug Report
         Agent->>Harness: Re-run npx mate-sdt gate
     else All 5 Gates Pass
         Harness->>State: Persist Verified State (.mate/harness-state.json)
@@ -81,8 +81,8 @@ sequenceDiagram
 
 1. **Tool Orchestration (`@playwright/cli` + MCPs + Podman):**
    Provides token-efficient browser control (`mate-pw-recon`, `mate-pw-codegen`, `mate-pw-forensics`), source-agnostic requirement ingestion (`mate-story-testcases`), and containerized execution (`mutate`, `k6`).
-2. **Deterministic Guardrails (`src/cli/validator.js` & `src/cli/auditor.js`):**
-   Hard-coded static analyzers that reject specs missing **Explicit Forbidden Transitions** and block test code containing `waitForTimeout()` (`MATE-ANTI-01`), `.only` (`MATE-ANTI-02`), direct `new *Page()` DIP violations (`MATE-ANTI-03`), weak assertions (`MATE-ANTI-04`), fragile XPath (`MATE-ANTI-05`), permissive discrepancy regexes (`MATE-ANTI-06`), or bloated single-case assertions in Page Objects (`MATE-ANTI-07`).
+2. **Deterministic Guardrails & Test-Design-First (`src/cli/validator.js`, `src/cli/harness.js` & `src/cli/auditor.js`):**
+   Hard-coded static analyzers that enforce the **Test-Design-First Mandate (`GATE-02` / `MATE-INVARIANT-08`)** (rejecting any automated `.spec.ts` file in `tests/` if `docs/test-cases/TC-*.md` does not exist), reject specs missing **Explicit Forbidden Transitions**, and block test code containing `waitForTimeout()` (`MATE-ANTI-01`), `.only` (`MATE-ANTI-02`), direct `new *Page()` DIP violations (`MATE-ANTI-03`), weak assertions (`MATE-ANTI-04`), fragile XPath (`MATE-ANTI-05`), permissive discrepancy regexes (`MATE-ANTI-06`), or bloated single-case assertions in Page Objects (`MATE-ANTI-07`).
 3. **Anti-Greenwashing Guardrail (`GATE-03`):**
    Deterministically cross-checks `test.fail()` / `test.fixme()` annotations in `tests/**/*.spec.ts` against `docs/bugs/BUG-*.md` so an AI agent can never silently hide a failing product requirement without generating a traceable Bug Report.
 4. **Closed-Loop Verification & Self-Correction (`npx mate-sdt gate`):**

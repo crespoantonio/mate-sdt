@@ -138,6 +138,8 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
       assert.ok(gitignore.includes('.mate/sessions/'));
       assert.ok(fs.existsSync(path.join(tmpDir, 'specs', 'TEMPLATE_MATE_SPEC.md')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'specs', 'sample-order-lifecycle.mate-spec.md')));
+      assert.ok(fs.existsSync(path.join(tmpDir, 'docs', 'test-cases', 'TC-sample-order-lifecycle.md')));
+      assert.ok(fs.existsSync(path.join(tmpDir, 'docs', 'test-cases', 'TC-sample-order-lifecycle.csv')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'stryker.config.json')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'src', 'pages', 'base.page.ts')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'src', 'components', 'notification-toast.component.ts')));
@@ -890,6 +892,54 @@ describe('M.A.T.E. Stack-Trace Entry Point & Spec-Guarded Self-Healing', () => {
       const recheck = ensureGitignore(customTmpDir);
       assert.equal(recheck, false);
       fs.rmSync(customTmpDir, { recursive: true, force: true });
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  test('15. GATE-02 enforces Test-Design-First Mandate (blocks automated tests when docs/test-cases/ is missing)', () => {
+    const tmpDir = createTempDir();
+    try {
+      installMate({
+        targetDir: tmpDir,
+        mode: 'greenfield',
+        ides: ['antigravity'],
+        includeStarterFiles: false,
+      });
+
+      // 1. Initial state: specs exist, no test cases, but no .spec.ts files yet -> Gate 2 passes (design phase)
+      const specSrc = path.join(__dirname, '..', 'templates', 'TEMPLATE_MATE_SPEC.md');
+      const specContent = fs.readFileSync(specSrc, 'utf8')
+        .replace(/\[Module Name\]/g, 'Checkout')
+        .replace(/STATUS: DRAFT/g, 'STATUS: APPROVED');
+      fs.writeFileSync(path.join(tmpDir, 'specs', 'checkout.mate-spec.md'), specContent, 'utf8');
+
+      const initialGate = runHarnessGate(tmpDir);
+      const g2Initial = initialGate.gates.find((g) => g.id === 'GATE-02-SPEC-MODEL');
+      assert.equal(g2Initial.passed, true);
+
+      // 2. Automator jumps to writing tests/e2e/checkout.spec.ts WITHOUT test cases in docs/test-cases/
+      const e2eDir = path.join(tmpDir, 'tests', 'e2e');
+      fs.mkdirSync(e2eDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(e2eDir, 'checkout.spec.ts'),
+        "import { test, expect } from '@playwright/test';\ntest('checkout smoke', async () => { expect(1).toBe(1); });\n",
+        'utf8'
+      );
+
+      // Gate 2 MUST FAIL: Test-Design-First Mandate violated!
+      const blockedGate = runHarnessGate(tmpDir);
+      assert.equal(blockedGate.allGatesPassed, false);
+      const g2Blocked = blockedGate.gates.find((g) => g.id === 'GATE-02-SPEC-MODEL');
+      assert.equal(g2Blocked.passed, false);
+      assert.ok(g2Blocked.details.includes('Test-Design-First Mandate violated'));
+      assert.ok(blockedGate.selfCorrectionPrompts.some((p) => p.includes('MISSING_TEST_CASES')));
+
+      // 3. Once test cases are generated via generateTestCases (docs/test-cases/TC-checkout.md), Gate 2 passes!
+      generateTestCases('checkout', tmpDir);
+      const unblockedGate = runHarnessGate(tmpDir);
+      const g2Unblocked = unblockedGate.gates.find((g) => g.id === 'GATE-02-SPEC-MODEL');
+      assert.equal(g2Unblocked.passed, true);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }

@@ -30,7 +30,8 @@
 4. **Forward-Only 6-Layer Architecture:** `src/models/` $\rightarrow$ `src/api/` & `src/components/` $\rightarrow$ `src/pages/` ($\le 300$ lines) $\rightarrow$ `src/fixtures/` (`test.extend`) $\rightarrow$ `tests/**/*.spec.ts`. Backward imports, `new SomePage()`, or raw `page.locator()` in specs fail `GATE-04`.
 5. **Anti-Greenwashing (`MATE-ANTI-06`):** Never delete/weaken failing assertions or use permissive regexes (`/A|B/`). Keep failing tests with `test.fail(true, "BUG-XXX")` and file `docs/bugs/BUG-*.md`.
 6. **Sessions vs. Memory & Provenance:** Separate ephemeral `.mate/sessions/` (24h TTL, $K=5$, `mate.handoff/v1`) from canonical `MATE-PROJECT-MAP.md`, `specs/`, and `.mate/memory/`. Enforce `[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO] > [INFERRED] / [TBD]`.
-7. **Container Isolation, Safety & LF Endings:** Always use rootless **Podman** (never Docker). Block destructive commands (`rm -rf`, `git push --force`, `git reset --hard`). Keep all repo files in English and `bin/mate-sdt.js` in **LF**.
+7. **Test-Design-First Mandate (`MATE-INVARIANT-08`):** Never write `.spec.ts` automation code (including Wave 1 Smoke Suites) without FIRST generating the 4-Quadrant Test Case Matrix (`docs/test-cases/TC-[module].md` & `.csv`) via `mate-story-testcases` (`npx mate-sdt cases <module>`). Every automated test must trace back to explicit cases classified via the Decision Engine (`[AUTOMATE_UI]`, `[AUTOMATE_API]`, `[MANUAL_TEST]`, `[EXPLORATORY_CHARTER]`). Specs without test cases fail `GATE-02`.
+8. **Container Isolation, Safety & LF Endings:** Always use rootless **Podman** (never Docker). Block destructive commands (`rm -rf`, `git push --force`, `git reset --hard`). Keep all repo files in English and `bin/mate-sdt.js` in **LF**.
 
 ---
 

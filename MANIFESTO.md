@@ -216,7 +216,7 @@ sequenceDiagram
 
 ## 📜 The 10 Commandments of the M.A.T.E. Quality Engineer
 
-1.  **Thou shalt not automate without a spec or rationale:** Never write a test script unless an explicit invariant exists in `*.mate-spec.md` and automation provides positive ROI over manual or exploratory verification.
+1.  **Thou shalt not automate without test cases, specs, and engineering rationale (Test-Design-First):** Never write a `.spec.ts` automation script (even for smoke suites) without first designing the 4-Quadrant Test Case Matrix (`docs/test-cases/TC-[module].md` & `.csv`) to decide what to automate in UI vs. API vs. test manually or exploratory, tracing back to explicit invariants in `*.mate-spec.md`. Code without test cases creates blind maintenance debt.
 2.  **Thou shalt never greenwash a failing requirement:** Never delete a failing test or weaken an assertion to make a broken application pass. Keep the test, mark it with `test.fail()`, and file a spec-linked bug report.
 3.  **Thou shalt separate checking from testing:** Let machines execute repetitive UI/API checking at lightning speed; reserve manual perception checks and exploratory testing charters for the human mind.
 4.  **Thou shalt tolerate zero arbitrary sleeps:** `sleep()` and `waitForTimeout()` are banned. Synchronization is event-driven with auto-retrying web assertions.

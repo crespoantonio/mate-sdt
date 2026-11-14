@@ -38,6 +38,7 @@ This Living Architecture Map indexes the **`mate-sdt`** repository itself (`< 3,
 
 ## 4. Non-Negotiable Guardrails
 - Never add third-party runtime dependencies to `package.json`.
+- Enforce Test-Design-First Mandate (`MATE-INVARIANT-08`): Never write `.spec.ts` automation without first generating `docs/test-cases/TC-*.md` matrices.
 - Enforce `[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO] > [INFERRED] / [TBD]`; block `[INFERRED]`/`[TBD]` from `<invariants>` and Page/Component Objects.
 - Keep `bin/mate-sdt.js` in **LF** line endings.
 - Always run `npm run build` and `npm test` after code changes.

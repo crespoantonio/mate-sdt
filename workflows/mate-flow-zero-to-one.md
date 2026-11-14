@@ -15,7 +15,7 @@ Use this workflow when a QA team lands in a project that has **no Test Strategy,
 flowchart LR
     P0["Bootstrap Harness"] --> P1["Phase 1: Global Live Recon<br/>[PARALLEL SUBAGENT]<br/>(mate-pw-recon)"]
     P0 --> P2["Phase 2: Master Strategy & Risk Matrix<br/>(mate-strategy)"]
-    P1 --> P3["Phase 3: Wave 1 — 72h P0 Smoke Survival Shield<br/>(mate-pw-codegen + mate-assert-playwright)"]
+    P1 --> P3["Phase 3: Wave 1 — 72h P0 Smoke Survival Shield<br/>(mate-story-testcases + mate-pw-codegen + mate-assert-playwright)"]
     P2 --> P3
     P3 --> P4["Phase 4: Wave 2 — Module-by-Module 4-Quadrant Depth<br/>(mate-story-testcases + mate-model + mate-triage)"]
 ```
@@ -42,14 +42,22 @@ flowchart LR
 
 ---
 
-## Phase 3: Wave 1 — Build the 72-Hour P0 Smoke Survival Shield (`mate-pw-codegen` + `mate-assert-playwright`)
-> **Why Wave 1 First?** Never spend 3 weeks writing 40 edge cases for Module #1 while Modules #2–#6 in production have zero tests. Build the horizontal P0 Smoke Shield first!
+## Phase 3: Wave 1 — Build the 72-Hour P0 Smoke Survival Shield (`mate-story-testcases` + `mate-pw-codegen` + `mate-assert-playwright`)
+> **Why Wave 1 First?** Never spend 3 weeks writing 40 edge cases for Module #1 while Modules #2–#6 in production have zero tests. Build the horizontal P0 Smoke Shield first!  
+> **⚠️ Test-Design-First Mandate (`MATE-INVARIANT-08`):** Never write `.spec.ts` automation code before designing test cases! Even for Wave 1, you must first document what you are testing, what is automated in UI vs. API, and what remains for manual/exploratory verification.
 
-1. Select the top **5 to 8 P0 Golden Paths** across the application (e.g., Login, Core Search/Catalog, Creation/Cart, Checkout/Payment, Critical API Health).
-2. Walk through each P0 Golden Path in `playwright-cli` (`mate-pw-recon`), extracting semantic locators (`getByRole`, `getByLabel`, `getByTestId`).
-3. Encapsulate shared widgets in `src/components/*.component.ts` (`BaseComponent`), pages in `src/pages/*.page.ts` (`BasePage`), and register them in `src/fixtures/mate.fixtures.ts` and `MATE-PROJECT-MAP.md`.
-4. Automate the `@smoke @p0` suite (`tests/e2e/smoke.spec.ts` and `tests/api/health.spec.ts`).
-5. Run `npm run test:smoke` and `npx mate-sdt gate` (verifying `GATE-01-CONTEXT` through `GATE-04-SOLID-AUDIT` and writing `.mate/harness-state.json`). The team now has an automated 2-minute production safety net!
+1. **Design P0 Smoke Test Cases (`mate-story-testcases`):**
+   - Select the top **5 to 8 P0 Golden Paths** across the application (e.g., Login, Core Search/Catalog, Creation/Cart, Checkout/Payment, Critical API Health).
+   - Generate `docs/test-cases/TC-smoke.md` and `.csv` using `npx mate-sdt cases smoke` (or `mate-story-testcases`).
+   - Apply the **Decision Engine**: tag which steps are `[AUTOMATE_UI]` (`@smoke @p0`), which are `[AUTOMATE_API]` (sub-second health/auth checks), and which fallbacks are `[MANUAL_TEST]` or `[EXPLORATORY_CHARTER]`.
+2. **Live Reconnaissance (`mate-pw-recon`):**
+   - Walk through each P0 Golden Path in `playwright-cli`, extracting semantic locators (`getByRole`, `getByLabel`, `getByTestId`).
+3. **Scaffold SOLID Architecture (`mate-assert-playwright`):**
+   - Encapsulate shared widgets in `src/components/*.component.ts` (`BaseComponent`), pages in `src/pages/*.page.ts` (`BasePage`), and register them in `src/fixtures/mate.fixtures.ts` and `MATE-PROJECT-MAP.md`.
+4. **Automate the Smoke Suite (`mate-pw-codegen` + `mate-assert-api`):**
+   - Automate the `@smoke @p0` suite (`tests/e2e/smoke.spec.ts` and `tests/api/health.spec.ts`) tracing back directly to `TC-smoke.md`.
+5. **Verify Safety Net:**
+   - Run `npm run test:smoke` and `npx mate-sdt gate` (verifying `GATE-01-CONTEXT` through `GATE-04-SOLID-AUDIT` and writing `.mate/harness-state.json`). The team now has an automated 2-minute production safety net!
 
 ---
 

@@ -251,6 +251,7 @@ function installClaudeCode(targetDir) {
     '',
     '### 3. Forward-Only 6-Layer Architecture & Guardrails',
     '- **Strict Dependency Direction:** `src/models/` (no `any`) -> `src/api/` & `src/components/` -> `src/pages/` (`<= 300` lines) -> `src/fixtures/` (`test.extend`) -> `tests/**/*.spec.ts`.',
+    '- **Test-Design-First Mandate (`MATE-INVARIANT-08`):** Never write `.spec.ts` automation (including smoke suites) without FIRST generating `docs/test-cases/TC-[module].md` and `.csv` (`mate-story-testcases` / `npx mate-sdt cases <module>`) with the Automate vs. Manual vs. Exploratory decision engine. Automated tests without test cases fail `GATE-02`.',
     '- **Forbidden in Specs:** `new SomePage(page)`, raw `page.locator()`, `waitForTimeout()`, `.only()`, or permissive regexes (`/A|B/`, `MATE-ANTI-06`). Keep failing tests with `test.fail(true, "BUG-XXX")` and file `docs/bugs/BUG-*.md`.',
     '- **Sessions vs. Memory & Provenance:** Ephemeral state in `.mate/sessions/` (24h TTL, $K=5$, `mate.handoff/v1`); canonical knowledge in `MATE-PROJECT-MAP.md`, `specs/`, and `.mate/memory/`. Enforce `[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO] > [INFERRED] / [TBD]`.',
     '- **Closed-Loop Verification & GC:** Run `npx mate-sdt context <module>`, `npx mate-sdt gate --loop`, and `npx mate-sdt gc` before concluding any turn. Execute `mutate`/`k6`/`redteam` inside rootless Podman.',
@@ -438,6 +439,7 @@ function installUniversalAgents(targetDir) {
     '',
     '## 3. Forward-Only 6-Layer Architecture & Taste Invariants',
     '1. `src/models/` (strict TS schemas, zero `any`) -> 2. `src/api/` & `src/components/` -> 3. `src/pages/` (`<= 300` lines) -> 4. `src/fixtures/` (`test.extend`) -> 5. `tests/{e2e,api,threats,nfr}/**/*.spec.ts`.',
+    '- **Test-Design-First Mandate (`MATE-INVARIANT-08`):** Never write `.spec.ts` automation code (even smoke tests) without FIRST generating `docs/test-cases/TC-[module].md` and `.csv` (`mate-story-testcases` / `npx mate-sdt cases <module>`). Every automated test must trace back to explicit cases (`[AUTOMATE_UI]`, `[AUTOMATE_API]`, `[MANUAL_TEST]`, `[EXPLORATORY_CHARTER]`). Specs without test cases fail `GATE-02`.',
     '- **Forbidden:** Backward imports, `new SomePage(page)` or raw `page.locator()` in `.spec.ts`, `waitForTimeout()`, `.only()`, and permissive regexes (`/A|B/`, `MATE-ANTI-06`).',
     '- **Anti-Greenwashing:** Keep failing tests with `test.fail(true, "BUG-XXX")` and file `docs/bugs/BUG-*.md` (`npx mate-sdt bug <mod>`).',
     '',
@@ -522,7 +524,7 @@ function installCopilot(targetDir) {
     '',
     '1. **Progressive Disclosure Routing:** Open-ended -> `mate-party`; Pasted stack trace/failure -> `mate-triage` + `npx mate-sdt heal`; Coaching -> `mate-help`; Execution -> `mate-core` & `MATE-PROJECT-MAP.md` (`< 3,000` tokens). Track plans in `.mate/exec-plans/active/` & `docs/QUALITY_SCORE.md`.',
     '2. **Zero-Assumption Escalation ("Ask, Never Guess") & Sub-Agent Delegation:** Never invent business thresholds or requirements; tag unknowns `[TBD: <exact question>]` under `## Open Questions for Human QA` and halt on `STATUS: BLOCKED_ON_USER_INPUT` (`GATE-01`/`GATE-02`). Build scoped sub-agent prompts via `npx mate-sdt context <module> --subagent <skill>` and enforce 3-Phase Pipeline Isolation (Reader -> Scorer -> Writer -> Independent Reviewer).',
-    '3. **Forward-Only 6-Layer Architecture:** `src/models/` (no `any`) -> `src/api/` & `src/components/` -> `src/pages/` (`<= 300` lines) -> `src/fixtures/` (`test.extend`) -> `tests/**/*.spec.ts`. Never use `waitForTimeout()`, `.only()`, `new Page()`, or raw `page.locator()` in specs. Keep failing tests with `test.fail(true, "BUG-XXX")`.',
+    '3. **Forward-Only 6-Layer Architecture & Test-Design-First:** `src/models/` (no `any`) -> `src/api/` & `src/components/` -> `src/pages/` (`<= 300` lines) -> `src/fixtures/` (`test.extend`) -> `tests/**/*.spec.ts`. Never write `.spec.ts` tests without FIRST generating `docs/test-cases/TC-[module].md` and `.csv` (`mate-story-testcases` / `npx mate-sdt cases <module>`). Never use `waitForTimeout()`, `.only()`, `new Page()`, or raw `page.locator()` in specs. Keep failing tests with `test.fail(true, "BUG-XXX")`.',
     '4. **Sessions vs. Memory & Provenance:** Separate `.mate/sessions/` (`npx mate-sdt session`) from `MATE-PROJECT-MAP.md`, `specs/*.mate-spec.md` (`npx mate-sdt validate`), and `.mate/memory/`. Enforce `[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO] > [INFERRED] / [TBD]`.',
     '5. **Closed-Loop Verification & GC:** Run `npx mate-sdt gate --loop` and `npx mate-sdt gc` before finishing. Run `mutate` (`>= 85%`) & `k6` inside rootless Podman.',
     '<!-- MATE-SDT-END -->',
@@ -667,6 +669,16 @@ function initMateProject(targetDir, options = {}) {
     if (!fs.existsSync(sampleSpecDest) && fs.existsSync(sampleSpecSrc)) {
       fs.copyFileSync(sampleSpecSrc, sampleSpecDest);
       created.push('specs/sample-order-lifecycle.mate-spec.md');
+    }
+
+    // Scaffolds starter 4-quadrant test case matrix matching sample-order-lifecycle
+    const sampleCasesDest = path.join(resolved, 'docs', 'test-cases', 'TC-sample-order-lifecycle.md');
+    if (!fs.existsSync(sampleCasesDest)) {
+      const generated = generateTestCases('sample-order-lifecycle', resolved);
+      created.push(
+        path.relative(resolved, generated.mdDest).replace(/\\/g, '/'),
+        path.relative(resolved, generated.csvDest).replace(/\\/g, '/')
+      );
     }
 
     const assertResDir = path.join(PACKAGE_ROOT, 'skills', 'mate-assert-playwright', 'resources');

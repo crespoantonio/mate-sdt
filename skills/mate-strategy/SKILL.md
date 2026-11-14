@@ -53,10 +53,11 @@ When an application is already serving real users and has zero test coverage, **
 - **Goal:** Protect revenue and core user journeys *this week* across the entire app before going deep into any single module.
 - **Scope:** Identify the 5 to 10 vital business flows (e.g., *Login/Auth, Core Search/Catalog, Cart/Creation, Checkout/Payment, Critical Admin Action*).
 - **Execution:**
-  1. Explore each flow via `playwright-cli` (`mate-pw-recon`).
-  2. Build the core `BasePage` and `BaseComponent` classes (`mate-pw-codegen`).
-  3. Write 1 deterministic `@smoke @p0` E2E test + 1 health/contract API test per critical flow.
-  4. Wire `npm run test:smoke` so the team has a 2-minute safety net immediately.
+  1. **Document P0 Smoke Test Cases (`mate-story-testcases`):** Generate `docs/test-cases/TC-smoke.md` & `.csv` (`npx mate-sdt cases smoke`) to explicitly document the scenarios and classify what is automated in UI vs. API vs. checked manually. *Never write `.spec.ts` code without test cases!*
+  2. Explore each flow via `playwright-cli` (`mate-pw-recon`).
+  3. Build the core `BasePage` and `BaseComponent` classes (`mate-pw-codegen`).
+  4. Write 1 deterministic `@smoke @p0` E2E test + 1 health/contract API test per critical flow tracing back to `TC-smoke.md`.
+  5. Wire `npm run test:smoke` and verify with `npx mate-sdt gate` so the team has an automated 2-minute safety net immediately.
 
 ### Wave 2: Module-by-Module M.A.T.E. Deepening (4 Quadrants + Pillar T & E)
 - Once Wave 1 is green, pick modules in strict **Risk Matrix order (`P0` ➔ `P1` ➔ `P2`)**:

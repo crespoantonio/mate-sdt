@@ -244,7 +244,7 @@ npx mate-sdt audit --gc
 ---
 
 ### 14. `gate [dir] [--loop]` (Closed-Loop Verification Harness & Safety Guard)
-Runs all 5 deterministic gates (`GATE-01`..`GATE-05`). With `--loop`, executes up to `--max-iterations=5` persisting `[SELF-CORRECTION]` payloads to `.mate/harness-state.json`. If any specification contains unresolved `[TBD]` or `[INFERRED]` tags inside `<invariants>` or `<intent_model>`, returns `STATUS: BLOCKED_ON_USER_INPUT` and immediately halts `--loop` on iteration 1 so the agent asks the human QA/PO instead of guessing. Also supports `--check-command="<cmd>"` to validate against `blockDestructiveCommands`.
+Runs all 5 deterministic gates: `GATE-01-CONTEXT` (token budget & hygiene), `GATE-02-SPEC-MODEL` (spec determinism & Test-Design-First mandate requiring `docs/test-cases/TC-*.md` before code automation), `GATE-03-ANTI-GREENWASHING` (`test.fail` traceability to bug reports), `GATE-04-SOLID-AUDIT` (zero sleeps, DIP & layer graph), and `GATE-05-CONTAINER-ISOLATION` (rootless Podman). With `--loop`, executes up to `--max-iterations=5` persisting `[SELF-CORRECTION]` payloads to `.mate/harness-state.json`. If any specification contains unresolved `[TBD]` or `[INFERRED]` tags inside `<invariants>` or `<intent_model>`, returns `STATUS: BLOCKED_ON_USER_INPUT` and immediately halts `--loop` on iteration 1 so the agent asks the human QA/PO instead of guessing. Also supports `--check-command="<cmd>"` to validate against `blockDestructiveCommands`.
 
 ```bash
 npx mate-sdt gate --loop

@@ -25,7 +25,7 @@ When `mate-party` activates, it convenes only the expert voices relevant to the 
 
 1. 🧉 **Tony / The Quality Strategist (`mate-strategy` perspective):**
    - *Mindset:* Business risk, ROI of time, team capacity, and pragmatic realism ("Testing != Checking").
-   - *Key Question:* *"Is this a P0 that can sink the business, or a low-value test we shouldn't waste automation hours on?"*
+   - *Key Question:* *"Is this a P0 that can sink the business, or a low-value test we shouldn't waste automation hours on? Have we designed test cases first so we know what to automate vs. test manually?"*
 2. 🕵️ **The Exploratory Sleuth (`mate-explore` & `mate-story-testcases` perspective):**
    - *Mindset:* Rapid Software Testing (RST) heuristics, human empathy, user personas, visual nuances, and exploratory charters.
    - *Key Question:* *"What weird edge case or human emotion will break this? What should an exploratory tester poke with their own hands?"*
@@ -67,7 +67,7 @@ Synthesize the discussion into an immediate, actionable output using the format 
 1. **Diagnosis & Scope:** Executive summary of the challenge.
 2. **Sub-Agent Delegation Plan (`[PARALLEL_SUBAGENT_ELIGIBLE]`):** If the host assistant supports sub-agents (Antigravity `invoke_subagent`, Claude Code `Agent`), spawn isolated sub-threads for browser recon or test case matrices so the main thread never suffers context bloat (see [`docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md`](../../docs/SUBAGENTS_AND_PARALLEL_EXECUTION.md)).
 3. **Human Team to Consult:** Who to ping on Slack/Teams (e.g., "Ask the Backend Dev for the OpenAPI spec", "Ask Product for the refund limit").
-4. **M.A.T.E. Skill & Workflow Sequence:** Ordered path (e.g., `mate-pw-recon` ➔ `mate-story-testcases` ➔ `mate-assert-playwright`).
+4. **M.A.T.E. Skill & Workflow Sequence:** Ordered path (e.g., `mate-strategy` ➔ `mate-story-testcases` [mandatory before code] ➔ `mate-pw-recon` ➔ `mate-assert-playwright`).
 5. **Immediate Next Step & CLI Commands:** Ready-to-copy commands (e.g., `npx mate-sdt context checkout` or `/mate-flow-user-story`).
 
 ---

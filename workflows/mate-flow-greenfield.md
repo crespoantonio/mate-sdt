@@ -26,9 +26,26 @@ Execute this step-by-step workflow when building or testing a new feature from s
    ```
 5. Once valid and approved by the user, set `status: APPROVED` and register the module in `MATE-PROJECT-MAP.md`.
 
+## Step 2b: Pillar C — 4-Quadrant Test Case Design & Decision Engine (`mate-story-testcases`)
+> **⚠️ Test-Design-First Mandate (`MATE-INVARIANT-08`):** Never jump straight from specs to code! You must first design the test case matrix to establish full coverage and decide what to automate at UI vs API vs keep manual or exploratory.
+
+1. Generate the dual QA Companion Test Case Matrix:
+   ```bash
+   npx mate-sdt cases [module]
+   ```
+   This scaffolds:
+   - `docs/test-cases/TC-[module].md` (Traceable markdown companion with rationale and manual execution guides)
+   - `docs/test-cases/TC-[module].csv` (CSV ready for Jira/Xray/Notion import)
+2. Ensure mandatory coverage across all 4 quadrants (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`).
+3. Classify every scenario via the **Pragmatic Execution Mode Decision Engine**:
+   - `[AUTOMATE_UI]`: High-ROI user journeys & DOM state transitions (implemented in Step 3).
+   - `[AUTOMATE_API]`: Boundary values, contract schemas, status codes (implemented in Step 3).
+   - `[MANUAL_TEST]`: Visual rendering, external/PDF flows (documented with step-by-step instructions for human QA).
+   - `[EXPLORATORY_CHARTER]`: Edge cases & heuristics (scheduled and executed in Step 5).
+
 ## Step 3: Pillar A — Assert UI & API Invariants (`mate-assert-playwright` & `mate-assert-api`)
 1. Generate or extend SOLID Page Objects (`src/pages/`), Component Objects (`src/components/`), Typed API Clients (`src/api/`), and Dependency Inversion fixtures (`src/fixtures/`).
-2. Implement deterministic P0/P1 invariant tests in `tests/e2e/` and `tests/api/`.
+2. Implement deterministic P0/P1 invariant tests in `tests/e2e/` and `tests/api/` tracing back to the `[AUTOMATE_UI]` and `[AUTOMATE_API]` cases in `docs/test-cases/TC-[module].md`.
 3. Run the static health audit to guarantee zero `waitForTimeout` sleeps or DIP violations:
    ```bash
    npx mate-sdt audit
