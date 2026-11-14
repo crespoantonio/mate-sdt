@@ -68,8 +68,8 @@ const AUDIT_RULES = [
   {
     code: 'MATE-ANTI-03',
     name: 'Dependency Inversion (DIP) Violation — Direct Page Object Instantiation',
-    severity: 'HIGH',
-    penalty: 10,
+    severity: 'CRITICAL',
+    penalty: 15,
     regex: /\bnew\s+[A-Z][A-Za-z0-9_]*Page\s*\(/,
     remediation: 'Export the Page Object from `src/fixtures/mate.fixtures.ts` via `test.extend()` and inject it into the test signature.',
     testFilesOnly: true,
@@ -112,11 +112,11 @@ const AUDIT_RULES = [
   },
   {
     code: 'MATE-ANTI-08',
-    name: 'Raw page.locator() Hardcoded Inside Test Spec',
-    severity: 'HIGH',
-    penalty: 10,
-    regex: /\bpage\.locator\s*\(/,
-    remediation: 'Move selector definitions into a Page Object (`src/pages/`) or Component Object (`src/components/`) and expose semantic actions/locators.',
+    name: 'Raw page.locator(), page.getBy*(), or Direct Action Inside Test Spec (POM & SRP Violation)',
+    severity: 'CRITICAL',
+    penalty: 15,
+    regex: /\bpage\.(?:locator|getByRole|getByTestId|getByLabel|getByText|getByPlaceholder|getByTitle|getByAltText|goto|click|fill|selectOption|type|check|uncheck|press|hover|dblclick|dragAndDrop|setInputFiles|waitForSelector|\$|\$\$)\s*\(/,
+    remediation: 'Direct page locators and raw page actions inside test specs are strictly forbidden (MATE-ANTI-08). Encapsulate all locators and user interactions inside a Page Object (src/pages/*.page.ts) or Component Object (src/components/*.component.ts). Specs must only invoke semantic methods or assert public readonly locators on injected fixtures.',
     testFilesOnly: true,
   },
   {

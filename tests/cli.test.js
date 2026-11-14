@@ -47,9 +47,9 @@ const {
 
 const CLI_BIN = path.resolve(__dirname, '..', 'bin', 'mate-sdt.js');
 
-function createTempDir() {
+const createTempDir = () => {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'mate-sdt-test-'));
-}
+};
 
 describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', () => {
   test('1. Golden sample spec and official template pass M.A.T.E. validation', () => {
@@ -659,9 +659,20 @@ describe('M.A.T.E. Harness Engineering (Forward-Only Layers, GC & Closed-Loop)',
       assert.ok(codes.includes('LAYER_VIOLATION'), 'Should catch backward layer import');
       assert.ok(codes.includes('MATE-TASTE-02'), 'Should catch `any` in src/models/');
       assert.ok(codes.includes('MATE-TASTE-01'), 'Should catch >300 line Page Object');
-      assert.ok(codes.includes('MATE-ANTI-08'), 'Should catch raw page.locator() in spec');
+      assert.ok(codes.includes('MATE-ANTI-08'), 'Should catch MATE-ANTI-08 in spec');
       assert.ok(codes.includes('MATE-TASTE-03'), 'Should catch ad-hoc helper in spec');
       assert.ok(audit.findings.every((f) => f.formatted.includes('[SELF-CORRECTION][GATE-04]')));
+
+      // Test MATE-ANTI-08 with page.getByTestId, page.getByRole, and raw page actions
+      fs.writeFileSync(
+        path.join(tmpDir, 'tests', 'e2e', 'order.spec.ts'),
+        `test('smoke', async ({ page }) => {\n  await page.goto('/register');\n  await page.getByTestId('first-name').fill('Jane');\n  await page.getByRole('button').click();\n});\n`,
+        'utf8'
+      );
+      const auditSemantic = auditTestSuite(tmpDir);
+      const semanticAnti = auditSemantic.findings.filter((f) => f.code === 'MATE-ANTI-08');
+      assert.ok(semanticAnti.length >= 3, 'Should catch page.goto, page.getByTestId, and page.getByRole as MATE-ANTI-08');
+      assert.equal(semanticAnti[0].severity, 'CRITICAL', 'MATE-ANTI-08 must be CRITICAL severity');
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
