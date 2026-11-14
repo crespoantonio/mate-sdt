@@ -11,11 +11,16 @@
 | Subsystem | Directory / Entry | Responsibility |
 | :--- | :--- | :--- |
 | **CLI Router** | `bin/mate-sdt.js` | Parses flags and routes commands (`install`, `init`, `context`, `session`, `gate`, `audit`, `heal`, `gc`, etc.) |
-| **Multi-IDE Installer** | `src/cli/installer.js` | Generates consumer `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `.windsurf/`, `.agents/skills/`, and package scaffolds |
+| **Project & IDE Installer** | `src/cli/installer.js`<br>`src/cli/ide-scaffold.js` | Project orchestrator, generates consumer `AGENTS.md`, `.cursor/rules/`, `.windsurf/`, `.agents/skills/`, and package scaffolds |
+| **Artifact Generators** | `src/cli/generators.js` | Generates Test Strategy, Test Plans, 4-Quadrant Cases, Charters, Waivers, Bug Reports |
+| **Container Runners** | `src/cli/containers.js` | Isolated rootless Podman execution for Stryker mutation and k6 load testing |
+| **AI Quality Pack** | `src/cli/ai-pack.js` | 4 AI skills, Promptfoo/DeepEval scaffolds, OTel trace auditor, and dataset generation |
 | **AST & Regex Auditor** | `src/cli/auditor.js` | Linter enforcing consumer 6-layer architecture, `MATE-ANTI-01..08` (catches raw `page.locator()` / `page.getBy*()`), and DIP |
 | **Spec Validator** | `src/cli/validator.js` | Validates consumer `specs/*.mate-spec.md` with remediation-injecting `[SELF-CORRECTION][GATE-02]` errors |
 | **Harness Engine** | `src/cli/harness.js` | Executes 5-Gate Closed-Loop Verification (`GATE-01`..`GATE-05`) and `--loop` state machine |
-| **Memory & Context** | `src/cli/memory.js` | 3-Bucket / 7-Layer JIT Context Pack builder, rolling compaction ($K=5$), memory consolidation |
+| **Memory & Consolidation** | `src/cli/memory.js` | Memory filing cabinet (`.mate/memory/`), trust hierarchy ranking, PII redaction, and clash detection |
+| **Sessions & Compaction** | `src/cli/sessions.js` | Ephemeral workbench, rolling compaction ($K=5$), black-box handoffs, and TTL pruning |
+| **Context Engineering** | `src/cli/context.js` | 3-Bucket / 7-Layer JIT Context Pack builder and multimodal ARIA/HAR compression |
 | **Doc-Gardening & GC** | `src/cli/gc.js` | Analyzes entropy, generates `docs/QUALITY_SCORE.md`, maintains `.mate/exec-plans/tech-debt-tracker.md` |
 | **Self-Healing Engine** | `src/cli/heal.js` | Sanitizes stack traces into `<error_digest> <= 400t` and manages 5-class triage (`npx mate-sdt heal`) |
 | **Skill Catalog** | `skills/mate-*` | 20 specialized skills (16 Core + 4 AI Quality Pack) distributed to consumer IDEs |

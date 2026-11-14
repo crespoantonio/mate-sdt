@@ -1,24 +1,26 @@
 # 🧉 The M.A.T.E. Method Manifesto
+
 ## Spec-Driven Testing (SDT) for the Agentic AI Era
 
-> *"AI-generated implementation code is ephemeral and disposable.  
-> The specification, deterministic oracles, and human critical thinking are the only permanent assets of software engineering."*  
-> — **Antonio "Tony" Crespo**, Creator of the M.A.T.E. Method (*Un Junior En Apuros*)
+> _"AI-generated implementation code is ephemeral and disposable.  
+> The specification, deterministic oracles, and human critical thinking are the only permanent assets of software engineering."_  
+> — **Antonio "Tony" Crespo**, Creator of the M.A.T.E. Method (_Un Junior En Apuros_)
 
 ---
 
 ## 📜 Prologue: The Quality Crisis in the Agentic Era
 
 Over the past twenty years, the software industry attempted to discipline the quality process through trends and acronyms:
-*   **TDD (Test-Driven Development)** promised emergent design by writing unit tests first, yet often devolved into syntactic micro-checks that fail to capture macro business intent.
-*   **BDD (Behavior-Driven Development)** tried to bridge business stakeholders and developers through Gherkin syntax (`Given / When / Then`), only to become buried under a bureaucracy of unmaintainable step definitions that nobody reads and teams abandon within three sprints.
-*   Then came **Generative AI and "Vibe Coding"**: developers and Large Language Models generating thousands of lines of code per minute from vague, informal prompts—unleashing the largest wave of technical debt, logic hallucinations, and security vulnerabilities in computing history.
+
+- **TDD (Test-Driven Development)** promised emergent design by writing unit tests first, yet often devolved into syntactic micro-checks that fail to capture macro business intent.
+- **BDD (Behavior-Driven Development)** tried to bridge business stakeholders and developers through Gherkin syntax (`Given / When / Then`), only to become buried under a bureaucracy of unmaintainable step definitions that nobody reads and teams abandon within three sprints.
+- Then came **Generative AI and "Vibe Coding"**: developers and Large Language Models generating thousands of lines of code per minute from vague, informal prompts—unleashing the largest wave of technical debt, logic hallucinations, and security vulnerabilities in computing history.
 
 In the Agentic Era (2026+), humans no longer type the majority of implementation code: autonomous agents generate it.  
-When machines write the application code and testing is reduced to asking another machine to "generate generic unit tests," software quality collapses. LLMs are compliance-seeking engines: if you do not explicitly define how the system must fail, they will hallucinate solutions that *appear* to pass while silently corrupting production data.
+When machines write the application code and testing is reduced to asking another machine to "generate generic unit tests," software quality collapses. LLMs are compliance-seeking engines: if you do not explicitly define how the system must fail, they will hallucinate solutions that _appear_ to pass while silently corrupting production data.
 
 That is why the **M.A.T.E. Method** was born.  
-It is not another cosmetic wrapper library. It is a **Spec-Driven Testing (SDT) methodology and Daily QA/QE Companion** built upon the two pillars of enterprise AI Agent Engineering—**Context Engineering** (*Write, Select, Compress, Isolate*) and **Harness Engineering** ($\text{Agent} = \text{Model} + \text{Harness}$)—to govern software agents, make intelligent decisions on **what to automate, what to verify manually, and where to apply human exploratory testing**, reclaim architectural control, and restore the tester's rightful role: **Supreme Architect and Guardian of Software Quality**.
+It is not another cosmetic wrapper library. It is a **Spec-Driven Testing (SDT) methodology and Daily QA/QE Companion** built upon the two pillars of enterprise AI Agent Engineering—**Context Engineering** (_Write, Select, Compress, Isolate_) and **Harness Engineering** ($\text{Agent} = \text{Model} + \text{Harness}$)—to govern software agents, make intelligent decisions on **what to automate, what to verify manually, and where to apply human exploratory testing**, reclaim architectural control, and restore the tester's rightful role: **Supreme Architect and Guardian of Software Quality**.
 
 ---
 
@@ -26,7 +28,7 @@ It is not another cosmetic wrapper library. It is a **Spec-Driven Testing (SDT) 
 
 Modern autonomous agents fail not because the underlying LLM lacks intelligence, but because of **Context Rot/Poisoning** and **Missing Deterministic Harnesses**. M.A.T.E. enforces both disciplines natively:
 
-1. **Context Engineering (*Write, Select, Compress, Isolate*):**
+1. **Context Engineering (_Write, Select, Compress, Isolate_):**
    - **Write (Externalized RAM):** Stores project topology in `MATE-PROJECT-MAP.md` (`< 3,000 tokens`) and structured specs in `specs/*.mate-spec.md` instead of scanning hundreds of files on every turn.
    - **Select (3-Tier Just-In-Time Routing):** Activates only the exact skill needed for the current step (`USE WHEN` / `SYNERGY`) and assembles module-scoped JIT Context Packs via `npx mate-sdt context <module>`.
    - **Compress (Signal-to-Noise Optimization):** Uses `@playwright/cli` compact YAML ARIA snapshots (`< 800 tokens`) instead of 80,000-token raw HTML dumps.
@@ -70,13 +72,13 @@ flowchart LR
 
 ### 1. 🗺️ M — Model (Intent, State Machines & Contracts)
 
-> *"If you cannot model the system on a napkin while drinking a mate, your AI agents will hallucinate garbage."*
+> _"If you cannot model the system on a napkin while drinking a mate, your AI agents will hallucinate garbage."_
 
 In M.A.T.E., testing does not begin after the code is written; it begins by formally modeling the problem before a single line of business logic exists.
 
-*   **Finite State Machines (FSM):** Every business workflow (shopping cart, order fulfillment, payment lifecycle, authentication) is modeled as an explicit state machine: valid states, legal transitions, and **strictly forbidden transitions** (where 90% of critical exploits live).
-*   **Immutable Technical Contracts:** Rigorous data schemas (OpenAPI, JSON Schema, strict TypeScript interfaces with zero `any`).
-*   **Operational Boundaries:** What the module is permitted to touch and what is strictly off-limits (Principle of Least Privilege).
+- **Finite State Machines (FSM):** Every business workflow (shopping cart, order fulfillment, payment lifecycle, authentication) is modeled as an explicit state machine: valid states, legal transitions, and **strictly forbidden transitions** (where 90% of critical exploits live).
+- **Immutable Technical Contracts:** Rigorous data schemas (OpenAPI, JSON Schema, strict TypeScript interfaces with zero `any`).
+- **Operational Boundaries:** What the module is permitted to touch and what is strictly off-limits (Principle of Least Privilege).
 
 A specification is not a forgotten Word document; it is a machine-readable, Git-versioned source of truth (`specs/[module].mate-spec.md`).
 
@@ -84,17 +86,17 @@ A specification is not a forgotten Word document; it is a machine-readable, Git-
 
 ### 2. 🎯 A — Assert (Deterministic Oracles & Sacred Invariants)
 
-> *"A test that does not validate a mathematical invariant is merely an illusion to paint the CI pipeline green."*
+> _"A test that does not validate a mathematical invariant is merely an illusion to paint the CI pipeline green."_
 
 AI agents excel at writing tests that pass without proving anything (blind mocks, trivial checks like `expect(response).toBeDefined()`).  
 Pillar **Assert** establishes **Non-Negotiable Acceptance Oracles**:
 
-*   **Business Invariants:** Mathematical rules that must **never** be violated under any state transition (e.g., *"Account balance must never drop below zero"*, *"The sum of line items plus tax must match the invoiced total to the exact cent"*).
-*   **Pragmatic Execution Mode Decision Engine (Automate vs. Manual vs. Exploratory):** Not everything should be automated! M.A.T.E. evaluates every requirement across four execution modes—`AUTOMATE_UI`, `AUTOMATE_API`, `MANUAL_TEST`, and `EXPLORATORY_CHARTER`—and generates a complete **QA Companion Document** (`docs/test-cases/TC-[module].md` & `.csv`) explaining *why* each scenario is automated or kept manual, along with step-by-step manual instructions and tailored exploratory heuristics.
-*   **The Anti-Greenwashing Mandate & Discrepancy Escalation Protocol:** AI agents must never cherry-pick only the tests that pass, nor write permissive alternative regexes (e.g. `/A|B/`) to mask copy discrepancies. If the application diverges from a User Story (copy mismatches, undocumented fields, state reset on reload), the agent is strictly forbidden from adapting silently. It must pause, present the discrepancy to the human engineer, and either record a formal defect annotated with `test.fail(true, 'BUG-XXX')` or update the specification if approved.
-*   **SOLID & OOP Automation Architecture (Anti-Bloated Page Objects):** Enforces Single Responsibility (`BasePage` & `BaseComponent` Object Models, `BaseApiClient`), Open/Closed abstractions, and Dependency Inversion via Playwright fixtures (`test.extend`). Forbids bloated "God Page Objects" with dozens of single-case assertions (`MATE-ANTI-07`). Mandates parameterized assertions (`assertAlertMessage(expected)`), public `readonly Locator` exposure for `expect.soft()` flexibility, clear separation of internal synchronization Guards vs. public business verifications, and mandatory extraction of stateful or multi-view widgets into dedicated `BaseComponent` objects.
-*   **Zero Arbitrary Sleeps:** Absolute prohibition of `sleep()` or `page.waitForTimeout()`. All synchronization must rely on deterministic events and auto-retrying web assertions.
-*   **Performance & Resource Oracles:** Explicit SLAs measured by objective harnesses (e.g., *"P95 latency <= 400ms under 200 RPS sustained load inside a Podman container"*).
+- **Business Invariants:** Mathematical rules that must **never** be violated under any state transition (e.g., _"Account balance must never drop below zero"_, _"The sum of line items plus tax must match the invoiced total to the exact cent"_).
+- **Pragmatic Execution Mode Decision Engine (Automate vs. Manual vs. Exploratory):** Not everything should be automated! M.A.T.E. evaluates every requirement across four execution modes—`AUTOMATE_UI`, `AUTOMATE_API`, `MANUAL_TEST`, and `EXPLORATORY_CHARTER`—and generates a complete **QA Companion Document** (`docs/test-cases/TC-[module].md` & `.csv`) explaining _why_ each scenario is automated or kept manual, along with step-by-step manual instructions and tailored exploratory heuristics.
+- **The Anti-Greenwashing Mandate & Discrepancy Escalation Protocol:** AI agents must never cherry-pick only the tests that pass, nor write permissive alternative regexes (e.g. `/A|B/`) to mask copy discrepancies. If the application diverges from a User Story (copy mismatches, undocumented fields, state reset on reload), the agent is strictly forbidden from adapting silently. It must pause, present the discrepancy to the human engineer, and either record a formal defect annotated with `test.fail(true, 'BUG-XXX')` or update the specification if approved.
+- **SOLID & OOP Automation Architecture (Anti-Bloated Page Objects):** Enforces Single Responsibility (`BasePage` & `BaseComponent` Object Models, `BaseApiClient`), Open/Closed abstractions, and Dependency Inversion via Playwright fixtures (`test.extend`). Forbids bloated "God Page Objects" with dozens of single-case assertions (`MATE-ANTI-07`). Mandates parameterized assertions (`assertAlertMessage(expected)`), public `readonly Locator` exposure for `expect.soft()` flexibility, clear separation of internal synchronization Guards vs. public business verifications, and mandatory extraction of stateful or multi-view widgets into dedicated `BaseComponent` objects.
+- **Zero Arbitrary Sleeps:** Absolute prohibition of `sleep()` or `page.waitForTimeout()`. All synchronization must rely on deterministic events and auto-retrying web assertions.
+- **Performance & Resource Oracles:** Explicit SLAs measured by objective harnesses (e.g., _"P95 latency <= 400ms under 200 RPS sustained load inside a Podman container"_).
 
 If AI-generated code violates a single invariant, the quality gate blocks the Pull Request in seconds.
 
@@ -102,29 +104,30 @@ If AI-generated code violates a single invariant, the quality gate blocks the Pu
 
 ### 3. 💣 T — Threat & Trash (Adversarial Engineering & Mutation Testing)
 
-> *"Developers code so the application works. Quality Engineers design the spec so the application survives the apocalypse."*
+> _"Developers code so the application works. Quality Engineers design the spec so the application survives the apocalypse."_
 
 By nature, LLMs are heavily biased toward the **Happy Path**. When prompted to build or test a feature, an LLM assumes flawless 5G connectivity, polite users entering well-formed ASCII strings, and third-party APIs that never time out.  
 Pillar **Threat & Trash** injects professional tester malice directly into the specification:
 
-*   **Threat Modeling for Testers:** How can a malicious actor, race condition, or network partition break this feature?
-*   **Concurrency & Idempotency:** Compulsive double-clicks within 50ms, duplicate webhook storms, and simultaneous state mutations.
-*   **Data Trash & Fuzzing:** 10MB payloads, Cyrillic/RTL scripts, emojis in numeric inputs, SQL/NoSQL injections, and Prompt Injection payloads in AI features.
-*   **Mandatory Mutation Testing:** Subjecting the test suite itself to mutation testing (Stryker Mutator) inside rootless **Podman** containers. If we mutate production logic and no test fails, the tests are smoke and mirrors. **M.A.T.E. Threshold: Mutation Score >= 85%**.
+- **Threat Modeling for Testers:** How can a malicious actor, race condition, or network partition break this feature?
+- **Concurrency & Idempotency:** Compulsive double-clicks within 50ms, duplicate webhook storms, and simultaneous state mutations.
+- **Data Trash & Fuzzing:** 10MB payloads, Cyrillic/RTL scripts, emojis in numeric inputs, SQL/NoSQL injections, and Prompt Injection payloads in AI features.
+- **Mandatory Mutation Testing:** Subjecting the test suite itself to mutation testing (Stryker Mutator) inside rootless **Podman** containers. If we mutate production logic and no test fails, the tests are smoke and mirrors. **M.A.T.E. Threshold: Mutation Score >= 85%**.
 
 ---
 
 ### 4. 🧭 E — Explore (Human Judgment & Exploratory Charters)
 
-> *"Machines perform checking; humans perform testing. Never let a robot decide whether software is humane and trustworthy to use."*
+> _"Machines perform checking; humans perform testing. Never let a robot decide whether software is humane and trustworthy to use."_
 
-Rooted in the foundational principles of *Rapid Software Testing* (RST), M.A.T.E. recognizes that exhaustive automation only covers **Checking** (verifying whether the software satisfies rules we already knew to ask about).  
+Rooted in the foundational principles of _Rapid Software Testing_ (RST), M.A.T.E. recognizes that exhaustive automation only covers **Checking** (verifying whether the software satisfies rules we already knew to ask about).  
 True quality requires **Testing**: exploration, learning, experiment design, and critical human judgment.
 
 Pillar **Explore** explicitly reserves **Exploratory Testing Charters (Time-Boxed Human Missions)** inside every specification:
-*   **Ergonomics & Usability:** Does the workflow feel effortless or is it a frustrating maze?
-*   **Trust & Emotional Confidence:** Does the checkout transition inspire confidence or leave the user wondering if their card was charged twice?
-*   **Accessibility (a11y) & Ethical Auditing:** Can a person using a screen reader and keyboard-only navigation complete the flow cleanly (WCAG 2.1 AA)?
+
+- **Ergonomics & Usability:** Does the workflow feel effortless or is it a frustrating maze?
+- **Trust & Emotional Confidence:** Does the checkout transition inspire confidence or leave the user wondering if their card was charged twice?
+- **Accessibility (a11y) & Ethical Auditing:** Can a person using a screen reader and keyboard-only navigation complete the flow cleanly (WCAG 2.1 AA)?
 
 Software **does not ship to production** until the human Quality Engineer signs off on the exploratory charter and issues the formal release verdict (`PASS`, `CONCERNS` with signed waiver, or `FAIL`).
 
@@ -135,8 +138,9 @@ Software **does not ship to production** until the human Quality Engineer signs 
 When the system under test is itself an **AI Agent, Conversational Chatbot, or RAG Pipeline**, traditional string-matching assertions collapse. Furthermore, an HTTP `200 OK` can mask a 10-step recursive tool loop, a $1.50 token explosion, or a hallucinated company policy.
 
 M.A.T.E. governs AI-based systems through its on-demand **AI Quality Pack (`npx mate-sdt setup-ai`)** built on four non-negotiable principles:
+
 1. **Socratic Dataset Discovery Before Synthesis (`mate-ai-dataset`):** An AI agent must never invent a Golden Dataset in the dark. When no dataset exists, M.A.T.E. conducts a structured **5-Dimension Socratic Interview** with the human tester (covering System Taxonomy, Ground-Truth Sources, Forbidden Tool Invariants, Compliance Boundaries, and Operational Budgets) and requires human sign-off on **5 Seed Cases** before scaling the dataset with adversarial evolutions.
-2. **Dual-Engine Hybrid Evaluation (`mate-ai-evals` — Promptfoo + DeepEval):** Combines deterministic tool-call trajectory checks (`ToolCorrectness = 1.0`, zero forbidden tool calls) with research-backed LLM-as-a-Judge metrics across the **RAG Triad** (*Faithfulness*, *Answer Relevancy*, *Contextual Precision/Recall*) and **End-to-End Task Completion**.
+2. **Dual-Engine Hybrid Evaluation (`mate-ai-evals` — Promptfoo + DeepEval):** Combines deterministic tool-call trajectory checks (`ToolCorrectness = 1.0`, zero forbidden tool calls) with research-backed LLM-as-a-Judge metrics across the **RAG Triad** (_Faithfulness_, _Answer Relevancy_, _Contextual Precision/Recall_) and **End-to-End Task Completion**.
 3. **Adversarial Agentic Red Teaming (`mate-ai-redteam`):** Subjects AI agents to automated OWASP LLM Top 10 penetration probes (`npx promptfoo@latest redteam`) including Direct/Indirect Prompt Injection via poisoned RAG chunks, Tool RBAC/BOLA bypasses, Excessive Agency, and PII extraction.
 4. **AI Observability & Trace Forensics (`mate-ai-observability`):** Treats **OpenTelemetry / OpenInference traces** (in **Langfuse** or **Arize Phoenix**) as first-class test oracles—auditing `AGENT`, `RETRIEVAL`, `TOOL`, and `LLM` spans for infinite loops, token/step SLAs, fault isolation (`[RETRIEVER_DEFECT]` vs. `[GENERATOR_DEFECT]`), and continuously promoting failed production traces back into the Golden Dataset.
 
@@ -157,14 +161,18 @@ author: Tony Crespo (@crespoantonio)
 # 🧉 MATE-SPEC: Laundry Order Lifecycle
 
 <intent_model>
-  <!-- Domain actors, context, Finite State Machine, and Forbidden Transitions -->
-  ### Finite State Machine
-  `PENDING -> PICKED_UP -> IN_WASH -> READY -> DELIVERED`
 
-  ### Explicitly Forbidden Transitions
-  - ⛔ `PENDING -> DELIVERED` (Illegal bypass of washing workflow)
-  - ⛔ `DELIVERED -> IN_WASH` (Terminal states are immutable)
-</intent_model>
+  <!-- Domain actors, context, Finite State Machine, and Forbidden Transitions -->
+
+### Finite State Machine
+
+`PENDING -> PICKED_UP -> IN_WASH -> READY -> DELIVERED`
+
+### Explicitly Forbidden Transitions
+
+- ⛔ `PENDING -> DELIVERED` (Illegal bypass of washing workflow)
+- ⛔ `DELIVERED -> IN_WASH` (Terminal states are immutable)
+  </intent_model>
 
 <invariants>
   <!-- Non-negotiable mathematical rules and performance oracles -->
@@ -174,16 +182,20 @@ author: Tony Crespo (@crespoantonio)
 </invariants>
 
 <threat_scenarios>
+
   <!-- Concurrency, idempotency, fuzzing, and mutation governance -->
-  - `THR-01` (Race Condition): Double-click on "Confirm Order" within 50ms must be strictly idempotent and create exactly ONE order.
-  - `THR-02` (Concurrent Cancellation): User cancels order at the exact millisecond driver scans pickup QR; driver state transition prevails.
-  - `THR-MUTATION`: Mutation Score >= 85% verified with Stryker Mutator in rootless Podman.
-</threat_scenarios>
+
+- `THR-01` (Race Condition): Double-click on "Confirm Order" within 50ms must be strictly idempotent and create exactly ONE order.
+- `THR-02` (Concurrent Cancellation): User cancels order at the exact millisecond driver scans pickup QR; driver state transition prevails.
+- `THR-MUTATION`: Mutation Score >= 85% verified with Stryker Mutator in rootless Podman.
+  </threat_scenarios>
 
 <exploratory_charters>
+
   <!-- Time-boxed human exploratory missions (SBTM) -->
-  - **Charter EXP-01 (45 min):** Explore garment selection flow on low-end mobile viewport over throttled 3G. Focus: visual feedback, error recovery, and WCAG 2.1 AA keyboard navigation.
-</exploratory_charters>
+
+- **Charter EXP-01 (45 min):** Explore garment selection flow on low-end mobile viewport over throttled 3G. Focus: visual feedback, error recovery, and WCAG 2.1 AA keyboard navigation.
+  </exploratory_charters>
 ```
 
 ---
@@ -199,7 +211,7 @@ sequenceDiagram
     actor PO as Product Owner / Domain Lead
     participant Agent as Coding & QA Agents (AI)
     participant Harness as Podman Sandbox Harness
-    
+
     QE->>PO: 1. Co-design *.mate-spec.md (Model + Assert + Threat)
     QE->>Agent: 2. Feed validated Spec to AI Agent (Spec-Driven Build)
     Agent->>Harness: 3. Agent builds SOLID code & Playwright suites in Podman
@@ -222,7 +234,7 @@ sequenceDiagram
 4.  **Thou shalt tolerate zero arbitrary sleeps:** `sleep()` and `waitForTimeout()` are banned. Synchronization is event-driven with auto-retrying web assertions.
 5.  **Thou shalt isolate destructive executions:** No untrusted AI-generated code or mutation suite runs on the bare host without rootless **Podman** container isolation.
 6.  **The specification is the single source of truth:** If the code disagrees with the spec, the code is broken. If business requirements evolve, update and validate the spec first, then regenerate the code.
-7.  **Thou shalt inject malice from Day Zero:** Thinking about how to break the system is not an afterthought at the end of the sprint; it is Pillar *Threat* during design.
+7.  **Thou shalt inject malice from Day Zero:** Thinking about how to break the system is not an afterthought at the end of the sprint; it is Pillar _Threat_ during design.
 8.  **Thou shalt enforce idempotency:** Every network retry, webhook, or async callback must be designed and tested against duplicate delivery.
 9.  **Thou shalt govern releases with formal waivers:** If a release ships with `[CONCERNS]`, technical debt is signed by both the Quality Lead and Tech Lead with an auditable tracker ticket.
 10. **Thou shalt remember software serves humans:** No green CI pipeline compensates for a frustrating, inaccessible, or deceptive user experience. Empathy for the human user is the supreme measure of quality.
@@ -232,6 +244,7 @@ sequenceDiagram
 ## 🧠 Context Engineering: Sessions, Memory & Epistemic Hygiene
 
 In the Agentic AI Era, **the LLM context window is scarce working memory**. Dumping raw multi-turn chat transcripts, unredacted DOM trees, or speculative assumptions directly into prompts causes the **4 Context Failure Modes**:
+
 - **Poisoning:** Unverified assumptions (`[INFERRED]` / `[TBD]`) or prompt injections entering canonical invariants.
 - **Distraction:** Snowballing tool logs and retries drowning out the current objective.
 - **Confusion:** Exposing every tool and specification simultaneously instead of phase-scoped JIT context.
@@ -250,7 +263,7 @@ The **M.A.T.E. Method** was conceived and created by **Antonio "Tony" Crespo** a
 
 It is an open-source project built for Quality Engineers, SDETs, testers, and software developers worldwide who refuse to be passive spectators in the AI revolution.
 
-*Brew a good mate, open your spec, armor your oracles, and build indestructible software.*
+_Brew a good mate, open your spec, armor your oracles, and build indestructible software._
 
-**Buenos Aires, Argentina — 2026+**  
-*Official Repository: [github.com/mate-sdt/mate-sdt](https://github.com/mate-sdt/mate-sdt)*
+**Córdoba, Argentina — 2026+**  
+_Official Repository: [github.com/mate-sdt/mate-sdt](https://github.com/mate-sdt/mate-sdt)_
