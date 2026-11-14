@@ -1,51 +1,47 @@
-# AGENTS.md — M.A.T.E. SDT Framework Map (<= 100 Lines)
+# AGENTS.md — M.A.T.E. SDT Framework Developer & Maintainer Guide (<= 100 Lines)
 
-> **Core Rule:** *Humans steer. Agents execute.* When an agent fails, encode the missing capability, legibility, or mechanical guardrail into the harness (`Agent = Model + Harness + Knowledge`).
-> **Audience:** Autonomous AI Agents & human maintainers working on the `mate-sdt` repository itself.
-
----
-
-## 1. Progressive Disclosure Routing (Where to Look Next)
-
-| Need | Authoritative Source |
-| :--- | :--- |
-| **Repository Topology & Module Index (`< 3,000` tokens)** | [`MATE-PROJECT-MAP.md`](./MATE-PROJECT-MAP.md) |
-| **Philosophical Manifesto & 10 Commandments** | [`MANIFESTO.md`](./MANIFESTO.md) |
-| **Module Quality Scorecard (`A`–`F`)** | [`docs/QUALITY_SCORE.md`](./docs/QUALITY_SCORE.md) |
-| **Sessions, Memory & Harness Architecture** | [`docs/CONTEXT_AND_HARNESS_ENGINEERING.md`](./docs/CONTEXT_AND_HARNESS_ENGINEERING.md) |
-| **AI Agent & 3-Layer Memory Evaluation** | [`docs/AI_AGENT_AND_RAG_TESTING.md`](./docs/AI_AGENT_AND_RAG_TESTING.md) |
-| **CLI Commands & Flags Reference** | [`docs/CLI_REFERENCE.md`](./docs/CLI_REFERENCE.md) |
-| **Spec Standard & Provenance Hierarchy** | [`docs/SPEC_STANDARD.md`](./docs/SPEC_STANDARD.md) |
-| **Active Execution Plans & Tech Debt** | [`.mate/exec-plans/tech-debt-tracker.md`](./.mate/exec-plans/tech-debt-tracker.md) |
-| **Pasted Stack Trace / Test Failure / "Fix this"** | Route immediately to `mate-triage` + `npx mate-sdt heal` (`/mate-flow-triage`) |
-| **Ambiguous / Open-Ended Prompt ("Where do I start?")** | Route immediately to `mate-party` (Council of 5 QA Experts) |
+> **Repository Identity:** You are developing the **`mate-sdt`** npm package and framework itself (`Agent = Model + Harness + Knowledge`).
+> **Audience:** Autonomous AI Agents & human maintainers developing, extending, and shipping `mate-sdt`.
+> **Note:** This repository is NOT a test automation project for a web application. It is the CLI engine, skill catalog, and scaffold generator that other projects install via `npx mate-sdt install`.
 
 ---
 
-## 2. Non-Negotiable Engineering Invariants & Agent Protocols
+## 1. Repository Topology & Subsystem Routing
 
-1. **Zero Runtime Dependencies:** `bin/` and `src/cli/` MUST use **strictly native Node.js (`>= 18`) built-ins**. Never add production dependencies to `package.json`.
-2. **Zero-Assumption & Open-Question Escalation ("Ask, Never Guess"):** Inspect local/live context first. Never invent business thresholds, auth boundaries, or requirements. Tag unknowns `[TBD: <exact question>]` under `## Open Questions for Human QA`, finish unblocked work, and halt on `STATUS: BLOCKED_ON_USER_INPUT` (`GATE-01`/`GATE-02`) to ask the human.
-3. **Sub-Agent Delegation & 3-Phase Pipeline Isolation:** Build scoped sub-agent prompts via `npx mate-sdt context <module> --subagent <skill>`. Isolate Reader/Extractor $\rightarrow$ Spec Scorer $\rightarrow$ Code Writer $\rightarrow$ Independent Reviewer (`mate-review`/`mate-audit`) via `mate.handoff/v1` (or `--compact` fallback in single-agent IDEs).
-4. **Forward-Only 6-Layer Architecture:** `src/models/` $\rightarrow$ `src/api/` & `src/components/` $\rightarrow$ `src/pages/` ($\le 300$ lines) $\rightarrow$ `src/fixtures/` (`test.extend`) $\rightarrow$ `tests/**/*.spec.ts`. Backward imports, `new SomePage()` (`MATE-ANTI-03`), raw `page.locator()` / `page.getBy*()`, or direct `page` actions (`page.goto`, `page.fill`, `page.click`) in specs (`MATE-ANTI-08`) fail `GATE-04`.
-5. **Anti-Greenwashing (`MATE-ANTI-06`):** Never delete/weaken failing assertions or use permissive regexes (`/A|B/`). Keep failing tests with `test.fail(true, "BUG-XXX")` and file `docs/bugs/BUG-*.md`.
-6. **Active `.mate/` Directory & Context Protocol:** For multi-step tasks, persist plans in `.mate/exec-plans/active/<name>.md` with `- [ ]` tasks and move to `completed/` when verified. Never clutter project root with raw exploratory notes; store transient findings in `.mate/scratchpad-<module>.md`. Run `npx mate-sdt context <module>` for token-budgeted JIT context packs (`< 2,000` tokens) and `npx mate-sdt gc` to audit `.mate/exec-plans/tech-debt-tracker.md`. Enforce provenance: `[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO] > [INFERRED] / [TBD]`.
-7. **Test-Design-First Mandate (`MATE-INVARIANT-08`):** Never write `.spec.ts` automation code (including Wave 1 Smoke Suites) without FIRST generating the 4-Quadrant Test Case Matrix (`docs/test-cases/TC-[module].md` & `.csv`) via `mate-story-testcases` (`npx mate-sdt cases <module>`). Every automated test must trace back to explicit cases classified via the Decision Engine (`[AUTOMATE_UI]`, `[AUTOMATE_API]`, `[MANUAL_TEST]`, `[EXPLORATORY_CHARTER]`). Specs without test cases fail `GATE-02`.
-8. **Container Isolation, Safety & LF Endings:** Always use rootless **Podman** (never Docker). Block destructive commands (`rm -rf`, `git push --force`, `git reset --hard`). Keep all repo files in English and `bin/mate-sdt.js` in **LF**.
+| Subsystem | Directory / Entry | Responsibility |
+| :--- | :--- | :--- |
+| **CLI Router** | `bin/mate-sdt.js` | Parses flags and routes commands (`install`, `init`, `context`, `session`, `gate`, `audit`, `heal`, `gc`, etc.) |
+| **Multi-IDE Installer** | `src/cli/installer.js` | Generates consumer `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `.windsurf/`, `.agents/skills/`, and package scaffolds |
+| **AST & Regex Auditor** | `src/cli/auditor.js` | Linter enforcing consumer 6-layer architecture, `MATE-ANTI-01..08` (catches raw `page.locator()` / `page.getBy*()`), and DIP |
+| **Spec Validator** | `src/cli/validator.js` | Validates consumer `specs/*.mate-spec.md` with remediation-injecting `[SELF-CORRECTION][GATE-02]` errors |
+| **Harness Engine** | `src/cli/harness.js` | Executes 5-Gate Closed-Loop Verification (`GATE-01`..`GATE-05`) and `--loop` state machine |
+| **Memory & Context** | `src/cli/memory.js` | 3-Bucket / 7-Layer JIT Context Pack builder, rolling compaction ($K=5$), memory consolidation |
+| **Doc-Gardening & GC** | `src/cli/gc.js` | Analyzes entropy, generates `docs/QUALITY_SCORE.md`, maintains `.mate/exec-plans/tech-debt-tracker.md` |
+| **Self-Healing Engine** | `src/cli/heal.js` | Sanitizes stack traces into `<error_digest> <= 400t` and manages 5-class triage (`npx mate-sdt heal`) |
+| **Skill Catalog** | `skills/mate-*` | 20 specialized skills (16 Core + 4 AI Quality Pack) distributed to consumer IDEs |
+| **Workflow Recipes** | `workflows/mate-flow-*.md` | 8 End-to-End SDT workflows (`zero-to-one`, `user-story`, `triage`, `greenfield`, etc.) |
+| **Consumer Templates** | `templates/standalone/` | Starter files (`playwright.config`, `tsconfig`, `gitignore`, `env.example`) installed in target projects |
+| **Integration Suite** | `tests/cli.test.js` | Native Node integration suite verifying CLI commands, validator, auditor, and gates (`npm test`) |
+| **Build Integrity Gate** | `scripts/build-check.js` | Package integrity, file existence, LF endings, and spec checks (`npm run build`) |
+
+---
+
+## 2. Non-Negotiable Framework Development Invariants
+
+1. **Zero Runtime Dependencies:** `bin/` and `src/cli/` MUST use **strictly native Node.js (`>= 18`) built-ins** (`node:fs`, `node:path`, `node:child_process`, `node:readline`, `node:os`). Never add production dependencies to `package.json`.
+2. **Multi-IDE Synchronization Rule:** Any change to skills, consumer rules, or templates in `src/cli/installer.js` MUST stay synchronized across all targets (`Antigravity`, `Claude Code`, `Cursor`, `Windsurf`, `GitHub Copilot`, and Universal `AGENTS.md`).
+3. **LF Line Endings:** `bin/mate-sdt.js` and all CLI scripts must strictly use **LF** line endings.
+4. **Safety Guardrails:** Block destructive commands (`rm -rf`, `git push --force`, `git reset --hard`, `DROP TABLE`) via `src/cli/gc.js`.
+5. **Consumer Separation:** Never confuse this repository with a consumer testing project. Consumer rules (POM, 6-layer architecture, 4-quadrant test cases, `.mate/exec-plans/active/`) are generated into consumer repositories via `installer.js` and tested via `tests/cli.test.js`.
+6. **Container Isolation:** Always use rootless **Podman** (never Docker) for mutation testing (`Stryker`) and performance testing (`k6`).
+7. **Verification Mandate:** Always run `npm run build` and `npm test` after any code change before concluding your turn.
 
 ---
 
 ## 3. Verification & Maintenance Commands
 
 ```bash
-npm run build        # Integrity, LF endings & spec check (scripts/build-check.js)
+npm run build        # Integrity, LF endings & template check (scripts/build-check.js)
 npm test             # Native Node integration suite (tests/cli.test.js)
-npm run gc           # Doc-gardening, AI slop GC, docs/QUALITY_SCORE.md & tech-debt-tracker.md
-npx mate-sdt heal [target]        # Compress stack trace (<error_digest>) & 5-Class Heal vs. Quarantine
-npx mate-sdt gate --loop --json   # Closed-loop 5-gate verification (max 5 iterations)
+npm run gc           # Doc-gardening & entropy scan (src/cli/gc.js)
 ```
-
----
-
-## 4. Multi-IDE Sync Rule
-Any change to generated rules, skills, or templates in `src/cli/installer.js` MUST stay synchronized across all targets: `Antigravity`, `Claude Code`, `Cursor`, `Windsurf`, `GitHub Copilot`, and Universal `AGENTS.md`.

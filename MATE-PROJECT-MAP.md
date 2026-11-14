@@ -38,8 +38,8 @@ This Living Architecture Map indexes the **`mate-sdt`** repository itself (`< 3,
 
 ## 4. Non-Negotiable Guardrails
 - Never add third-party runtime dependencies to `package.json`.
-- Enforce Test-Design-First Mandate (`MATE-INVARIANT-08`): Never write `.spec.ts` automation without first generating `docs/test-cases/TC-*.md` matrices.
-- Enforce `[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO] > [INFERRED] / [TBD]`; block `[INFERRED]`/`[TBD]` from `<invariants>` and Page/Component Objects.
+- Multi-IDE Synchronization Invariant: Any change to rules, skills, or templates in `src/cli/installer.js` MUST stay synchronized across all IDE targets (Cursor, Windsurf, Claude, Copilot, Antigravity, and Universal AGENTS.md).
+- Consumer Separation Invariant: Consumer rules (POM, 6 layers, 4-quadrant test cases, `.mate/exec-plans/`) belong in `installer.js` and target project templates; keep `mate-sdt` framework clean of application-specific artifacts.
 - Keep `bin/mate-sdt.js` in **LF** line endings.
 - Always run `npm run build` and `npm test` after code changes.
 
