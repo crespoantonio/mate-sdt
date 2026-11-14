@@ -58,6 +58,7 @@
   "scripts": {
     "build": "node scripts/build-check.js",
     "test": "node --test tests/cli.test.js",
+    "gc": "node bin/mate-sdt.js gc",
     "validate:examples": "node ./bin/mate-sdt.js validate skills/mate-model/examples/sample-order-lifecycle.mate-spec.md",
     "prepublishOnly": "npm run build && npm test"
   },

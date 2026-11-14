@@ -228,3 +228,23 @@ npx mate-sdt session advance flow-checkout --stage=model --to=mate-model --diges
 npx mate-sdt session list
 npx mate-sdt session prune
 ```
+
+---
+
+### 13. `gc [dir]` (Continuous Entropy & Doc-Gardening Garbage Collection)
+Runs Doc-Gardening & Cross-Link linting, AI Slop & Entropy scanning (bloated Page Objects `> 300` lines, duplicated test helpers, untyped boundary `any`, stale `test.fail()` markers, expired sessions), generates `docs/QUALITY_SCORE.md`, and updates `.mate/exec-plans/tech-debt-tracker.md`.
+
+```bash
+npx mate-sdt gc
+npx mate-sdt audit --gc
+```
+
+---
+
+### 14. `gate [dir] [--loop]` (Closed-Loop Verification Harness & Safety Guard)
+Runs all 5 deterministic gates (`GATE-01`..`GATE-05`). With `--loop`, executes up to `--max-iterations=5` persisting `[SELF-CORRECTION]` payloads to `.mate/harness-state.json`. Also supports `--check-command="<cmd>"` to validate against `blockDestructiveCommands`.
+
+```bash
+npx mate-sdt gate --loop
+npx mate-sdt gate --check-command="git push --force"
+```

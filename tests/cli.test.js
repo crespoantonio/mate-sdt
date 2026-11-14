@@ -9,6 +9,8 @@ const { spawnSync } = require('node:child_process');
 
 const { validateSpecFile } = require('../src/cli/validator');
 const { auditTestSuite } = require('../src/cli/auditor');
+const { runHarnessLoop } = require('../src/cli/harness');
+const { blockDestructiveCommands, runGarbageCollection } = require('../src/cli/gc');
 const {
   startSession,
   loadSession,
@@ -595,6 +597,84 @@ describe('M.A.T.E. Sessions & Memory Architecture (Context Engineering)', () => 
       assert.equal(sCtx.status, 0);
       const parsed = JSON.parse(sCtx.stdout);
       assert.ok(parsed.contextPackPath);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('M.A.T.E. Harness Engineering (Forward-Only Layers, GC & Closed-Loop)', () => {
+  test('auditTestSuite enforces Forward-Only 6-Layer Dependency Graph, Taste Invariants & Remediation Lints', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mate-layers-'));
+    try {
+      fs.mkdirSync(path.join(tmpDir, 'src', 'models'), { recursive: true });
+      fs.mkdirSync(path.join(tmpDir, 'src', 'pages'), { recursive: true });
+      fs.mkdirSync(path.join(tmpDir, 'tests', 'e2e'), { recursive: true });
+
+      // L1 model importing L3 page + using `any`
+      fs.writeFileSync(
+        path.join(tmpDir, 'src', 'models', 'order.model.ts'),
+        `import { OrderPage } from '../pages/order.page';\nexport interface Order { payload: any; }\n`,
+        'utf8'
+      );
+      // L3 bloated Page Object (> 300 lines)
+      const bigPo = Array.from({ length: 305 }, (_, i) => `// line ${i}`).join('\n');
+      fs.writeFileSync(path.join(tmpDir, 'src', 'pages', 'order.page.ts'), bigPo, 'utf8');
+      // L5 spec with raw page.locator + ad-hoc helper
+      fs.writeFileSync(
+        path.join(tmpDir, 'tests', 'e2e', 'order.spec.ts'),
+        `function localHelper() {}\ntest('x', async ({ page }) => { await page.locator('#btn').click(); });\n`,
+        'utf8'
+      );
+
+      const audit = auditTestSuite(tmpDir);
+      const codes = audit.findings.map((f) => f.code);
+      assert.ok(codes.includes('LAYER_VIOLATION'), 'Should catch backward layer import');
+      assert.ok(codes.includes('MATE-TASTE-02'), 'Should catch `any` in src/models/');
+      assert.ok(codes.includes('MATE-TASTE-01'), 'Should catch >300 line Page Object');
+      assert.ok(codes.includes('MATE-ANTI-08'), 'Should catch raw page.locator() in spec');
+      assert.ok(codes.includes('MATE-TASTE-03'), 'Should catch ad-hoc helper in spec');
+      assert.ok(audit.findings.every((f) => f.formatted.includes('[SELF-CORRECTION][GATE-04]')));
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  test('blockDestructiveCommands & runHarnessLoop (--loop) enforce safety and closed-loop state', () => {
+    assert.equal(blockDestructiveCommands('rm -rf /').allowed, false);
+    assert.equal(blockDestructiveCommands('git push --force origin main').allowed, false);
+    assert.equal(blockDestructiveCommands('git reset --hard HEAD~1').allowed, false);
+    assert.equal(blockDestructiveCommands('DROP TABLE users;').allowed, false);
+    assert.equal(blockDestructiveCommands('npx mate-sdt mutate').allowed, true);
+
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mate-loop-'));
+    try {
+      installMate({ targetDir: tmpDir, mode: 'greenfield', ides: ['antigravity'], includeStarterFiles: true });
+      const loopReport = runHarnessLoop(tmpDir, { maxIterations: 3 });
+      assert.equal(loopReport.loop.mode, 'closed-loop');
+      assert.equal(loopReport.loop.maxIterations, 3);
+      assert.ok(fs.existsSync(path.join(tmpDir, '.mate', 'harness-state.json')));
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  test('npx mate-sdt gc & init scaffold docs/QUALITY_SCORE.md and .mate/exec-plans/', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mate-gc-'));
+    try {
+      installMate({ targetDir: tmpDir, mode: 'greenfield', ides: ['antigravity', 'claude'], includeStarterFiles: true });
+      assert.ok(fs.existsSync(path.join(tmpDir, 'docs', 'QUALITY_SCORE.md')));
+      assert.ok(fs.existsSync(path.join(tmpDir, '.mate', 'exec-plans', 'tech-debt-tracker.md')));
+      assert.ok(fs.existsSync(path.join(tmpDir, '.mate', 'exec-plans', 'active', '.gitkeep')));
+      assert.ok(fs.existsSync(path.join(tmpDir, '.mate', 'exec-plans', 'completed', '.gitkeep')));
+
+      // Verify AGENTS.md generated for target project is <= 100 lines
+      const agentsLines = fs.readFileSync(path.join(tmpDir, 'AGENTS.md'), 'utf8').split(/\r?\n/);
+      assert.ok(agentsLines.length <= 100, `Target AGENTS.md should be <= 100 lines, got ${agentsLines.length}`);
+
+      const gcRes = runGarbageCollection(tmpDir);
+      assert.ok(fs.existsSync(gcRes.scorecardPath));
+      assert.ok(fs.existsSync(gcRes.trackerPath));
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }

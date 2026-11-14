@@ -118,3 +118,21 @@ npx mate-sdt gate --json
    - **Distraction:** Rolling compaction + $K=5$ cap + ARIA compression (`<= 800` tokens).
    - **Confusion:** Phase-scoped tool/spec slicing via `--phase`.
    - **Clash:** Self-editing consolidation (`UPDATE`/`DELETE`/`CONFLICT`) and Black-Box Handoffs.
+
+---
+
+## 4. Harness Engineering: 6-Layer Forward-Only Architecture, 3 Loop Topologies & Continuous GC
+
+> **Core Rule:** *Humans steer. Agents execute.* (`Agent = Model + Harness + Knowledge`)
+
+1. **Forward-Only 6-Layer Dependency Direction (`GATE-04` / `npx mate-sdt audit`):**
+   - `1. src/models/` (strict TS schemas, zero `any`) $\rightarrow$ `2. src/api/` & `src/components/` $\rightarrow$ `3. src/pages/` (`<= 300` lines) $\rightarrow$ `4. src/fixtures/` (`test.extend`) $\rightarrow$ `5. tests/{e2e,api,threats,nfr}/**/*.spec.ts`.
+   - Backward imports, `new SomePage(page)` or raw `page.locator()` in specs, ad-hoc test helpers, and `waitForTimeout()` emit **Remediation-Injecting Lints** (`[SELF-CORRECTION][GATE-04][...]`).
+2. **3 Harness Loop Topologies:**
+   - **Linear Harness:** Deterministic single-pass (`npx mate-sdt validate`, `npx mate-sdt context`, `npx mate-sdt status`).
+   - **Closed-Loop Verification Harness (`npx mate-sdt gate --loop`):** Runs all 5 gates up to `max_iterations = 5`, persisting `[SELF-CORRECTION]` payloads in `.mate/harness-state.json`.
+   - **Safety-Guarded Harness:** `blockDestructiveCommands` + rootless Podman for `mutate`, `k6`, and `redteam`.
+3. **Continuous Entropy & Doc-Gardening GC (`npx mate-sdt gc`):**
+   - Scans for unindexed artifacts, broken cross-links, unmapped `INV-XX` invariants, duplicated test helpers, bloated Page Objects (`> 300` lines), stale `test.fail()` markers, and expired sessions.
+   - Generates `docs/QUALITY_SCORE.md` (`A`–`F` per module) and updates `.mate/exec-plans/tech-debt-tracker.md`.
+   - Execution plans for multi-step workflows live in `.mate/exec-plans/active/` and move to `.mate/exec-plans/completed/` upon completion.

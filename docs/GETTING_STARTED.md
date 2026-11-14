@@ -79,8 +79,9 @@ M.A.T.E. enforces the two foundational disciplines of modern AI Agent systems:
 1.  **Context Engineering (`npx mate-sdt context [module]`):**
     *   Audits your Tier-1 RAM index (`MATE-PROJECT-MAP.md`) to ensure it stays under the `< 3,000` token budget and checks for *Context Drift* (unindexed Page Objects, Component Objects, or Specs).
     *   When given a `[module]` name, compiles a compressed **Just-In-Time (JIT) Context Pack** (`.mate/context-pack-<module>.md`) so your AI agent only loads the artifacts relevant to the current task.
-2.  **Harness Engineering (`npx mate-sdt gate`):**
-    *   Executes the **5-Gate Closed Verification Loop** (`GATE-01-CONTEXT`, `GATE-02-SPEC-MODEL`, `GATE-03-ANTI-GREENWASHING`, `GATE-04-SOLID-AUDIT`, and `GATE-05` State Persistence in `.mate/harness-state.json`).
-    *   Always run `npx mate-sdt gate` (or `npm run mate:gate`) before completing a task or opening a Pull Request.
+2.  **Harness Engineering (`npx mate-sdt gate --loop` & `npx mate-sdt gc`):**
+    *   Executes the **5-Gate Closed Verification Loop** (`GATE-01-CONTEXT`, `GATE-02-SPEC-MODEL`, `GATE-03-ANTI-GREENWASHING`, `GATE-04-SOLID-AUDIT` with **Forward-Only 6-Layer** static analysis, and `GATE-05` State Persistence in `.mate/harness-state.json`).
+    *   Run `npx mate-sdt gc` to execute Doc-Gardening, update `docs/QUALITY_SCORE.md`, and track atomic cleanup tasks in `.mate/exec-plans/tech-debt-tracker.md`.
+    *   Always run `npx mate-sdt gate --loop` before completing a task or opening a Pull Request.
 
 > 📖 Read the full deep-dive in [`docs/CONTEXT_AND_HARNESS_ENGINEERING.md`](./CONTEXT_AND_HARNESS_ENGINEERING.md).

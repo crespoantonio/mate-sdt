@@ -93,11 +93,31 @@ function validateSpecFile(filePath) {
     }
   }
 
+  const remediations = errors.map((err) => {
+    let hint = 'Ensure the specification follows `templates/TEMPLATE_MATE_SPEC.md` and `docs/SPEC_STANDARD.md`.';
+    if (err.includes('YAML frontmatter')) {
+      hint = 'Add YAML frontmatter (`---\\nmodule: <name>\\nversion: 1.0.0\\nstatus: DRAFT\\n---`) at line 1.';
+    } else if (err.includes('Forbidden Transitions')) {
+      hint = 'Add an explicit `Forbidden Transitions` subsection inside `<intent_model>` listing illegal state jumps.';
+    } else if (err.includes('missing required field')) {
+      hint = 'Include `module`, `version`, and `status` in YAML frontmatter.';
+    } else if (err.includes('XML semantic block')) {
+      hint = 'Include all 4 required XML blocks: `<intent_model>`, `<invariants>`, `<threat_scenarios>`, and `<exploratory_charters>`.';
+    }
+    return [
+      `[SELF-CORRECTION][GATE-02][SPEC_VIOLATION] File: ${resolved}`,
+      `Violation: ${err}`,
+      'Golden Principle: Pillar M requires deterministic FSMs, Forbidden Transitions, and numbered INV-XX invariants.',
+      `Remediation: ${hint}`,
+    ].join('\n');
+  });
+
   return {
     valid: errors.length === 0,
     filePath: resolved,
     errors,
     warnings,
+    remediations,
   };
 }
 

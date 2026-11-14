@@ -3,13 +3,56 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const LAYER_RANKS = [
+  { layer: 'models', rank: 1, match: /\/src\/models\// },
+  { layer: 'api', rank: 2, match: /\/src\/api\// },
+  { layer: 'components', rank: 2, match: /\/src\/components\// },
+  { layer: 'pages', rank: 3, match: /\/src\/pages\// },
+  { layer: 'fixtures', rank: 4, match: /\/src\/fixtures\// },
+  { layer: 'tests', rank: 5, match: /\/tests\// },
+];
+
+const MAX_PAGE_OBJECT_LINES = 300;
+
+function detectLayer(filePath) {
+  const norm = `/${filePath.replace(/\\/g, '/').toLowerCase()}`;
+  for (const entry of LAYER_RANKS) {
+    if (entry.match.test(norm)) return entry;
+  }
+  return null;
+}
+
+function detectImportedLayer(specifier, fromFile, resolvedRoot) {
+  if (!specifier.startsWith('.')) {
+    const normSpec = specifier.replace(/\\/g, '/').toLowerCase();
+    for (const entry of LAYER_RANKS) {
+      if (normSpec.includes(`/${entry.layer}/`) || normSpec.startsWith(`${entry.layer}/`)) {
+        return entry;
+      }
+    }
+    return null;
+  }
+  const resolvedTarget = path.resolve(path.dirname(fromFile), specifier);
+  const rel = path.relative(resolvedRoot, resolvedTarget);
+  return detectLayer(rel);
+}
+
+function formatRemediationLint(finding) {
+  return [
+    `[SELF-CORRECTION][GATE-04][${finding.code}] File: ${finding.file}:${finding.line}`,
+    `Violation: ${finding.name}${finding.snippet ? ` (${finding.snippet})` : ''}`,
+    'Golden Principle: Code must follow forward-only layers (models -> api/components -> pages -> fixtures -> tests).',
+    `Remediation: ${finding.remediation}`,
+  ].join('\n');
+}
+
 const AUDIT_RULES = [
   {
     code: 'MATE-ANTI-01',
     name: 'Arbitrary Sleep / Fixed Delay (Commandment #4)',
     severity: 'CRITICAL',
     penalty: 15,
-    regex: /\b(waitForTimeout|Thread\.sleep|time\.sleep)\s*\(|page\.pause\s*\(/,
+    regex: /\b(waitForTimeout|Thread\.sleep|time\.sleep)\s*\(|page\.pause\s*\(|setTimeout\s*\([^,]+,\s*\d+/,
     remediation: 'Replace with event-driven synchronization or auto-retrying expect(locator) web assertions.',
     testFilesOnly: false,
   },
@@ -26,9 +69,9 @@ const AUDIT_RULES = [
     code: 'MATE-ANTI-03',
     name: 'Dependency Inversion (DIP) Violation — Direct Page Object Instantiation',
     severity: 'HIGH',
-    penalty: 5,
+    penalty: 10,
     regex: /\bnew\s+[A-Z][A-Za-z0-9_]*Page\s*\(/,
-    remediation: 'Inject Page Objects via Playwright test.extend() fixtures instead of instantiating in test bodies.',
+    remediation: 'Export the Page Object from `src/fixtures/mate.fixtures.ts` via `test.extend()` and inject it into the test signature.',
     testFilesOnly: true,
   },
   {
@@ -66,6 +109,24 @@ const AUDIT_RULES = [
     regex: /async\s+assert[A-Za-z0-9]*(?:Duplicate|Strict|Missing|Invalid)[A-Za-z0-9]*\s*\(\s*\)/,
     remediation: 'Do not hardcode single-case assertions in Page Objects. Parametrize them (e.g. assertAlertMessage(expected)) and expose public readonly Locators for expect.soft() flexibility.',
     pageObjectsOnly: true,
+  },
+  {
+    code: 'MATE-ANTI-08',
+    name: 'Raw page.locator() Hardcoded Inside Test Spec',
+    severity: 'HIGH',
+    penalty: 10,
+    regex: /\bpage\.locator\s*\(/,
+    remediation: 'Move selector definitions into a Page Object (`src/pages/`) or Component Object (`src/components/`) and expose semantic actions/locators.',
+    testFilesOnly: true,
+  },
+  {
+    code: 'MATE-TASTE-02',
+    name: 'Untyped `any` Usage in Boundary Models/APIs',
+    severity: 'HIGH',
+    penalty: 8,
+    regex: /:\s*any\b|\bas\s+any\b|<any>/,
+    remediation: 'Replace `any` with strict TypeScript interfaces/schemas and boundary validation.',
+    modelsOrApiOnly: true,
   },
 ];
 
@@ -138,28 +199,91 @@ function auditTestSuite(targetDir = '.') {
 
   for (const filePath of filesToScan) {
     const fileName = path.basename(filePath);
+    const relPath = path.relative(resolved, filePath).replace(/\\/g, '/');
     const isSpec = isTestSpecFile(fileName);
     const isPageObject = isPageObjectFile(filePath);
+    const fileLayer = detectLayer(relPath);
+    const isModelsOrApi = Boolean(fileLayer && (fileLayer.layer === 'models' || fileLayer.layer === 'api'));
     const lines = fs.readFileSync(filePath, 'utf8').split(/\r?\n/);
+
+    // Taste Invariant: Page Object file-size ceiling (<= 300 lines)
+    if (isPageObject && lines.length > MAX_PAGE_OBJECT_LINES) {
+      const f = {
+        file: relPath,
+        line: lines.length,
+        code: 'MATE-TASTE-01',
+        name: `Page Object exceeds ${MAX_PAGE_OBJECT_LINES}-line ceiling (${lines.length} lines)`,
+        severity: 'HIGH',
+        penalty: 8,
+        snippet: `${lines.length} lines > ${MAX_PAGE_OBJECT_LINES}`,
+        remediation: 'Extract cohesive widgets or sections into reusable BaseComponent subclasses under `src/components/`.',
+      };
+      f.formatted = formatRemediationLint(f);
+      findings.push(f);
+    }
 
     lines.forEach((lineText, idx) => {
       const trimmed = lineText.trim();
-      // Skip comments
+      // Skip comments and pure string-literal template lines
       if (
         trimmed.startsWith('//') ||
         trimmed.startsWith('*') ||
         trimmed.startsWith('/*') ||
-        trimmed.startsWith('#')
+        trimmed.startsWith('#') ||
+        trimmed.startsWith("'") ||
+        trimmed.startsWith('"') ||
+        trimmed.startsWith('`')
       ) {
         return;
+      }
+
+      // Forward-Only Dependency Direction check (models -> api/components -> pages -> fixtures -> tests)
+      if (fileLayer) {
+        const importMatch =
+          trimmed.match(/^(?:import|export)\s+.*?\bfrom\s+['"]([^'"]+)['"]/) ||
+          trimmed.match(/\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/);
+        if (importMatch) {
+          const importedLayer = detectImportedLayer(importMatch[1], filePath, resolved);
+          if (importedLayer && importedLayer.rank > fileLayer.rank) {
+            const f = {
+              file: relPath,
+              line: idx + 1,
+              code: 'LAYER_VIOLATION',
+              name: `Backward layer import from '${fileLayer.layer}' (L${fileLayer.rank}) to '${importedLayer.layer}' (L${importedLayer.rank})`,
+              severity: 'CRITICAL',
+              penalty: 15,
+              snippet: trimmed.slice(0, 100),
+              remediation: `Move shared contract/helper to '${fileLayer.layer}' or an earlier layer; never import '${importedLayer.layer}' from '${fileLayer.layer}'.`,
+            };
+            f.formatted = formatRemediationLint(f);
+            findings.push(f);
+          }
+        }
+      }
+
+      // Ad-hoc helper function in tests/ instead of src/fixtures/ or src/components/
+      if (isSpec && /^(?:async\s+)?function\s+[a-zA-Z0-9_]+\s*\(/.test(trimmed)) {
+        const f = {
+          file: relPath,
+          line: idx + 1,
+          code: 'MATE-TASTE-03',
+          name: 'Ad-hoc helper function defined inside test spec',
+          severity: 'MEDIUM',
+          penalty: 5,
+          snippet: trimmed.slice(0, 100),
+          remediation: 'Move reusable test helpers into `src/fixtures/` or `src/components/` so specs stay declarative.',
+        };
+        f.formatted = formatRemediationLint(f);
+        findings.push(f);
       }
 
       for (const rule of AUDIT_RULES) {
         if (rule.testFilesOnly && !isSpec) continue;
         if (rule.pageObjectsOnly && !isPageObject) continue;
+        if (rule.modelsOrApiOnly && !isModelsOrApi) continue;
         if (rule.regex.test(lineText)) {
-          findings.push({
-            file: path.relative(resolved, filePath).replace(/\\/g, '/'),
+          const f = {
+            file: relPath,
             line: idx + 1,
             code: rule.code,
             name: rule.name,
@@ -167,7 +291,9 @@ function auditTestSuite(targetDir = '.') {
             penalty: rule.penalty,
             snippet: trimmed.slice(0, 100),
             remediation: rule.remediation,
-          });
+          };
+          f.formatted = formatRemediationLint(f);
+          findings.push(f);
         }
       }
     });
@@ -187,6 +313,10 @@ function auditTestSuite(targetDir = '.') {
 }
 
 module.exports = {
+  LAYER_RANKS,
+  MAX_PAGE_OBJECT_LINES,
   AUDIT_RULES,
+  detectLayer,
+  formatRemediationLint,
   auditTestSuite,
 };

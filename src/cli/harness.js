@@ -213,9 +213,13 @@ function runHarnessGate(targetDir = '.') {
   });
   if (!specRes.allValid) {
     for (const r of specRes.results.filter((x) => !x.valid)) {
-      selfCorrectionPrompts.push(
-        `[SELF-CORRECTION GATE-02]: Fix spec \`${path.relative(resolved, r.filePath)}\`: ${r.errors.join('; ')}`
-      );
+      if (Array.isArray(r.remediations) && r.remediations.length > 0) {
+        selfCorrectionPrompts.push(...r.remediations);
+      } else {
+        selfCorrectionPrompts.push(
+          `[SELF-CORRECTION][GATE-02][SPEC_VIOLATION] File: ${path.relative(resolved, r.filePath)}\nViolation: ${r.errors.join('; ')}\nRemediation: Follow templates/TEMPLATE_MATE_SPEC.md.`
+        );
+      }
     }
   }
 
@@ -246,20 +250,21 @@ function runHarnessGate(targetDir = '.') {
     details: greenwashingDetail,
   });
 
-  // Gate 4: Pillar A SOLID Architecture & Zero-Sleep AST/Regex Guardrail
+  // Gate 4: Pillar A Forward-Only Layered Architecture & Zero-Sleep AST/Regex Guardrail
   const audit = auditTestSuite(resolved);
   const hasCriticalAntiPatterns = audit.findings.some((f) => f.severity === 'CRITICAL');
   const gate4Passed = !hasCriticalAntiPatterns && audit.score >= 80;
   gates.push({
     id: 'GATE-04-SOLID-AUDIT',
-    name: 'Pillar A SOLID Architecture & Zero-Sleep Guardrail (Grade A/B)',
+    name: 'Pillar A Forward-Only Layers, SOLID & Zero-Sleep Guardrail (Grade A/B)',
     passed: gate4Passed,
     details: `Health Score: ${audit.grade} (${audit.score}/100) across ${audit.filesScanned} file(s), ${audit.findings.length} finding(s).`,
   });
   if (!gate4Passed) {
     for (const f of audit.findings) {
       selfCorrectionPrompts.push(
-        `[SELF-CORRECTION GATE-04]: Fix [${f.code}] in \`${f.file}:${f.line}\` (${f.name}) -> ${f.remediation}`
+        f.formatted ||
+          `[SELF-CORRECTION][GATE-04][${f.code}] File: ${f.file}:${f.line}\nViolation: ${f.name}\nRemediation: ${f.remediation}`
       );
     }
   }
@@ -294,8 +299,55 @@ function runHarnessGate(targetDir = '.') {
   return statePayload;
 }
 
+/**
+ * Closed-Loop Verification Harness ("Ralph Wiggum Loop" — `npx mate-sdt gate --loop`)
+ * Runs up to maxIterations (default 5), persisting compact [SELF-CORRECTION] payloads into .mate/harness-state.json.
+ */
+function runHarnessLoop(targetDir = '.', options = {}) {
+  const resolved = path.resolve(targetDir);
+  const maxIterations = Math.max(1, Math.min(10, Number(options.maxIterations) || 5));
+  const history = [];
+  let finalReport = null;
+
+  for (let i = 1; i <= maxIterations; i++) {
+    finalReport = runHarnessGate(resolved);
+    history.push({
+      iteration: i,
+      allGatesPassed: finalReport.allGatesPassed,
+      healthGrade: finalReport.healthGrade,
+      healthScore: finalReport.healthScore,
+      promptCount: finalReport.selfCorrectionPrompts.length,
+    });
+    if (finalReport.allGatesPassed) {
+      break;
+    }
+    if (typeof options.onIteration === 'function') {
+      options.onIteration(i, finalReport);
+    } else if (i === 1 && !options.forceAllIterations) {
+      // Without an external fixer callback, run one deterministic pass to emit .mate/harness-state.json cleanly
+      // unless caller explicitly requests full iteration ticks.
+      break;
+    }
+  }
+
+  const stateFilePath = path.join(resolved, '.mate', 'harness-state.json');
+  const loopPayload = {
+    ...finalReport,
+    loop: {
+      mode: 'closed-loop',
+      maxIterations,
+      iterationsExecuted: history.length,
+      converged: Boolean(finalReport && finalReport.allGatesPassed),
+      history,
+    },
+  };
+  fs.writeFileSync(stateFilePath, `${JSON.stringify(loopPayload, null, 2)}\n`, 'utf8');
+  return loopPayload;
+}
+
 module.exports = {
   estimateTokens,
   analyzeContextEngineering,
   runHarnessGate,
+  runHarnessLoop,
 };

@@ -173,7 +173,8 @@ your-project/
 | `npx mate-sdt validate [path]` | Lint one or all `*.mate-spec.md` files (verifies YAML frontmatter, 4 XML blocks, explicit Forbidden Transitions, and `INV-XX` IDs). |
 | `npx mate-sdt context [module]` | Audit Context Engineering, compact stale sessions (`--compact`), consolidate `[OBSERVED]` facts (`--consolidate`), and build the 3-Bucket / 7-Layer JIT Context Pack. |
 | `npx mate-sdt session <action>` | Manage the ephemeral Session Workbench (`start\|event\|advance\|show\|list\|prune`) with TTL, $K=5$ rolling compaction, and `mate.handoff/v1` Black-Box Handoffs. |
-| `npx mate-sdt gate [dir]` | Execute the **5-Gate Harness Engineering Closed Verification Loop** (Context, Spec, Anti-Greenwashing, SOLID Audit & State Persistence). |
+| `npx mate-sdt gate [dir] [--loop]` | Execute the **5-Gate Harness Engineering Closed Verification Loop** (`--loop` runs up to 5 iterations, persisting `.mate/harness-state.json`). |
+| `npx mate-sdt gc [dir]` | Run Continuous Entropy & Doc-Gardening GC, generate `docs/QUALITY_SCORE.md`, and update `.mate/exec-plans/tech-debt-tracker.md`. |
 | `npx mate-sdt cases <module>` | Generate a 4-Quadrant QA Companion Test Case Matrix (`docs/test-cases/TC-<module>.md` & `.csv` with Automated, Manual & Exploratory sections). |
 | `npx mate-sdt audit [dir]` | Scan test codebase for M.A.T.E. anti-patterns (`waitForTimeout`, `sleep`, `.only`, DIP violations) and compute Health Score (`A`–`F`). |
 | `npx mate-sdt mutate [dir]` | Execute Stryker Mutator inside an isolated, rootless **Podman** container enforcing the `>= 85%` mutation score threshold. |

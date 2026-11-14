@@ -42,6 +42,8 @@ const {
   listSessions,
   isSessionExpired,
 } = require('../src/cli/memory');
+const { runHarnessLoop } = require('../src/cli/harness');
+const { runGarbageCollection, blockDestructiveCommands } = require('../src/cli/gc');
 
 function parseFlags(args) {
   const flags = {
@@ -71,6 +73,10 @@ function parseFlags(args) {
     type: null,
     to: null,
     digest: null,
+    loop: false,
+    gc: false,
+    maxIterations: 5,
+    checkCommand: null,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -97,6 +103,18 @@ function parseFlags(args) {
       flags.compact = true;
     } else if (arg === '--dry-run') {
       flags.dryRun = true;
+    } else if (arg === '--loop') {
+      flags.loop = true;
+    } else if (arg === '--gc') {
+      flags.gc = true;
+    } else if (arg === '--max-iterations' && args[i + 1]) {
+      flags.maxIterations = Number(args[++i]) || 5;
+    } else if (arg.startsWith('--max-iterations=')) {
+      flags.maxIterations = Number(arg.split('=')[1]) || 5;
+    } else if (arg === '--check-command' && args[i + 1]) {
+      flags.checkCommand = args[++i];
+    } else if (arg.startsWith('--check-command=')) {
+      flags.checkCommand = arg.slice('--check-command='.length);
     } else if (arg === '--mode' && args[i + 1]) {
       flags.mode = args[++i];
     } else if (arg.startsWith('--mode=')) {
@@ -203,7 +221,10 @@ function printHelp() {
     `    ${color('session <action>', COLORS.brightGreen, COLORS.bold)}     Manage Session Workbench (start|event|advance|show|list|prune) & Black-Box Handoffs`
   );
   console.log(
-    `    ${color('gate [dir]', COLORS.brightGreen, COLORS.bold)}           Execute the 5-Gate Harness Engineering Closed Verification Loop`
+    `    ${color('gate [dir] [--loop]', COLORS.brightGreen, COLORS.bold)}  Execute the 5-Gate Harness Engineering Closed Verification Loop`
+  );
+  console.log(
+    `    ${color('gc [dir]', COLORS.brightGreen, COLORS.bold)}             Run Doc-Gardening, AI Slop GC, update docs/QUALITY_SCORE.md & tech-debt-tracker.md`
   );
   console.log(
     `    ${color('cases <module>', COLORS.brightGreen, COLORS.bold)}       Create a 4-Quadrant Test Case Matrix (.md & .csv) in docs/test-cases/`
@@ -459,6 +480,11 @@ function handleValidate(flags) {
     for (const err of res.errors) {
       console.log(`     ${color(`•  Error:   ${err}`, COLORS.red)}`);
     }
+    if (Array.isArray(res.remediations)) {
+      for (const rem of res.remediations) {
+        console.log(color(rem.split('\n').map((l) => `     ${l}`).join('\n'), COLORS.yellow));
+      }
+    }
   }
 
   console.log('');
@@ -670,8 +696,26 @@ function handleSession(flags) {
 }
 
 function handleGate(flags) {
+  if (flags.checkCommand) {
+    const guard = blockDestructiveCommands(flags.checkCommand);
+    if (flags.json) {
+      console.log(JSON.stringify(guard, null, 2));
+      if (!guard.allowed) process.exit(1);
+      return;
+    }
+    if (!guard.allowed) {
+      console.error(color(`\n🛑 [SAFETY GUARDRAIL] Blocked destructive command: ${guard.blockedPattern}`, COLORS.red, COLORS.bold));
+      console.error(color(`   Remediation: ${guard.remediation}\n`, COLORS.yellow));
+      process.exit(1);
+    }
+    console.log(color('\n✅ Command passed M.A.T.E. Safety Guardrail.\n', COLORS.brightGreen));
+    return;
+  }
+
   const targetDir = flags.dir || flags.positional[1] || '.';
-  const report = runHarnessGate(targetDir);
+  const report = flags.loop
+    ? runHarnessLoop(targetDir, { maxIterations: flags.maxIterations })
+    : runHarnessGate(targetDir);
 
   if (flags.json) {
     console.log(JSON.stringify(report, null, 2));
@@ -681,7 +725,7 @@ function handleGate(flags) {
 
   console.log(
     color(
-      `\n⚙️  M.A.T.E. Harness Engineering — Closed Verification Loop (${targetDir})\n`,
+      `\n⚙️  M.A.T.E. Harness Engineering — ${flags.loop ? `Closed Verification Loop (max ${flags.maxIterations})` : 'Verification Gate'} (${targetDir})\n`,
       COLORS.bold,
       COLORS.cyan
     )
@@ -748,6 +792,7 @@ function handleAudit(flags) {
         COLORS.bold
       )
     );
+    if (flags.gc) handleGc(flags);
     return;
   }
 
@@ -759,19 +804,50 @@ function handleAudit(flags) {
     );
     console.log(`    ${color(`Code: ${f.snippet}`, COLORS.gray)}`);
     console.log(`    ${color(`Fix:  ${f.remediation}`, COLORS.cyan)}`);
+    if (f.formatted) {
+      console.log(color(f.formatted.split('\n').map((l) => `    ${l}`).join('\n'), COLORS.yellow));
+    }
   }
   console.log('');
+
+  if (flags.gc) {
+    handleGc(flags);
+  }
 
   if (result.findings.some((f) => f.severity === 'CRITICAL')) {
     console.error(
       color(
-        '❌ Critical M.A.T.E. anti-patterns (arbitrary sleeps or .only locks) detected!',
+        '❌ Critical M.A.T.E. anti-patterns (arbitrary sleeps, backward layer imports, or .only locks) detected!',
         COLORS.red,
         COLORS.bold
       )
     );
     process.exit(1);
   }
+}
+
+function handleGc(flags) {
+  const targetDir = flags.dir || flags.positional[1] || '.';
+  const gc = runGarbageCollection(targetDir);
+
+  if (flags.json) {
+    console.log(JSON.stringify(gc, null, 2));
+    if (!gc.passed) process.exit(1);
+    return;
+  }
+
+  console.log(color(`\n🧹 M.A.T.E. Continuous Entropy & Doc-Gardening GC: ${gc.targetDir}`, COLORS.bold, COLORS.cyan));
+  console.log(`   Quality Grade: ${gc.grade} (${gc.score}/100)`);
+  console.log(`   Scorecard:     ${gc.scorecardPath}`);
+  console.log(`   Debt Tracker:  ${gc.trackerPath}`);
+  console.log(`   Findings:      ${gc.findings.length}\n`);
+  for (const f of gc.findings) {
+    const sevColor = f.severity === 'ERROR' ? COLORS.red : COLORS.yellow;
+    console.log(`  • ${color(`[${f.code} | ${f.severity}]`, sevColor, COLORS.bold)} ${f.message}`);
+    console.log(`    ${color(`Remediation: ${f.remediation}`, COLORS.cyan)}`);
+  }
+  console.log('');
+  if (!gc.passed) process.exit(1);
 }
 
 function handleStrategy(flags) {
@@ -972,6 +1048,10 @@ async function main() {
       break;
     case 'audit':
       handleAudit(flags);
+      break;
+    case 'gc':
+    case 'garbage-collect':
+      handleGc(flags);
       break;
     case 'mutate':
       process.exit(runPodmanMutation(flags.dir || flags.positional[1] || '.', flags.config));
