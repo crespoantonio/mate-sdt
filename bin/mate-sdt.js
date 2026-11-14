@@ -215,7 +215,7 @@ function printHelp() {
     `    ${color('init [dir]', COLORS.brightGreen, COLORS.bold)}           Quick-scaffold M.A.T.E. directories, Living Map & templates`
   );
   console.log(
-    `    ${color('setup-playwright [dir]', COLORS.brightGreen, COLORS.bold)} Install @playwright/cli & @playwright/test in the target project`
+    `    ${color('setup-playwright [dir]', COLORS.brightGreen, COLORS.bold)} Install Playwright & TypeScript definitions (@playwright/cli, @playwright/test, @types/node, typescript) in the target project`
   );
   console.log(
     `    ${color('setup-ai [dir]', COLORS.brightGreen, COLORS.bold)}         Install On-Demand AI Quality Pack (Promptfoo + DeepEval + OTel Traces)`
@@ -410,7 +410,7 @@ async function handleInstall(flags) {
 
         installPlaywrightCli = await promptConfirm(
           rl,
-          'Install @playwright/cli & @playwright/test via npm now? (Enables live browser recon, codegen, traces & video)',
+          'Install Playwright & TypeScript types (@playwright/cli, @playwright/test, @types/node, typescript) via npm now?',
           mode !== 'skills-only'
         );
 
@@ -447,7 +447,7 @@ async function handleInstall(flags) {
   }
 
   if (result.playwrightCliInstalled) {
-    console.log(color('\n  🎭 Installed @playwright/cli & @playwright/test in node_modules', COLORS.bold, COLORS.brightGreen));
+    console.log(color('\n  🎭 Installed @playwright/cli, @playwright/test, @types/node & typescript in node_modules', COLORS.bold, COLORS.brightGreen));
   }
 
   if (result.aiPackInstalled && result.aiPackFiles?.length) {
@@ -459,6 +459,9 @@ async function handleInstall(flags) {
 
   console.log(color('\n✨ M.A.T.E. Method installation complete!', COLORS.bold, COLORS.brightGreen));
   console.log(color('\n👉 Next Steps:', COLORS.bold, COLORS.yellow));
+  if (!result.playwrightCliInstalled) {
+    console.log('   0. Install dependencies and type definitions:          npm install');
+  }
   console.log('   1. Review MATE-PROJECT-MAP.md at the root of your repository.');
   console.log('   2. Draft or inspect your first spec in specs/ and run: npx mate-sdt validate');
   console.log('   3. Audit test suite health anytime with:               npx mate-sdt audit');

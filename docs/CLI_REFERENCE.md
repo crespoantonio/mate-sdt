@@ -51,7 +51,7 @@ npx mate-sdt init
 ---
 
 ### 2b. `setup-playwright [target-dir]` (Alias: `playwright`)
-Installs `@playwright/cli@latest` and `@playwright/test@latest` into the target project and configures `.gitignore` with `.playwright-cli/`, `playwright/.auth/`, and `*.auth-state.json`.
+Installs `@playwright/cli@latest`, `@playwright/test@latest`, `@types/node@latest`, and `typescript@latest` into the target project and configures `.gitignore` with `.playwright-cli/`, `playwright/.auth/`, and `*.auth-state.json`.
 
 ```bash
 npx mate-sdt setup-playwright

@@ -764,6 +764,12 @@ function initMateProject(targetDir, options = {}) {
       'mate:audit': 'mate-sdt audit',
       'mate:status': 'mate-sdt status',
     };
+    const qaDevDependencies = {
+      '@types/node': '^22.10.0',
+      '@playwright/test': '^1.50.0',
+      '@playwright/cli': '^0.1.0',
+      typescript: '^5.7.0',
+    };
 
     if (!fs.existsSync(pkgPath)) {
       const newPkg = {
@@ -772,14 +778,16 @@ function initMateProject(targetDir, options = {}) {
         private: true,
         description: 'M.A.T.E. Method Spec-Driven QA & Automation Suite',
         scripts: qaScripts,
+        devDependencies: qaDevDependencies,
       };
       fs.writeFileSync(pkgPath, `${JSON.stringify(newPkg, null, 2)}\n`, 'utf8');
-      created.push('package.json (with M.A.T.E. & Playwright scripts)');
+      created.push('package.json (with M.A.T.E. & Playwright scripts and TypeScript devDependencies)');
     } else {
       try {
         const existingPkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
         if (existingPkg.name !== 'mate-sdt') {
           existingPkg.scripts = existingPkg.scripts || {};
+          existingPkg.devDependencies = existingPkg.devDependencies || {};
           let addedScript = false;
           for (const [k, v] of Object.entries(qaScripts)) {
             if (!existingPkg.scripts[k]) {
@@ -787,9 +795,16 @@ function initMateProject(targetDir, options = {}) {
               addedScript = true;
             }
           }
+          // Ensure @types/node and core devDependencies are registered
+          for (const [dep, ver] of Object.entries(qaDevDependencies)) {
+            if (!existingPkg.devDependencies[dep] && (!existingPkg.dependencies || !existingPkg.dependencies[dep])) {
+              existingPkg.devDependencies[dep] = ver;
+              addedScript = true;
+            }
+          }
           if (addedScript) {
             fs.writeFileSync(pkgPath, `${JSON.stringify(existingPkg, null, 2)}\n`, 'utf8');
-            created.push('package.json (updated with M.A.T.E. & Playwright scripts)');
+            created.push('package.json (updated with M.A.T.E. scripts and devDependencies)');
           }
         }
       } catch {
@@ -929,7 +944,7 @@ function installPlaywrightCliPackages(targetDir = '.') {
 
   console.log(
     color(
-      '\n🎭 Installing @playwright/cli@latest and @playwright/test@latest (M.A.T.E. Browser Engine)...',
+      '\n🎭 Installing Playwright & TypeScript definitions (@playwright/cli, @playwright/test, @types/node, typescript)...',
       COLORS.bold,
       COLORS.brightGreen
     )
@@ -937,7 +952,14 @@ function installPlaywrightCliPackages(targetDir = '.') {
 
   const installRes = spawnSync(
     npmCmd,
-    ['install', '-D', '@playwright/cli@latest', '@playwright/test@latest'],
+    [
+      'install',
+      '-D',
+      '@playwright/cli@latest',
+      '@playwright/test@latest',
+      '@types/node@latest',
+      'typescript@latest',
+    ],
     {
       cwd: resolved,
       stdio: 'inherit',

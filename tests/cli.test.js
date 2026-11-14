@@ -121,7 +121,11 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
       assert.ok(fs.existsSync(path.join(tmpDir, 'tsconfig.json')));
       assert.ok(fs.existsSync(path.join(tmpDir, '.env.example')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'package.json')));
-      assert.ok(fs.readFileSync(path.join(tmpDir, 'package.json'), 'utf8').includes('test:smoke'));
+      const pkgContent = fs.readFileSync(path.join(tmpDir, 'package.json'), 'utf8');
+      assert.ok(pkgContent.includes('test:smoke'));
+      assert.ok(pkgContent.includes('@types/node'));
+      assert.ok(pkgContent.includes('@playwright/test'));
+      assert.ok(pkgContent.includes('typescript'));
       assert.ok(fs.existsSync(path.join(tmpDir, '.github', 'workflows', 'mate-qa.yml')));
       assert.ok(fs.existsSync(path.join(tmpDir, '.gitignore')));
       const gitignore = fs.readFileSync(path.join(tmpDir, '.gitignore'), 'utf8');
