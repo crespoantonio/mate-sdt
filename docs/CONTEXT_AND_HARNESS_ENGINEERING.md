@@ -61,14 +61,14 @@ sequenceDiagram
     autonumber
     participant Agent as AI Agent (Model)
     participant Harness as M.A.T.E. Harness (npx mate-sdt gate)
-    participant Sandbox as Browser (@playwright/cli) & Podman
+    participant Sandbox as Browser (@playwright/cli) & Container Sandbox
     participant State as Durable State (.mate/harness-state.json)
 
     Agent->>Sandbox: 1. Recon & Verify Live App (playwright-cli open / snapshot)
     Sandbox-->>Agent: Compact ARIA Snapshot + Observed Network/DOM State
     Agent->>State: 2. Write Spec, 4-Quadrant Cases & SOLID Page Objects
     Agent->>Harness: 3. Execute Closed Verification Loop (npx mate-sdt gate)
-    Harness->>Harness: Run Gates 1..5 (Context Budget, Spec & Test-Design-First, Anti-Greenwashing, SOLID Audit, Podman)
+    Harness->>Harness: Run Gates 1..5 (Context Budget, Spec & Test-Design-First, Anti-Greenwashing, SOLID Audit, Container Runtime)
     alt Any Deterministic Gate Fails
         Harness-->>Agent: Return Structured [SELF-CORRECTION] Prompt
         Agent->>State: Self-Correct Code / Spec / Test Cases / Bug Report
@@ -79,16 +79,16 @@ sequenceDiagram
     end
 ```
 
-1. **Tool Orchestration (`@playwright/cli` + MCPs + Podman):**
-   Provides token-efficient browser control (`mate-pw-recon`, `mate-pw-codegen`, `mate-pw-forensics`), source-agnostic requirement ingestion (`mate-story-testcases`), and containerized execution (`mutate`, `k6`).
+1. **Tool Orchestration (`@playwright/cli` + MCPs + Container Sandboxing):**
+   Provides token-efficient browser control (`mate-pw-recon`, `mate-pw-codegen`, `mate-pw-forensics`), source-agnostic requirement ingestion (`mate-story-testcases`), and containerized execution (`mutate`, `k6` via rootless Podman by default).
 2. **Deterministic Guardrails & Test-Design-First (`src/cli/validator.js`, `src/cli/harness.js` & `src/cli/auditor.js`):**
    Hard-coded static analyzers that enforce the **Test-Design-First Mandate (`GATE-02` / `MATE-INVARIANT-08`)** (rejecting any automated `.spec.ts` file in `tests/` if `docs/test-cases/TC-*.md` does not exist), reject specs missing **Explicit Forbidden Transitions**, and block test code containing `waitForTimeout()` (`MATE-ANTI-01`), `.only` (`MATE-ANTI-02`), direct `new *Page()` DIP violations (`MATE-ANTI-03`), weak assertions (`MATE-ANTI-04`), fragile XPath (`MATE-ANTI-05`), permissive discrepancy regexes (`MATE-ANTI-06`), or bloated single-case assertions in Page Objects (`MATE-ANTI-07`).
 3. **Anti-Greenwashing Guardrail (`GATE-03`):**
    Deterministically cross-checks `test.fail()` / `test.fixme()` annotations in `tests/**/*.spec.ts` against `docs/bugs/BUG-*.md` so an AI agent can never silently hide a failing product requirement without generating a traceable Bug Report.
 4. **Closed-Loop Verification & Self-Correction (`npx mate-sdt gate`):**
    Runs all 4 deterministic gates in a single pass and emits machine-actionable `[SELF-CORRECTION]` instructions (plus `--json` output) so the agent repairs its own mistakes before ending its turn.
-5. **Durable State Persistence & Sandboxing (`.mate/harness-state.json` & Rootless Podman):**
-   Persists verification state on disk across sessions and isolates destructive mutation (`Stryker`) and load testing (`Grafana k6`) inside ephemeral rootless **Podman** containers.
+5. **Durable State Persistence & Container Sandboxing (`.mate/harness-state.json` & Container Runtime):**
+   Persists verification state on disk across sessions and isolates destructive mutation (`Stryker`) and load testing (`Grafana k6`) inside ephemeral container sandboxes (using rootless Podman by default).
 
 ### CLI Tooling for Harness Engineering:
 ```bash

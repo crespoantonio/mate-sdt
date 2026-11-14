@@ -41,8 +41,8 @@ Must contain:
 *   **Technical Contracts:** Typed API/event payloads.
 
 ### Block 2: `<invariants> ... </invariants>` (Pillar A)
-Must contain mathematical and architectural rules identified with `INV-XX` codes:
-*   `INV-01`: Quantitative or state invariants (e.g., `subtotal >= 0`, `items.length >= 1`).
+Must contain deterministic business rules and architectural invariants identified with `INV-XX` codes:
+*   `INV-01`: Quantitative, state, or contract invariants (e.g., `subtotal >= 0`, `items.length >= 1`, status transitions).
 *   `ORA-PERF` / `ORA-SYNC`: Non-functional oracles (P95 latency SLAs, zero arbitrary sleeps).
 
 ### Block 3: `<threat_scenarios> ... </threat_scenarios>` (Pillar T)
@@ -50,7 +50,7 @@ Must define adversarial scenarios identified with `THR-XX` codes:
 *   Concurrency & double-click race conditions (`< 50ms` window).
 *   Webhook/event idempotency under network retry storms.
 *   Data trash, boundary payloads, and injection fuzzing (`HTTP 422` expected, never `HTTP 500`).
-*   Stryker Mutation Testing threshold (`>= 85%` in Podman).
+*   Stryker Mutation Testing threshold (`>= 85%` inside container sandbox).
 
 ### Block 4: `<exploratory_charters> ... </exploratory_charters>` (Pillar E)
 Must define at least one time-boxed human exploratory mission (30–60 minutes) covering:

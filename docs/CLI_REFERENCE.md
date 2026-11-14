@@ -154,7 +154,7 @@ Returns exit code `1` if any `CRITICAL` anti-pattern (`MATE-ANTI-01` arbitrary s
 ---
 
 ### 5. `mutate [project-dir]`
-Executes **Stryker Mutator** inside an ephemeral, rootless **Podman** container (`node:20-alpine`) mounting the project directory to `/app:Z` and enforcing a `>= 85%` Mutation Score.
+Executes **Stryker Mutator** inside an ephemeral container sandbox (using rootless Podman by default) (`node:20-alpine`) mounting the project directory to `/app:Z` and enforcing a `>= 85%` Mutation Score.
 
 ```bash
 npx mate-sdt mutate
@@ -163,7 +163,7 @@ npx mate-sdt mutate
 ---
 
 ### 6. `k6 [script-path]`
-Executes a **Grafana k6** performance test script inside an ephemeral, rootless **Podman** container (`grafana/k6:latest`) to validate `<performance_oracles>` SLAs.
+Executes a **Grafana k6** performance test script inside an ephemeral container sandbox (using rootless Podman by default) (`grafana/k6:latest`) to validate `<performance_oracles>` SLAs.
 
 ```bash
 npx mate-sdt k6 tests/nfr/order-load.k6.js

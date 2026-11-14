@@ -84,25 +84,25 @@ A specification is not a forgotten Word document; it is a machine-readable, Git-
 
 ---
 
-### 2. 🎯 A — Assert (Deterministic Oracles & Sacred Invariants)
+### 2. 🎯 A — Assert (Deterministic Oracles & Business Invariants)
 
-> _"A test that does not validate a mathematical invariant is merely an illusion to paint the CI pipeline green."_
+> _"A test that does not validate a deterministic business invariant is merely an illusion to paint the CI pipeline green."_
 
 AI agents excel at writing tests that pass without proving anything (blind mocks, trivial checks like `expect(response).toBeDefined()`).  
 Pillar **Assert** establishes **Non-Negotiable Acceptance Oracles**:
 
-- **Business Invariants:** Mathematical rules that must **never** be violated under any state transition (e.g., _"Account balance must never drop below zero"_, _"The sum of line items plus tax must match the invoiced total to the exact cent"_).
+- **Business Invariants:** Deterministic domain rules that must **never** be violated under any state transition (e.g., permissions such as _"A user without ADMIN role cannot execute DELETE"_, state integrity like _"An order in state DELIVERED cannot transition to CANCELLED"_, or financial constraints like _"The sum of line items plus tax must match the invoiced total to the exact cent"_).
 - **Pragmatic Execution Mode Decision Engine (Automate vs. Manual vs. Exploratory):** Not everything should be automated! M.A.T.E. evaluates every requirement across four execution modes—`AUTOMATE_UI`, `AUTOMATE_API`, `MANUAL_TEST`, and `EXPLORATORY_CHARTER`—and generates a complete **QA Companion Document** (`docs/test-cases/TC-[module].md` & `.csv`) explaining _why_ each scenario is automated or kept manual, along with step-by-step manual instructions and tailored exploratory heuristics.
 - **The Anti-Greenwashing Mandate & Discrepancy Escalation Protocol:** AI agents must never cherry-pick only the tests that pass, nor write permissive alternative regexes (e.g. `/A|B/`) to mask copy discrepancies. If the application diverges from a User Story (copy mismatches, undocumented fields, state reset on reload), the agent is strictly forbidden from adapting silently. It must pause, present the discrepancy to the human engineer, and either record a formal defect annotated with `test.fail(true, 'BUG-XXX')` or update the specification if approved.
-- **SOLID & OOP Automation Architecture (Anti-Bloated Page Objects):** Enforces Single Responsibility (`BasePage` & `BaseComponent` Object Models, `BaseApiClient`), Open/Closed abstractions, and Dependency Inversion via Playwright fixtures (`test.extend`). Forbids bloated "God Page Objects" with dozens of single-case assertions (`MATE-ANTI-07`). Mandates parameterized assertions (`assertAlertMessage(expected)`), public `readonly Locator` exposure for `expect.soft()` flexibility, clear separation of internal synchronization Guards vs. public business verifications, and mandatory extraction of stateful or multi-view widgets into dedicated `BaseComponent` objects.
+- **SOLID & OOP Automation Architecture (The `MATE-ANTI-08` Mandate):** Enforces Single Responsibility (`BasePage` & `BaseComponent` Object Models, `BaseApiClient`), Open/Closed abstractions, and Dependency Inversion via Playwright fixtures (`test.extend`). Strictly bans raw locators (`page.locator()`, `page.getBy*()`) or direct navigation inside spec files (`MATE-ANTI-08`). Specs speak purely through injected Page Objects and Component Objects. Forbids bloated "God Page Objects" with dozens of single-case assertions (`MATE-ANTI-07`). Mandates parameterized assertions (`assertAlertMessage(expected)`), public `readonly Locator` exposure for `expect.soft()` flexibility, clear separation of internal synchronization Guards vs. public business verifications, and mandatory extraction of stateful or multi-view widgets into dedicated `BaseComponent` objects.
 - **Zero Arbitrary Sleeps:** Absolute prohibition of `sleep()` or `page.waitForTimeout()`. All synchronization must rely on deterministic events and auto-retrying web assertions.
-- **Performance & Resource Oracles:** Explicit SLAs measured by objective harnesses (e.g., _"P95 latency <= 400ms under 200 RPS sustained load inside a Podman container"_).
+- **Performance & Resource Oracles:** Explicit SLAs measured by objective harnesses (e.g., _"P95 latency <= 400ms under 200 RPS sustained load inside an isolated container sandbox"_).
 
 If AI-generated code violates a single invariant, the quality gate blocks the Pull Request in seconds.
 
 ---
 
-### 3. 💣 T — Threat & Trash (Adversarial Engineering & Mutation Testing)
+### 3. 💣 T — Threat & Trash (Adversarial Engineering & Container Sandboxing)
 
 > _"Developers code so the application works. Quality Engineers design the spec so the application survives the apocalypse."_
 
@@ -112,7 +112,7 @@ Pillar **Threat & Trash** injects professional tester malice directly into the s
 - **Threat Modeling for Testers:** How can a malicious actor, race condition, or network partition break this feature?
 - **Concurrency & Idempotency:** Compulsive double-clicks within 50ms, duplicate webhook storms, and simultaneous state mutations.
 - **Data Trash & Fuzzing:** 10MB payloads, Cyrillic/RTL scripts, emojis in numeric inputs, SQL/NoSQL injections, and Prompt Injection payloads in AI features.
-- **Mandatory Mutation Testing:** Subjecting the test suite itself to mutation testing (Stryker Mutator) inside rootless **Podman** containers. If we mutate production logic and no test fails, the tests are smoke and mirrors. **M.A.T.E. Threshold: Mutation Score >= 85%**.
+- **Mandatory Mutation Testing & Container Sandboxing:** Subjecting the test suite itself to mutation testing (Stryker Mutator) inside **isolated container sandboxes** (using rootless containers like Podman by default to eliminate root-daemon vulnerabilities and host state leakage). If we mutate production logic and no test fails, the tests are smoke and mirrors. **M.A.T.E. Threshold: Mutation Score >= 85%**.
 
 ---
 
@@ -175,10 +175,10 @@ author: Tony Crespo (@crespoantonio)
   </intent_model>
 
 <invariants>
-  <!-- Non-negotiable mathematical rules and performance oracles -->
+  <!-- Non-negotiable domain rules and performance oracles -->
   - `INV-01`: No order can be created with `garment_count <= 0`.
   - `INV-02`: `total_amount` must strictly equal `sum(unit_price * qty) + delivery_fee - discount`.
-  - `ORA-PERF`: `POST /api/orders` P95 latency <= 350ms under 250 RPS in Podman container.
+  - `ORA-PERF`: `POST /api/orders` P95 latency <= 350ms under 250 RPS in container sandbox.
 </invariants>
 
 <threat_scenarios>
@@ -187,7 +187,7 @@ author: Tony Crespo (@crespoantonio)
 
 - `THR-01` (Race Condition): Double-click on "Confirm Order" within 50ms must be strictly idempotent and create exactly ONE order.
 - `THR-02` (Concurrent Cancellation): User cancels order at the exact millisecond driver scans pickup QR; driver state transition prevails.
-- `THR-MUTATION`: Mutation Score >= 85% verified with Stryker Mutator in rootless Podman.
+- `THR-MUTATION`: Mutation Score >= 85% verified with Stryker Mutator in container sandbox.
   </threat_scenarios>
 
 <exploratory_charters>
@@ -210,11 +210,11 @@ sequenceDiagram
     actor QE as Quality Engineer (Human)
     actor PO as Product Owner / Domain Lead
     participant Agent as Coding & QA Agents (AI)
-    participant Harness as Podman Sandbox Harness
+    participant Harness as Container Sandbox Harness
 
     QE->>PO: 1. Co-design *.mate-spec.md (Model + Assert + Threat)
     QE->>Agent: 2. Feed validated Spec to AI Agent (Spec-Driven Build)
-    Agent->>Harness: 3. Agent builds SOLID code & Playwright suites in Podman
+    Agent->>Harness: 3. Agent builds SOLID code & Playwright suites in Container Sandbox
     Harness-->>QE: 4. Harness runs Spec Linter, Invariants & Stryker Mutation (>=85%)
     alt Any Invariant Fails or Mutants Survive (>15%)
         QE->>Agent: Automated rejection with diagnostic stack trace
@@ -232,7 +232,7 @@ sequenceDiagram
 2.  **Thou shalt never greenwash a failing requirement:** Never delete a failing test or weaken an assertion to make a broken application pass. Keep the test, mark it with `test.fail()`, and file a spec-linked bug report.
 3.  **Thou shalt separate checking from testing:** Let machines execute repetitive UI/API checking at lightning speed; reserve manual perception checks and exploratory testing charters for the human mind.
 4.  **Thou shalt tolerate zero arbitrary sleeps:** `sleep()` and `waitForTimeout()` are banned. Synchronization is event-driven with auto-retrying web assertions.
-5.  **Thou shalt isolate destructive executions:** No untrusted AI-generated code or mutation suite runs on the bare host without rootless **Podman** container isolation.
+5.  **Thou shalt isolate destructive executions:** No untrusted AI-generated code or mutation suite runs on the bare host without container sandboxing (using rootless containers to eliminate host security risks).
 6.  **The specification is the single source of truth:** If the code disagrees with the spec, the code is broken. If business requirements evolve, update and validate the spec first, then regenerate the code.
 7.  **Thou shalt inject malice from Day Zero:** Thinking about how to break the system is not an afterthought at the end of the sprint; it is Pillar _Threat_ during design.
 8.  **Thou shalt enforce idempotency:** Every network retry, webhook, or async callback must be designed and tested against duplicate delivery.

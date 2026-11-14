@@ -63,8 +63,8 @@ flowchart LR
 | Pillar | Name | Core Responsibility | Key Artifact / Enforcement |
 | :---: | :--- | :--- | :--- |
 | **M** | **Model** | Eradicate ambiguity before code exists. Model Finite State Machines (FSM), **Explicit Forbidden Transitions**, strict contracts, and Live Page Reconnaissance (`page-explorer`). | `specs/[module].mate-spec.md` (`<intent_model>`) |
-| **A** | **Assert** | Translate mathematical invariants into OOP/SOLID Playwright UI & API suites (`BasePage`, `ComponentObject`, `BaseApiClient`, Dependency Inversion fixtures, **zero arbitrary sleeps**). | `specs/[module].mate-spec.md` (`<invariants>`) + `src/pages/`, `src/api/`, `src/fixtures/` |
-| **T** | **Threat & Trash** | Shatter the happy-path illusion: race conditions, double-click idempotency, payload fuzzing, **k6 Performance SLAs**, and **Stryker Mutation Testing (>= 85%)** inside rootless **Podman** containers. | `specs/[module].mate-spec.md` (`<threat_scenarios>`) + `stryker.config.json` + `tests/nfr/*.k6.js` |
+| **A** | **Assert** | Translate deterministic business invariants into OOP/SOLID Playwright UI & API suites (`BasePage`, `ComponentObject`, `BaseApiClient`, Dependency Inversion fixtures, **zero arbitrary sleeps**). | `specs/[module].mate-spec.md` (`<invariants>`) + `src/pages/`, `src/api/`, `src/fixtures/` |
+| **T** | **Threat & Trash** | Shatter the happy-path illusion: race conditions, double-click idempotency, payload fuzzing, **k6 Performance SLAs**, and **Stryker Mutation Testing (>= 85%)** inside isolated container sandboxes (using rootless **Podman** by default). | `specs/[module].mate-spec.md` (`<threat_scenarios>`) + `stryker.config.json` + `tests/nfr/*.k6.js` |
 | **E** | **Explore** | Safeguard human quality via Session-Based Test Management (SBTM) charters (ergonomics, WCAG 2.1 AA accessibility, trust) and issue the formal release verdict: `PASS`, `CONCERNS` (with signed waiver), or `FAIL`. | `tests/charters/CHR-*.md` & `specs/waivers/WVR-*.md` |
 
 ---
@@ -87,7 +87,7 @@ When you run `npx mate-sdt install`, your AI agents gain **16 core specialized s
 | **`mate-pw-codegen`** | **Pillar A (CLI Codegen)** | Translates `playwright-cli` locators, `state-save` auth, and `route` network mocks into SOLID Page/Component Objects, `src/mocks/`, and `tests/e2e/*.spec.ts`. |
 | **`mate-pw-forensics`** | **Pillar T/E & Triage (CLI)** | Multi-actor sessions (`playwright-cli -s=actor1`, `-s=actor2`), `tracing-start`/`stop`, 60fps `video-start` recordings with chapters, and PR/Jira visual attachments. |
 | **`mate-assert-api`** | **Pillar A (API)** | Generates OpenAPI/Swagger or network-observed contract test matrices (`2xx`, `400/422`, `401/403` BOLA, `409` FSM) and typed API clients. |
-| **`mate-threat`** | **Pillar T (Chaos)** | Dual-mode Pillar T: Black-Box concurrency, idempotency & payload fuzzing (`tests/threats/`), plus White-Box Stryker Mutation (`>= 85%`) in Podman. |
+| **`mate-threat`** | **Pillar T (Chaos)** | Dual-mode Pillar T: Black-Box concurrency, idempotency & payload fuzzing (`tests/threats/`), plus White-Box Stryker Mutation (`>= 85%`) inside container sandboxes. |
 | **`mate-performance-k6`** | **Pillar A/T (NFR)** | Designs Smoke, Load, Stress, Spike, and Soak profiles in Grafana k6 enforcing `<performance_oracles>` in Podman. |
 | **`mate-explore`** | **Pillar E** | Designs human SBTM exploratory charters, WCAG 2.1 AA audits, Release Waivers, and Release Verdicts. |
 | **`mate-triage`** | **Day-2 Ops** | Triages failures (`Real Bug` vs `Flaky` vs `Infra` vs `Drift`), tracks `test.fail()` known bugs, and generates spec-linked Bug Reports (`npx mate-sdt bug`). |
@@ -178,12 +178,12 @@ your-project/
 | `npx mate-sdt heal [target]` | Compress raw stack traces (`<error_digest> <= 400t`), map governing spec, and guide the 5-Class Heal vs. Quarantine loop. |
 | `npx mate-sdt cases <module>` | Generate a 4-Quadrant QA Companion Test Case Matrix (`docs/test-cases/TC-<module>.md` & `.csv` with Automated, Manual & Exploratory sections). |
 | `npx mate-sdt audit [dir]` | Scan test codebase for M.A.T.E. anti-patterns (`waitForTimeout`, `sleep`, `.only`, DIP violations) and compute Health Score (`A`–`F`). |
-| `npx mate-sdt mutate [dir]` | Execute Stryker Mutator inside an isolated, rootless **Podman** container enforcing the `>= 85%` mutation score threshold. |
-| `npx mate-sdt k6 [script]` | Execute Grafana k6 performance suite inside an isolated, rootless **Podman** container validating `<performance_oracles>`. |
+| `npx mate-sdt mutate [dir]` | Execute Stryker Mutator inside an isolated container sandbox (using rootless **Podman** by default) enforcing the `>= 85%` mutation score threshold. |
+| `npx mate-sdt k6 [script]` | Execute Grafana k6 performance suite inside an isolated container sandbox (using rootless **Podman** by default) validating `<performance_oracles>`. |
 | `npx mate-sdt charter <module>` | Generate a timestamped human Exploratory Testing Charter (SBTM) in `tests/charters/`. |
 | `npx mate-sdt bug <module>` | Generate a Structured Bug Report linked to broken spec invariants in `docs/bugs/`. |
 | `npx mate-sdt waiver <module>` | Generate a Formal Release Waiver in `specs/waivers/` when a release verdict is `[CONCERNS]`. |
-| `npx mate-sdt status [dir]` | Run a complete governance audit (checks Living Map, IDE skills, spec validity, Health Score, and Podman availability). |
+| `npx mate-sdt status [dir]` | Run a complete governance audit (checks Living Map, IDE skills, spec validity, Health Score, and container runtime availability). |
 
 ---
 
