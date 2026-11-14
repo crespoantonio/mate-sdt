@@ -59,3 +59,13 @@ Observability is not just for dashboards—it is your **continuous dataset gener
 2. **Export & Sanitize:** Strip any customer PII from the trace payload.
 3. **Promote to Golden Dataset (`mate-ai-dataset`):** Append the trace's `input`, `retrieval_context`, and expected behavior into `tests/ai-evals/datasets/DS-<module>.json` with `"provenance": "[PROD_TRACE_REGRESSION]"`.
 4. **Verify in CI (`mate-ai-evals`):** Now every future prompt or model update is automatically tested against real production failure modes!
+
+---
+
+## 4. Stateful Memory Trace Auditing & Span-Level Fault Isolation (`memory_trace_auditor.js`)
+
+Run `node tests/ai-evals/traces/memory_trace_auditor.js` to enforce:
+- **Layer 2 Latency SLA (`ORA-MEM-LATENCY`):** `memory.retrieve` P95 latency **`<= 200ms`**.
+- **Layer 1 Async Contract (`ORA-MEM-GEN-ASYNC`):** `memory.generate` executes with `wait_for_completion: false` and zero unredacted PII.
+- **Span-Level Fault Isolation Tags:** Classify every failure cleanly as `[RETRIEVER_DEFECT]`, `[MEMORY_ETL_DEFECT]`, `[COMPACTION_DEFECT]`, or `[GENERATOR_DEFECT]`.
+- **Black-Box Handoff:** Emit sanitized regression digests via `npx mate-sdt session advance` back to `mate-ai-dataset` / `mate-triage`.

@@ -58,6 +58,7 @@ mate-sdt/
 │   ├── validator.js            # Spec linter (Intent model & Forbidden Transitions)
 │   ├── auditor.js              # Codebase health auditor & anti-patterns (MATE-ANTI-01..07)
 │   ├── harness.js              # Closed verification loop (GATE-01..05 & harness-state.json)
+│   ├── memory.js               # Sessions & Memory engine (3-Bucket JIT pack, compaction, consolidation, hygiene)
 │   └── installer.js            # Multi-IDE scafolder (Antigravity, Claude, Cursor, Windsurf, Copilot, Codex)
 ├── skills/                     # 20 Synergistic AI Skills (16 Core + 4 AI Pack)
 │   ├── mate-core/              # Master orchestrator & Living Map governor
@@ -96,10 +97,13 @@ mate-sdt/
 │   └── build-check.js          # Build integrity gate (runs on pre-commit/CI)
 ├── tests/
 │   └── cli.test.js             # Native Node test suite (9 integration suites)
-├── docs/                       # Architectural whitepapers
+├── docs/                       # Architectural whitepapers & references
 │   ├── CONTEXT_AND_HARNESS_ENGINEERING.md
 │   ├── AI_AGENT_AND_RAG_TESTING.md
-│   └── SUBAGENTS_AND_PARALLEL_EXECUTION.md
+│   ├── SUBAGENTS_AND_PARALLEL_EXECUTION.md
+│   ├── CLI_REFERENCE.md
+│   └── SPEC_STANDARD.md
+├── MATE-PROJECT-MAP.md         # Root Living Architecture Map for mate-sdt (< 3,000 tokens)
 ├── MANIFESTO.md                # The Philosophical Manifesto of the M.A.T.E. Method
 └── package.json                # npm package descriptor (version, scripts, keywords)
 ```
@@ -108,10 +112,14 @@ mate-sdt/
 
 ## 4. Key Architectural Patterns to Uphold
 
-### 1. The 3-Tier Progressive Context Hierarchy
-- **Tier 1 (Always Hot, < 3,000 tokens):** `MATE-PROJECT-MAP.md` + active `specs/*.mate-spec.md`.
-- **Tier 2 (On-Demand Module Context, < 12,000 tokens):** Module Page Objects, Component Objects, API clients, and contract schemas assembled via `npx mate-sdt context <module>`.
-- **Tier 3 (Deep Forensic Cold Storage, Isolated/Sub-agent):** Playwright traces, Stryker mutation reports, k6 performance metrics, OpenTelemetry spans. Never dump Tier 3 into the main agent context.
+### 1. Context Engineering: Sessions vs. Memory & 3-Tier Hierarchy
+- **Session Workbench (Ephemeral, `.mate/sessions/<flow-id>.json`, `.mate/scratchpad-<module>.md`, `.mate/handoffs/`, `.mate/harness-state.json`):** Holds mutable per-flow state with a 24h TTL, $K=5$ raw event window, and automatic event-based compaction + `mate.handoff/v1` Black-Box Handoffs on stage transitions (`npx mate-sdt session`).
+- **Memory Filing Cabinet (Canonical, `MATE-PROJECT-MAP.md`, `specs/*.mate-spec.md`, `.mate/memory/`):** Cross-session, framework-agnostic knowledge. Self-editing consolidation (`CREATE` / `UPDATE` / `DELETE` / `CONFLICT`) runs via `npx mate-sdt context <module> --consolidate`.
+- **3-Tier Progressive Context:**
+  - **Tier 1 (Always Hot, < 3,000 tokens):** `MATE-PROJECT-MAP.md` + active `specs/*.mate-spec.md`.
+  - **Tier 2 (On-Demand Module Context):** 3-Bucket / 7-Layer JIT Context Pack assembled via `npx mate-sdt context <module>`.
+  - **Tier 3 (Deep Forensic Cold Storage, Isolated/Sub-agent):** Playwright traces, Stryker mutation reports, k6 performance metrics, OpenTelemetry spans. Never dump Tier 3 into the main agent context.
+- **4 Context Failure Modes & Provenance Hierarchy:** Guard against **Poisoning**, **Distraction**, **Confusion**, and **Clash**. Enforce `[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO-timestamp] > [INFERRED] / [TBD]`; block `[INFERRED]`/`[TBD]` from `<invariants>` and Page/Component Objects, and redact PII/secrets before persistence.
 
 ### 2. Conversational Entry Points & Agent Routing
 In any target project governed by M.A.T.E. (scaffolded via `installer.js`):

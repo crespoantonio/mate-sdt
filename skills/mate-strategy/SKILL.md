@@ -87,3 +87,11 @@ $$\text{Risk Score} = \text{Business Impact } (1\text{–}5) \times \text{Failur
   - [`resources/test-strategy.template.md`](./resources/test-strategy.template.md)
   - [`resources/test-plan.template.md`](./resources/test-plan.template.md)
   - [`references/qa-maturity-playbooks.md`](./references/qa-maturity-playbooks.md)
+
+---
+
+## 🔄 Black-Box Handoff & Session Isolation
+
+- **Separate Individual Histories:** Never pass raw multi-turn scratchpads or verbose upstream tool logs into this skill or out to downstream skills.
+- **Consume & Emit `mate.handoff/v1`:** Read only the compressed upstream handoff digest + `npx mate-sdt context <module>` JIT pack, and advance stages via `npx mate-sdt session advance <flow-id> --stage=<next> --to=<skill> --digest="..."`.
+- **Provenance & Hygiene:** Tag findings with `[BOOTSTRAPPED]`, `[USER_EXPLICIT]`, `[OBSERVED | ISO]`, `[INFERRED]`, or `[TBD]`; promote verified facts via `npx mate-sdt context <module> --consolidate`.

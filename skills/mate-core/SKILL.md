@@ -19,11 +19,11 @@ Its purpose is to ensure that any software project implements a quality architec
 
 ## 🎯 The 6 Core Operational Mandates of `mate-core`
 
-1. **Context Engineering (*Write, Select, Compress, Isolate*):**  
-   - **Write:** Persist repository topology in `MATE-PROJECT-MAP.md` (`< 3,000 tokens` Tier-1 RAM) and specs in `specs/*.mate-spec.md` so LLMs never burn 100k+ tokens scanning the entire repository.
-   - **Select:** Use 3-Tier Progressive Context Disclosure—activate only the skill needed for the current step (`USE WHEN` / `SYNERGY`) and build module-scoped JIT Context Packs via `npx mate-sdt context <module>`.
-   - **Compress:** Use `@playwright/cli` compact YAML ARIA snapshots (`< 800 tokens`) instead of raw DOM HTML dumps, promoting locators immediately into `src/pages/*.page.ts`.
-   - **Isolate:** Prevent Context Poisoning by tagging every statement with epistemic provenance (`[OBSERVED]`, `[INFERRED]`, or `[TBD]`).
+1. **Context Engineering — Sessions, Memory & Failure-Mode Guardrails (*Write, Select, Compress, Isolate*):**  
+   - **Separate Session Workbench from Memory Filing Cabinet:** Store ephemeral per-flow working state (last $K=5$ raw findings, active stage, scratchpad) in `.mate/sessions/<flow-id>.json`, `.mate/scratchpad-<module>.md`, and `.mate/handoffs/` (24h TTL, rolling + event-based compaction on stage transitions via `npx mate-sdt session`). Store canonical, cross-session knowledge in `MATE-PROJECT-MAP.md` (`< 3,000 tokens` Tier-1 RAM), `specs/*.mate-spec.md`, and `.mate/memory/procedural-playbooks.md`.
+   - **Select (3-Bucket / 7-Layer JIT Context Pack):** Run `npx mate-sdt context <module>` to build a phase-scoped JIT pack instead of dumping raw repository files.
+   - **Compress & Consolidate:** Compress `@playwright/cli` YAML ARIA snapshots (`<= 800 tokens`) and HAR logs; fold stale sessions with `--compact` and promote `[OBSERVED]` findings into canonical memory (`CREATE`/`UPDATE`/`DELETE`) with `--consolidate`.
+   - **Isolate & Eliminate the 4 Context Failure Modes:** Guard against **Poisoning** (enforce `[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO-timestamp] > [INFERRED] / [TBD]`; block `[INFERRED]`/`[TBD]` from `<invariants>` and Page/Component Objects; redact PII/secrets before persistence), **Distraction** (3-line rolling summaries + $K=5$ cap), **Confusion** (phase-scoped tools & XML slices), and **Clash** (self-editing consolidation + Black-Box `mate.handoff/v1` handoffs).
 2. **Harness Engineering ($\text{Agent} = \text{Model} + \text{Harness}$ — Closed Verification Loop):**  
    Never rely on prompt instructions alone. After creating or modifying specs, Page Objects, or tests, run **`npx mate-sdt gate`** to execute the 5 deterministic guardrails (`GATE-01` Context Budget, `GATE-02` Spec Linter, `GATE-03` Anti-Greenwashing Traceability, `GATE-04` SOLID/Zero-Sleep Audit, and `GATE-05` State Persistence in `.mate/harness-state.json`). If any gate fails, follow the `[SELF-CORRECTION]` prompts until `npx mate-sdt gate` passes.
 3. **Sub-Agent Forking & Parallel Isolation Mandate:**  
@@ -35,7 +35,7 @@ Its purpose is to ensure that any software project implements a quality architec
    - **Interface Segregation (ISP):** Lean, specific interfaces for test data and contract models (zero `any` types).
    - **Dependency Inversion (DIP):** Dependency injection via Playwright fixtures (`test.extend()`) rather than hard-coupled `new PageObject(page)` instantiation inside test files.
    - **Anti-Bloated Page Objects (`MATE-ANTI-07`):** Never bloat Page Objects with dozens of single-case assertion methods (`assertInvalidEmail()`, `assertMissingHouseNumber()`). Parametrize assertions (`assertAlertMessage(expected)`), expose public `readonly Locator`s for `expect.soft()` flexibility, keep synchronization Guards private inside actions, and extract stateful/shared widgets into dedicated `BaseComponent` objects.
-3. **The Anti-Greenwashing Mandate (Never Only Write Tests That Pass):**  
+5. **The Anti-Greenwashing Mandate (Never Only Write Tests That Pass):**  
    - **Specification Over Implementation:** The User Story and `*.mate-spec.md` are the source of truth—never the potentially buggy application.
    - **4-Quadrant Coverage:** Every feature must have Test Cases and Automated Tests covering **Happy Paths, Border/Boundary Cases, Negative Paths, and Forbidden State Transitions**.
    - **Zero Permissive Regexes (`MATE-ANTI-06`):** Never write ambiguous alternative regex assertions (e.g. `toContainText(/A|B/)` or `/already in use|already exists/i`) to artificially mask copy or behavior mismatches between the User Story and the live application.
@@ -44,10 +44,10 @@ Its purpose is to ensure that any software project implements a quality architec
      - *Is this a real defect?* ➔ Assert the literal User Story requirement, mark with `test.fail(true, 'BUG-XXX: ...')`, and file `docs/bugs/BUG-*.md`.
      - *Or is this an intentional spec update?* ➔ Update `specs/*.mate-spec.md` and `docs/test-cases/` first, then automate against the approved new criteria.
    - **Keep & Flag Failing Tests:** If a test that *should* pass according to the User Story / Spec **fails** against the live app, **NEVER delete the test or weaken the assertion** to make the suite green. Keep the test with its real assertion, annotate it with `test.fail(true, 'BUG-XXX: violates INV-YY / TC-ZZ')` (or `test.fixme()`), generate `docs/bugs/BUG-*.md` (`npx mate-sdt bug`), and report it clearly to the tester.
-4. **Strict Handling Uncertainty Protocol:**  
+6. **Strict Handling Uncertainty Protocol:**  
    - **Never Assume:** Do not invent SLAs, authentication flows, or undocumented business rules.
    - **Ask First or Mark `[TBD]`:** When critical context is missing, ask targeted clarifying questions or mark `[TBD: needs input on X]` with explicit confidence levels (`Observed` vs. `Inferred`). See [`references/handling-uncertainty.md`](./references/handling-uncertainty.md).
-5. **Skill Synergy & Lifecycle Routing:**  
+7. **Skill Synergy & Lifecycle Routing:**  
    Orchestrates the **20 M.A.T.E. Skills** (16 Core + 4 AI Agent/RAG Pack) and **8 End-to-End Workflows** so the exact right skill activates at the exact right moment.
 
 ---
@@ -118,7 +118,8 @@ project-root/
 - **Install `@playwright/cli`:** `npx mate-sdt setup-playwright`
 - **Install On-Demand AI Quality Pack:** `npx mate-sdt setup-ai`
 - **Generate AI Dataset Discovery & Golden JSON:** `npx mate-sdt dataset <module>`
-- **Context Engineering & JIT Context Pack:** `npx mate-sdt context [module]`
+- **Context Engineering & JIT Context Pack:** `npx mate-sdt context [module] [--compact] [--consolidate] [--phase=<phase>]`
+- **Session Workbench & Black-Box Handoffs:** `npx mate-sdt session <start|event|advance|show|list|prune>`
 - **5-Gate Harness Verification Loop:** `npx mate-sdt gate`
 - **Validate Specs:** `npx mate-sdt validate`
 - **Generate Test Case Matrix (`.md` + `.csv`):** `npx mate-sdt cases <module>` (saves to `docs/test-cases/`)

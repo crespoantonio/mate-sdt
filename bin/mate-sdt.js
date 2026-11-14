@@ -33,6 +33,15 @@ const {
   runPodmanMutation,
   runPodmanK6,
 } = require('../src/cli/installer');
+const {
+  startSession,
+  loadSession,
+  recordEvent,
+  advanceStage,
+  pruneExpiredSessions,
+  listSessions,
+  isSessionExpired,
+} = require('../src/cli/memory');
 
 function parseFlags(args) {
   const flags = {
@@ -48,6 +57,20 @@ function parseFlags(args) {
     aiEvals: false,
     help: false,
     version: false,
+    consolidate: false,
+    compact: false,
+    dryRun: false,
+    artifact: null,
+    phase: null,
+    task: null,
+    flow: null,
+    facts: [],
+    stage: null,
+    module: null,
+    ttl: null,
+    type: null,
+    to: null,
+    digest: null,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -68,6 +91,12 @@ function parseFlags(args) {
       flags.playwrightCli = false;
     } else if (arg === '--with-ai-evals' || arg === '--ai-evals' || arg === '--with-ai') {
       flags.aiEvals = true;
+    } else if (arg === '--consolidate') {
+      flags.consolidate = true;
+    } else if (arg === '--compact') {
+      flags.compact = true;
+    } else if (arg === '--dry-run') {
+      flags.dryRun = true;
     } else if (arg === '--mode' && args[i + 1]) {
       flags.mode = args[++i];
     } else if (arg.startsWith('--mode=')) {
@@ -84,6 +113,52 @@ function parseFlags(args) {
       flags.config = args[++i];
     } else if (arg.startsWith('--config=')) {
       flags.config = arg.split('=')[1];
+    } else if (arg === '--artifact' && args[i + 1]) {
+      flags.artifact = args[++i];
+    } else if (arg.startsWith('--artifact=')) {
+      flags.artifact = arg.slice('--artifact='.length);
+    } else if (arg === '--phase' && args[i + 1]) {
+      flags.phase = args[++i];
+    } else if (arg.startsWith('--phase=')) {
+      flags.phase = arg.slice('--phase='.length);
+    } else if (arg === '--task' && args[i + 1]) {
+      flags.task = args[++i];
+    } else if (arg.startsWith('--task=')) {
+      flags.task = arg.slice('--task='.length);
+    } else if (arg === '--flow' && args[i + 1]) {
+      flags.flow = args[++i];
+    } else if (arg.startsWith('--flow=')) {
+      flags.flow = arg.slice('--flow='.length);
+    } else if ((arg === '--facts' || arg === '--fact') && args[i + 1]) {
+      flags.facts.push(args[++i]);
+    } else if (arg.startsWith('--facts=')) {
+      flags.facts.push(arg.slice('--facts='.length));
+    } else if (arg.startsWith('--fact=')) {
+      flags.facts.push(arg.slice('--fact='.length));
+    } else if (arg === '--stage' && args[i + 1]) {
+      flags.stage = args[++i];
+    } else if (arg.startsWith('--stage=')) {
+      flags.stage = arg.slice('--stage='.length);
+    } else if (arg === '--module' && args[i + 1]) {
+      flags.module = args[++i];
+    } else if (arg.startsWith('--module=')) {
+      flags.module = arg.slice('--module='.length);
+    } else if (arg === '--ttl' && args[i + 1]) {
+      flags.ttl = Number(args[++i]);
+    } else if (arg.startsWith('--ttl=')) {
+      flags.ttl = Number(arg.slice('--ttl='.length));
+    } else if (arg === '--type' && args[i + 1]) {
+      flags.type = args[++i];
+    } else if (arg.startsWith('--type=')) {
+      flags.type = arg.slice('--type='.length);
+    } else if (arg === '--to' && args[i + 1]) {
+      flags.to = args[++i];
+    } else if (arg.startsWith('--to=')) {
+      flags.to = arg.slice('--to='.length);
+    } else if (arg === '--digest' && args[i + 1]) {
+      flags.digest = args[++i];
+    } else if (arg.startsWith('--digest=')) {
+      flags.digest = arg.slice('--digest='.length);
     } else {
       flags.positional.push(arg);
     }
@@ -122,7 +197,10 @@ function printHelp() {
     `    ${color('validate [path]', COLORS.brightGreen, COLORS.bold)}      Validate one or all *.mate-spec.md files (defaults to ./specs)`
   );
   console.log(
-    `    ${color('context [module]', COLORS.brightGreen, COLORS.bold)}     Analyze Context Engineering token budget & build JIT Context Pack`
+    `    ${color('context [module]', COLORS.brightGreen, COLORS.bold)}     Analyze Context Engineering, compact/consolidate memory & build 3-Bucket JIT Context Pack`
+  );
+  console.log(
+    `    ${color('session <action>', COLORS.brightGreen, COLORS.bold)}     Manage Session Workbench (start|event|advance|show|list|prune) & Black-Box Handoffs`
   );
   console.log(
     `    ${color('gate [dir]', COLORS.brightGreen, COLORS.bold)}           Execute the 5-Gate Harness Engineering Closed Verification Loop`
@@ -393,9 +471,17 @@ function handleValidate(flags) {
 }
 
 function handleContext(flags) {
-  const moduleName = flags.positional[1] || null;
+  const moduleName = flags.positional[1] || flags.module || null;
   const targetDir = flags.dir || '.';
-  const ctx = analyzeContextEngineering(targetDir, moduleName);
+  const ctx = analyzeContextEngineering(targetDir, moduleName, {
+    compact: flags.compact,
+    consolidate: flags.consolidate,
+    facts: flags.facts,
+    dryRun: flags.dryRun,
+    phase: flags.phase,
+    task: flags.task,
+    flow: flags.flow,
+  });
 
   if (flags.json) {
     console.log(JSON.stringify(ctx, null, 2));
@@ -421,12 +507,164 @@ function handleContext(flags) {
         : color(`${ctx.unindexedArtifacts.length} unindexed (${ctx.unindexedArtifacts.join(', ')})`, COLORS.yellow)
     }`
   );
+  console.log(
+    `  • Active Sessions / Expired TTL:           ${ctx.activeSessionCount} active | ${ctx.expiredSessionCount} expired`
+  );
+
+  if (ctx.hygiene) {
+    const errs = ctx.hygiene.errors || (ctx.hygiene.issues || []).filter((i) => i.severity === 'error');
+    const warns = ctx.hygiene.warnings || (ctx.hygiene.issues || []).filter((i) => i.severity === 'warn');
+    const hygieneLabel = errs.length === 0
+      ? color(`✔ PASS (${warns.length} warning(s))`, COLORS.brightGreen)
+      : color(`✘ FAIL (${errs.length} error(s), ${warns.length} warning(s))`, COLORS.red, COLORS.bold);
+    console.log(`  • Context Hygiene (4 Failure Modes):       ${hygieneLabel}`);
+  }
+
+  if (ctx.compactionResult) {
+    const compactedCount = Array.isArray(ctx.compactionResult) ? ctx.compactionResult.length : 0;
+    console.log(
+      color(
+        `\n  🗜️  Session Compaction: ${compactedCount} session(s) compacted.`,
+        COLORS.cyan
+      )
+    );
+  }
+
+  if (ctx.consolidationResult) {
+    const cr = ctx.consolidationResult;
+    const ops = cr.counts || {};
+    console.log(
+      color(
+        `\n  🗄️  Memory Consolidation (${cr.module}${cr.dryRun ? ' [DRY RUN]' : ''}): CREATE=${ops.CREATE || 0} | UPDATE=${ops.UPDATE || 0} | DELETE=${ops.DELETE || 0} | CONFLICT=${ops.CONFLICT || 0}`,
+        COLORS.brightGreen,
+        COLORS.bold
+      )
+    );
+    if (cr.rejected.length > 0) {
+      console.log(color(`     ⚠ Rejected ${cr.rejected.length} finding(s) (PII/injection/untrusted provenance).`, COLORS.yellow));
+    }
+  }
 
   if (ctx.contextPackPath) {
     console.log(
-      color(`\n  📦 Generated Just-In-Time (JIT) Context Pack (~${ctx.contextPackTokens} tokens):`, COLORS.brightGreen, COLORS.bold)
+      color(`\n  📦 Generated 3-Bucket / 7-Layer JIT Context Pack (~${ctx.contextPackTokens} tokens):`, COLORS.brightGreen, COLORS.bold)
     );
     console.log(`     ${ctx.contextPackPath}`);
+    if (ctx.packMeta && ctx.packMeta.bucketStats) {
+      const b = ctx.packMeta.bucketStats;
+      console.log(
+        `     Buckets -> System+Guardrails+FewShots: ~${b.bucket1 || 0}t | Memory+State+Handoff+Specs: ~${b.bucket2 || 0}t | Immediate Task+Schema: ~${b.bucket3 || 0}t`
+      );
+    }
+  }
+  console.log('');
+}
+
+function handleSession(flags) {
+  const action = (flags.positional[1] || 'list').toLowerCase();
+  const targetDir = flags.dir || '.';
+
+  if (action === 'start') {
+    const flowId = flags.positional[2] || flags.flow || `flow-${Date.now()}`;
+    const session = startSession(targetDir, flowId, {
+      module: flags.module || 'global',
+      stage: flags.stage || 'recon',
+      ttlHours: flags.ttl || 24,
+    });
+    if (flags.json) {
+      console.log(JSON.stringify(session, null, 2));
+      return;
+    }
+    console.log(color(`\n🧵 Started Session Workbench: ${session.flowId}`, COLORS.brightGreen, COLORS.bold));
+    console.log(`   Module: ${session.module} | Stage: ${session.activeStage} | TTL: ${session.ttlHours}h\n`);
+    return;
+  }
+
+  if (action === 'event' || action === 'log') {
+    const flowId = flags.positional[2] || flags.flow;
+    const message = flags.positional.slice(3).join(' ') || flags.task || flags.digest;
+    if (!flowId || !message) {
+      console.error(color('Usage: npx mate-sdt session event <flowId> "<message>" [--type=note] [--stage=recon]', COLORS.red));
+      process.exit(1);
+    }
+    const res = recordEvent(targetDir, flowId, {
+      type: flags.type || 'note',
+      message,
+      file: flags.artifact,
+    });
+    if (flags.json) {
+      console.log(JSON.stringify(res, null, 2));
+      return;
+    }
+    console.log(color(`\n📝 Recorded event in '${flowId}' (raw window: ${res.session.events.length}, ok: ${res.ok})\n`, COLORS.cyan));
+    return;
+  }
+
+  if (action === 'advance') {
+    const flowId = flags.positional[2] || flags.flow;
+    const nextStage = flags.stage || flags.positional[3];
+    if (!flowId || !nextStage) {
+      console.error(color('Usage: npx mate-sdt session advance <flowId> --stage=<nextStage> [--to=<skill>] [--digest="<summary>"]', COLORS.red));
+      process.exit(1);
+    }
+    const res = advanceStage(targetDir, flowId, nextStage, {
+      toSkill: flags.to || nextStage,
+      digest: flags.digest || flags.task || `Stage transition to ${nextStage}`,
+      artifacts: flags.artifact ? [flags.artifact] : [],
+    });
+    if (flags.json) {
+      console.log(JSON.stringify(res, null, 2));
+      return;
+    }
+    console.log(color(`\n🔁 Advanced '${flowId}' -> stage '${nextStage}'`, COLORS.brightGreen, COLORS.bold));
+    if (res.ok && res.handoff) {
+      console.log(`   Black-Box Handoff: .mate/handoffs/${res.handoff.flowId}--${res.handoff.fromStage}.json`);
+    }
+    console.log('');
+    return;
+  }
+
+  if (action === 'show') {
+    const flowId = flags.positional[2] || flags.flow;
+    const session = flowId ? loadSession(targetDir, flowId) : null;
+    if (!session) {
+      console.error(color(`Session '${flowId || ''}' not found.`, COLORS.red));
+      process.exit(1);
+    }
+    if (flags.json) {
+      console.log(JSON.stringify(session, null, 2));
+      return;
+    }
+    console.log(color(`\n🧵 Session: ${session.flowId} (${session.activeStage})`, COLORS.bold, COLORS.cyan));
+    console.log(`   Module: ${session.module} | Updated: ${session.updatedAt} | Expired: ${isSessionExpired(session)}`);
+    console.log(`   Raw events (${session.events.length}):`);
+    for (const ev of session.events) {
+      console.log(`     - [${ev.stage}] ${ev.message}`);
+    }
+    console.log('');
+    return;
+  }
+
+  if (action === 'prune') {
+    const removed = pruneExpiredSessions(targetDir);
+    if (flags.json) {
+      console.log(JSON.stringify({ removed }, null, 2));
+      return;
+    }
+    console.log(color(`\n🧹 Pruned ${removed.length} expired session(s).\n`, COLORS.cyan));
+    return;
+  }
+
+  // Default: list
+  const sessions = listSessions(targetDir);
+  if (flags.json) {
+    console.log(JSON.stringify(sessions, null, 2));
+    return;
+  }
+  console.log(color(`\n🧵 Session Workbench (${sessions.length} session(s))`, COLORS.bold, COLORS.cyan));
+  for (const s of sessions) {
+    const exp = isSessionExpired(s) ? color('EXPIRED', COLORS.yellow) : color('ACTIVE', COLORS.brightGreen);
+    console.log(`  • ${s.flowId} [${s.module} | ${s.stage}] (${s.events.length} raw events) - ${exp}`);
   }
   console.log('');
 }
@@ -722,6 +960,10 @@ async function main() {
       break;
     case 'context':
       handleContext(flags);
+      break;
+    case 'session':
+    case 'sessions':
+      handleSession(flags);
       break;
     case 'gate':
     case 'verify':

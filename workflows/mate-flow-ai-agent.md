@@ -66,3 +66,12 @@ flowchart LR
 2. Verify zero recursive tool loops (`ORA-AI-LOOP`), token budget adherence (`ORA-AI-TOKENS`), and forbidden tool blocks (`INV-AI-TOOLS`).
 3. For any failing evaluation or trace violation, isolate the root cause (`[RETRIEVER_DEFECT]` vs. `[TOOL_SCHEMA_DEFECT]` vs. `[GENERATOR_DEFECT]`) and generate a forensic bug report via `npx mate-sdt bug [module]`.
 4. Close the loop with `npx mate-sdt gate` to persist `.mate/harness-state.json`.
+
+---
+
+## 🧵 Session Workbench & Black-Box Handoff Protocol
+
+1. **Start Isolated Session:** `npx mate-sdt session start <flow-id> --module=<module> --stage=<initial-stage>`
+2. **Record Raw Events (Window $K=5$):** `npx mate-sdt session event <flow-id> "[OBSERVED | ISO] ..."`
+3. **Stage Transition (Auto-Compaction + `mate.handoff/v1`):** `npx mate-sdt session advance <flow-id> --stage=<next> --to=<next-skill> --digest="..."`
+4. **JIT Context & Consolidation:** Run `npx mate-sdt context <module>` before each stage and `npx mate-sdt context <module> --consolidate` + `npx mate-sdt gate` at completion.

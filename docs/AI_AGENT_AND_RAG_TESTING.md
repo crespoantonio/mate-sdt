@@ -51,3 +51,18 @@ npx mate-sdt install --with-ai-evals
 | `npm run eval:redteam` | Runs OWASP LLM & Agentic security probes via Promptfoo Red Team. |
 | `npm run eval:deepeval` | Runs RAG Triad and Agent Trajectory metrics via DeepEval. |
 | `npm run eval:traces` | Runs the deterministic OpenTelemetry/OpenInference Agent Trace Auditor. |
+
+---
+
+## 4. 3-Layer Stateful Memory Evaluation Standard
+
+Stateful AI agents with persistent memory require testing across three layers (scaffolded automatically by `npx mate-sdt setup-ai`):
+
+1. **Layer 1 — Memory Generation & Consolidation (`DS-memory-golden.json`, `memory_eval.template.py`):**
+   - Measures Precision, Recall, and F1 on `CREATE`, `UPDATE`, `DELETE`, and `NOOP` memory operations.
+   - Enforces **`ORA-MEM-GEN-ASYNC`** (`wait_for_completion: false` on `memory.generate` spans) and **Pre-Persistence PII Redaction**.
+2. **Layer 2 — Memory Retrieval (`ORA-MEM-LATENCY <= 200ms`):**
+   - Measures `Recall@K >= 0.85` and enforces **`<= 200ms` P95** retrieval latency (`memory.retrieve`).
+3. **Layer 3 — End-to-End Agent Behavior & Memory Security (`memory-redteam.promptfoo.yaml`, `memory_trace_auditor.js`):**
+   - Tests **Over-Influence Resistance**, **Indirect Dialogue Injection / Memory Poisoning**, **Cross-User / Cross-Tenant ACL Exfiltration** (plus strict anonymization of shared procedural memories), and **`THR-MEM-RACE`** concurrent write serialization.
+   - Emits **Span-Level Fault Isolation Tags**: `[RETRIEVER_DEFECT]`, `[MEMORY_ETL_DEFECT]`, `[COMPACTION_DEFECT]`, and `[GENERATOR_DEFECT]`.

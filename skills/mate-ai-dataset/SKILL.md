@@ -96,3 +96,13 @@ Every M.A.T.E. AI Dataset item includes full metadata so it can be consumed by *
 *   `expected_tools`: Ordered list of expected tool calls and argument schemas (`[{ "name": "...", "args": {...} }]`)
 *   `forbidden_tools`: Tools that MUST NOT be invoked during this test case (`["delete_account", "issue_refund"]`)
 *   `observability_budget`: `{ "max_steps": 4, "max_tokens": 3000, "max_latency_ms": 8000 }`
+
+---
+
+## 5. Stateful Memory Golden Datasets (`golden-memory-set.template.json`)
+
+For stateful agents with persistent memory, generate a companion Golden Memory Set (`tests/ai-evals/datasets/DS-memory-golden.json`) covering:
+- **Layer 1 (`CREATE` / `UPDATE` / `DELETE`):** Ground-truth `expected_memories` and `forbidden_memories` (including PII/secrets).
+- **Layer 2 (`ORA-MEM-LATENCY <= 200ms`):** Retrieval `top_k`, `min_recall_at_k`, and `distractor_memory_keys`.
+- **Layer 3 (`Over-Influence` & `THR-MEM-RACE`):** Concurrent writer scenarios and irrelevant-memory resistance.
+- **Black-Box Handoff:** Emit only `mate.handoff/v1` digests (`npx mate-sdt session advance`) to `mate-ai-evals` and `mate-ai-redteam`.

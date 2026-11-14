@@ -74,3 +74,11 @@ Load these references on demand when generating code, managing auth state, or mo
 * **[Storage State & Dependency Inversion Auth (`storage-state.md`)](./references/storage-state.md)** — Using `playwright-cli state-save`, cookies, and `localStorage` and wiring them into `src/fixtures/mate.fixtures.ts`.
 * **[Network Mocking & Fault Injection (`request-mocking.md`)](./references/request-mocking.md)** — Using `playwright-cli route` to simulate `500`/`429`/corrupt payloads and encapsulating mocks in `src/mocks/<domain>.mock.ts`.
 * **[Running, Filtering & Debugging Playwright Tests (`playwright-tests.md`)](./references/playwright-tests.md)** — Tag execution (`@p0`), attaching `playwright-cli` to a paused test via `PLAYWRIGHT_CLI_SESSION`, and self-healing locators.
+
+---
+
+## 🔄 Black-Box Handoff & Session Isolation
+
+- **Separate Individual Histories:** Never pass raw multi-turn scratchpads or verbose upstream tool logs into this skill or out to downstream skills.
+- **Consume & Emit `mate.handoff/v1`:** Read only the compressed upstream handoff digest + `npx mate-sdt context <module>` JIT pack, and advance stages via `npx mate-sdt session advance <flow-id> --stage=<next> --to=<skill> --digest="..."`.
+- **Provenance & Hygiene:** Tag findings with `[BOOTSTRAPPED]`, `[USER_EXPLICIT]`, `[OBSERVED | ISO]`, `[INFERRED]`, or `[TBD]`; promote verified facts via `npx mate-sdt context <module> --consolidate`.

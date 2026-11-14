@@ -104,3 +104,11 @@ Load these references on demand when inspecting complex DOM properties, reverse-
 * **[Black-Box Network API Reverse-Engineering](./references/network-api-discovery.md)** — Using `playwright-cli network` and `run-code` to discover hidden backend API endpoints, headers, and JSON schemas when Backend has no Swagger/OpenAPI docs.
 * **[DOM Attributes, Computed Styles & WCAG Inspection](./references/element-attributes.md)** — Using `playwright-cli eval` to inspect attributes, bounding boxes, and accessibility states.
 * **[Running Custom Playwright Code (`run-code`)](./references/running-code.md)** — Probing geolocation, clipboard, permissions, file downloads, and WebSockets during live recon.
+
+---
+
+## 🔄 Black-Box Handoff & Session Isolation
+
+- **Separate Individual Histories:** Never pass raw multi-turn scratchpads or verbose upstream tool logs into this skill or out to downstream skills.
+- **Consume & Emit `mate.handoff/v1`:** Read only the compressed upstream handoff digest + `npx mate-sdt context <module>` JIT pack, and advance stages via `npx mate-sdt session advance <flow-id> --stage=<next> --to=<skill> --digest="..."`.
+- **Provenance & Hygiene:** Tag findings with `[BOOTSTRAPPED]`, `[USER_EXPLICIT]`, `[OBSERVED | ISO]`, `[INFERRED]`, or `[TBD]`; promote verified facts via `npx mate-sdt context <module> --consolidate`.

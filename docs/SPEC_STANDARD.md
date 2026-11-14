@@ -80,3 +80,14 @@ Not every test case belongs in an automated E2E script. Every test case designed
 2.  **`[AUTOMATE_API]`**: Fast boundary value analysis (BVA), combinatorial data permutations, schema validations, and HTTP status codes (`tests/api/<module>.spec.ts`).
 3.  **`[MANUAL_TEST]`**: Scenarios where automation has negative ROI or requires human perception/physical hardware (e.g., visual print/PDF/email layout, physical camera/QR scanning, third-party CAPTCHA/SMS/OAuth gates, or one-off migrations). Documented with step-by-step instructions and an explicit *"Why Manual"* justification in `docs/test-cases/TC-<module>.md`.
 4.  **`[EXPLORATORY_CHARTER]`**: Context-aware human exploratory testing missions (`tests/charters/CHR-*.md`) targeting complex UX heuristics and edge cases.
+
+---
+
+## 5. Provenance Hierarchy & Anti-Poisoning Rules
+
+Every fact, selector, SLA, or invariant in `*.mate-spec.md` MUST obey the strict M.A.T.E. provenance trust hierarchy:
+
+`[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO-timestamp] > [INFERRED] / [TBD]`
+
+- **Hard Gate (`GATE-01`):** `[INFERRED]` and `[TBD]` markers are strictly **forbidden** inside `<invariants>` blocks and generated Page/Component Objects (`src/pages/`, `src/components/`). Resolve uncertainties with the user or via live `@playwright/cli` observation before promoting to invariants.
+- **No Secrets / PII:** Never embed real emails, JWTs, API keys, or session cookies inside specs or `MATE-PROJECT-MAP.md`.

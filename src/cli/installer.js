@@ -7,6 +7,7 @@ const { COLORS, color } = require('./ui');
 const { validateTarget } = require('./validator');
 const { auditTestSuite } = require('./auditor');
 const { analyzeContextEngineering, runHarnessGate } = require('./harness');
+const { ensureMemoryScaffold } = require('./memory');
 
 const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 
@@ -198,8 +199,8 @@ function installClaudeCode(targetDir) {
     '  - *Open-ended prompts, ambiguity, brainstorming, or "Where do I start?":* ➔ Activate `mate-party` (Council of QA Experts mode). Convenes the virtual round-table (Tony Strategist, Exploratory Sleuth, Automation Architect, Threat Specialist, Stakeholder Liaison), loads domain discovery questions, and synthesizes a concrete action plan.',
     '  - *M.A.T.E. framework questions & coaching:* ➔ Activate `mate-help` (`/mate-help`) for commands, workflows, or QA diagnosis.',
     '  - *Direct task execution, living map updates, or spec implementation:* ➔ Activate `mate-core` to inspect/update `MATE-PROJECT-MAP.md` and route to specialized skills.',
-    '- **Context Engineering (Tier-1 Living Map):** Always read and update `MATE-PROJECT-MAP.md` (`< 3,000 tokens`) before scanning the repository. Run `npx mate-sdt context [module]` to check token budgets, detect unindexed artifacts, and assemble Just-In-Time (JIT) Context Packs.',
-    '- **Epistemic Isolation (Anti-Poisoning):** Never guess SLAs, auth mechanisms, or undocumented contracts. Isolate uncertainty with `[OBSERVED]`, `[INFERRED]`, and `[TBD]` tags.',
+    '- **Context Engineering — Sessions vs. Memory (Tier-1 Living Map):** Separate the ephemeral **Session Workbench** (`.mate/sessions/<flow-id>.json`, `.mate/scratchpad-<module>.md`, `.mate/handoffs/`) from the canonical **Memory Filing Cabinet** (`MATE-PROJECT-MAP.md` < 3,000 tokens, `specs/*.mate-spec.md`, `.mate/memory/`). Run `npx mate-sdt context <module>` to build the 3-Bucket / 7-Layer JIT Context Pack, `--compact` to fold stale sessions, and `--consolidate` to promote `[OBSERVED]` findings into canonical memory. Manage multi-stage flows via `npx mate-sdt session <start|event|advance|show|list|prune>` (Black-Box Handoffs).',
+    '- **Eliminate 4 Context Failure Modes & Provenance Hierarchy:** Guard against **Poisoning**, **Distraction**, **Confusion**, and **Clash**. Enforce provenance trust: `[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO-timestamp] > [INFERRED] / [TBD]`. Never allow `[INFERRED]` or `[TBD]` inside `<invariants>` or Page/Component Objects, and never persist PII/secrets into memory.',
     '- **User Story Ingestion & Pragmatic QA Companion (`mate-story-testcases`):** Ingest stories from Atlassian/Jira MCP, Notion MCP, Excel/CSV, or text. Generate `docs/test-cases/TC-*.md` & `.csv` (`npx mate-sdt cases <mod>`) covering 4 quadrants (`HAPPY_PATH`, `BORDER_CASE`, `NEGATIVE_PATH`, `STATE_TRANSITION`) and classifying each into `AUTOMATE_UI`, `AUTOMATE_API`, `MANUAL_TEST` (with rationale), or `EXPLORATORY_CHARTER`.',
     '- **Tool-First Grounding:** Never guess or simulate DOM elements in internal thinking loops. Immediately invoke `@playwright/cli` (`open`, `snapshot`, `eval`) or inspect accessibility locators (`getByRole`, `getByLabel`, `getByTestId`).',
     '- **Anti-Greenwashing & Discrepancy Escalation:** Never only write tests that pass, and never write permissive alternative regexes (e.g. `/A|B/`) to mask copy mismatches! If live app behavior contradicts the User Story or an undocumented field/state reset is found, STOP and ask the engineer: is it a Defect (`test.fail(true, "BUG-XXX")`) or an intentional Spec Update? Never adapt silently.',
@@ -387,12 +388,18 @@ function installUniversalAgents(targetDir) {
     '- **Performance (k6):** `npx mate-sdt k6 <script>` (SLA validation in rootless Podman)',
     '- **Spec Validation:** `npx mate-sdt validate` (Lints `specs/*.mate-spec.md` with explicit Forbidden Transitions)',
     '- **Codebase Health Audit:** `npx mate-sdt audit` (Health Grade A gate; zero sleeps, zero `.only`)',
+    '- **Context Engineering & JIT Pack:** `npx mate-sdt context <module>` (Assembles 3-Bucket / 7-Layer JIT Context Pack; supports `--compact`, `--consolidate`, `--dry-run`)',
+    '- **Session Workbench & Handoffs:** `npx mate-sdt session <start|event|advance|show|list|prune>` (Ephemeral workbench & Black-Box Handoffs)',
     '- **Closed Verification Gate:** `npx mate-sdt gate` (Execute before concluding any agent turn)',
     '',
-    '## 3. Context Engineering Protocol',
-    '- **Living Map First:** Always read and update `MATE-PROJECT-MAP.md` (< 3,000 tokens) before scanning code.',
+    '## 3. Context Engineering: Sessions, Memory & Failure-Mode Guardrails',
+    '- **Separate Session Workbench from Memory Filing Cabinet:** Ephemeral per-flow state lives in `.mate/sessions/<flow-id>.json`, `.mate/scratchpad-<module>.md`, and `.mate/handoffs/` (24h TTL, rolling compaction at $K=5$ raw events and on stage transitions). Canonical cross-session knowledge lives in `MATE-PROJECT-MAP.md` (`< 3,000 tokens`), `specs/*.mate-spec.md`, and `.mate/memory/procedural-playbooks.md`.',
+    '- **Eliminate the 4 Context Failure Modes:**',
+    '  1. **Poisoning:** Enforce Provenance Hierarchy (`[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO-timestamp] > [INFERRED] / [TBD]`). Block `[INFERRED]`/`[TBD]` from `<invariants>` and Page/Component Objects, and redact PII/secrets before persistence.',
+    '  2. **Distraction:** Compact raw logs into 3-line rolling summaries + last $K=5$ findings; compress ARIA snapshots (`<= 800` tokens).',
+    '  3. **Confusion:** Select only phase-relevant tools, XML slices, and the 3-Bucket JIT Context Pack.',
+    '  4. **Clash:** Run self-editing memory consolidation (`CREATE` / `UPDATE` / `DELETE` / `CONFLICT`) via `npx mate-sdt context <module> --consolidate`.',
     '- **Tool-First Grounding:** NEVER guess or deduce DOM selectors, CSS classes, or component hierarchies in internal reasoning loops. Ground every locator using `@playwright/cli` live discovery (`playwright-cli open/snapshot`) or accessibility-first locators (`getByRole`, `getByLabel`, `getByTestId`).',
-    '- **Epistemic Isolation:** Isolate facts from assumptions using `[OBSERVED]`, `[INFERRED]`, and `[TBD]` tags. Never guess undocumented endpoints.',
     '- **User Story Ingestion:** Generate 4-quadrant test case matrices in `docs/test-cases/TC-*.md` and `.csv` (`npx mate-sdt cases <module>`).',
     '',
     '## 4. Anti-Greenwashing & Architecture Guardrails',
@@ -469,8 +476,8 @@ function installCopilot(targetDir) {
     '## 🧉 M.A.T.E. Method — Spec-Driven Testing (SDT) Instructions',
     '',
     '1. **Conversational Entry Points:** For open-ended questions, brainstorming, or "Where do I start?", activate `mate-party` (Council of QA Experts). For framework coaching or commands, use `mate-help` (`/mate-help`). For direct task execution and map updates, use `mate-core`.',
-    '2. Consult `MATE-PROJECT-MAP.md` first to understand modules, state machines, invariants, conventions, and fixtures.',
-    '3. Every feature requires a validated specification in `specs/[module].mate-spec.md` (`npx mate-sdt validate`).',
+    '2. Separate the **Session Workbench** (`.mate/sessions/`, `.mate/scratchpad-*.md`, `.mate/handoffs/`) from the **Memory Filing Cabinet** (`MATE-PROJECT-MAP.md` < 3,000 tokens, `specs/*.mate-spec.md`, `.mate/memory/`). Assemble JIT packs via `npx mate-sdt context <module>` and manage stages via `npx mate-sdt session`.',
+    '3. Enforce Provenance (`[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO-timestamp] > [INFERRED] / [TBD]`) and validate specs in `specs/[module].mate-spec.md` (`npx mate-sdt validate`).',
     '4. Enforce OOP and SOLID principles in Playwright UI/API tests (`src/pages`, `src/components`, `src/api`, `src/fixtures`). Never use `waitForTimeout()`. Audit with `npx mate-sdt audit`.',
     '5. Enforce Mutation Testing >= 85% via Stryker in rootless Podman (`npx mate-sdt mutate`) and k6 SLAs (`npx mate-sdt k6`).',
     '<!-- MATE-SDT-END -->',
@@ -530,6 +537,10 @@ function initMateProject(targetDir, options = {}) {
     fs.mkdirSync(path.join(resolved, 'specs'), { recursive: true });
     created.push('specs/');
   }
+
+  // Ensure Memory Filing Cabinet & Session Workbench scaffold
+  ensureMemoryScaffold(resolved);
+  created.push('.mate/memory/procedural-playbooks.md');
 
   // Copy MATE-PROJECT-MAP.md
   const mapTemplate = path.join(
@@ -743,7 +754,13 @@ function initMateProject(targetDir, options = {}) {
 function ensurePlaywrightGitignore(targetDir) {
   const gitignorePath = path.join(targetDir, '.gitignore');
   const requiredEntries = [
-    '.mate/',
+    '.mate/sessions/',
+    '.mate/handoffs/',
+    '.mate/scratchpad-*.md',
+    '.mate/snapshots/',
+    '.mate/harness-state.json',
+    '.mate/context-pack-*.md',
+    '.mate/*.har',
     '.playwright-cli/',
     'playwright/.auth/',
     '*.auth-state.json',
@@ -754,7 +771,12 @@ function ensurePlaywrightGitignore(targetDir) {
     existing = fs.readFileSync(gitignorePath, 'utf8');
   }
 
-  const missing = requiredEntries.filter((entry) => !existing.includes(entry));
+  // If legacy '.mate/' exists, don't force duplicate sub-entries unless missing
+  const hasBroadMateIgnore = /(^|\r?\n)\.mate\/?\s*(\r?\n|$)/.test(existing);
+  const missing = requiredEntries.filter((entry) => {
+    if (hasBroadMateIgnore && entry.startsWith('.mate/')) return false;
+    return !existing.includes(entry);
+  });
   if (missing.length > 0) {
     const block = [
       '',
@@ -1059,16 +1081,36 @@ function setupAiQualityPack(targetDir = '.', options = {}) {
       dest: 'tests/ai-evals/promptfoo/promptfooconfig.yaml',
     },
     {
+      src: path.join(PACKAGE_ROOT, 'skills', 'mate-ai-evals', 'resources', 'memory-eval.promptfoo.template.yaml'),
+      dest: 'tests/ai-evals/promptfoo/memory-eval.promptfoo.yaml',
+    },
+    {
       src: path.join(PACKAGE_ROOT, 'skills', 'mate-ai-redteam', 'resources', 'redteam.promptfoo.template.yaml'),
       dest: 'tests/ai-evals/promptfoo/redteam.promptfoo.yaml',
+    },
+    {
+      src: path.join(PACKAGE_ROOT, 'skills', 'mate-ai-redteam', 'resources', 'memory-redteam.promptfoo.template.yaml'),
+      dest: 'tests/ai-evals/promptfoo/memory-redteam.promptfoo.yaml',
     },
     {
       src: path.join(PACKAGE_ROOT, 'skills', 'mate-ai-evals', 'resources', 'test_agent_deepeval.template.py'),
       dest: 'tests/ai-evals/deepeval/test_agent_deepeval.py',
     },
     {
+      src: path.join(PACKAGE_ROOT, 'skills', 'mate-ai-evals', 'resources', 'memory_eval.template.py'),
+      dest: 'tests/ai-evals/deepeval/test_memory_eval.py',
+    },
+    {
       src: path.join(PACKAGE_ROOT, 'skills', 'mate-ai-observability', 'resources', 'otel_trace_auditor.template.ts'),
       dest: 'tests/ai-evals/traces/otel_trace_auditor.js',
+    },
+    {
+      src: path.join(PACKAGE_ROOT, 'skills', 'mate-ai-observability', 'resources', 'memory_trace_auditor.template.ts'),
+      dest: 'tests/ai-evals/traces/memory_trace_auditor.js',
+    },
+    {
+      src: path.join(PACKAGE_ROOT, 'skills', 'mate-ai-dataset', 'resources', 'golden-memory-set.template.json'),
+      dest: 'tests/ai-evals/datasets/DS-memory-golden.json',
     },
   ];
 

@@ -87,3 +87,12 @@ flowchart LR
    - **Total Test Cases Designed (`N` across `Happy`, `Border`, `Negative`, `State`):** Breakdown of `[AUTOMATE_UI]`, `[AUTOMATE_API]`, `[MANUAL_TEST]` (with rationale), and `[EXPLORATORY_CHARTER]`.
    - **Passing Automated Tests (`✅ PASS`):** List of verified working scenarios.
    - **Failing Tests Exposing Real Bugs (`⚠️ KNOWN FAIL — test.fail()`):** Explicit callout of which User Story requirements failed, the generated `docs/bugs/BUG-*.md` file paths, and the exact `test.fail()` guards added to the suite.
+
+---
+
+## 🧵 Session Workbench & Black-Box Handoff Protocol
+
+1. **Start Isolated Session:** `npx mate-sdt session start <flow-id> --module=<module> --stage=<initial-stage>`
+2. **Record Raw Events (Window $K=5$):** `npx mate-sdt session event <flow-id> "[OBSERVED | ISO] ..."`
+3. **Stage Transition (Auto-Compaction + `mate.handoff/v1`):** `npx mate-sdt session advance <flow-id> --stage=<next> --to=<next-skill> --digest="..."`
+4. **JIT Context & Consolidation:** Run `npx mate-sdt context <module>` before each stage and `npx mate-sdt context <module> --consolidate` + `npx mate-sdt gate` at completion.

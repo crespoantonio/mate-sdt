@@ -64,3 +64,13 @@ If an AI evaluation fails on a Golden test case:
    - **Prompt/Generator Hallucination:** Chunk was present, but LLM ignored it or extrapolated.
    - **Tool Schema Ambiguity:** Agent called the wrong tool or passed malformed arguments.
 3. Generate a forensic bug report via `npx mate-sdt bug <module>` (`docs/bugs/BUG-*.md`) documenting the exact prompt, retrieved chunks, tool trajectory, and metric score.
+
+---
+
+## 4. 3-Layer Stateful Memory Evaluation (`memory-3-layer-evaluation.md`)
+
+When testing agents with persistent memory, run `memory-eval.promptfoo.yaml` and `test_memory_eval.py`:
+- **Layer 1 (Generation & Consolidation):** Precision / Recall / F1 for `CREATE`, `UPDATE`, `DELETE` and non-blocking async execution (`ORA-MEM-GEN-ASYNC`, `wait_for_completion: false`).
+- **Layer 2 (Retrieval):** `Recall@K >= 0.85` and P95 retrieval latency **`<= 200ms`** (`ORA-MEM-LATENCY`).
+- **Layer 3 (End-to-End):** Over-Influence resistance, Dialogue Injection resistance, and multi-turn memory coherence.
+- **Black-Box Handoff:** Consume `mate.handoff/v1` from `mate-ai-dataset` and hand off failures to `mate-ai-observability` via `npx mate-sdt session advance`.

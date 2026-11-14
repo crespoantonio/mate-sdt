@@ -33,3 +33,12 @@ Categorize each failure using the M.A.T.E. matrix with explicit confidence level
 
 ## Step 4: Update `MATE-PROJECT-MAP.md` (`mate-core`)
 Append newly discovered coverage gaps, flaky test patterns, and the updated Test Suite Health Score to Section 7 of `MATE-PROJECT-MAP.md`.
+
+---
+
+## 🧵 Session Workbench & Black-Box Handoff Protocol
+
+1. **Start Isolated Session:** `npx mate-sdt session start <flow-id> --module=<module> --stage=<initial-stage>`
+2. **Record Raw Events (Window $K=5$):** `npx mate-sdt session event <flow-id> "[OBSERVED | ISO] ..."`
+3. **Stage Transition (Auto-Compaction + `mate.handoff/v1`):** `npx mate-sdt session advance <flow-id> --stage=<next> --to=<next-skill> --digest="..."`
+4. **JIT Context & Consolidation:** Run `npx mate-sdt context <module>` before each stage and `npx mate-sdt context <module> --consolidate` + `npx mate-sdt gate` at completion.

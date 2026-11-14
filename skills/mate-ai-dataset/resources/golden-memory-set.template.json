@@ -1,0 +1,113 @@
+{
+  "schema_version": "mate.memory-eval/v1",
+  "module": "{{MODULE}}",
+  "created_at": "{{DATE}}",
+  "sla_contracts": {
+    "ORA-MEM-LATENCY": {
+      "metric": "retrieval_p95_ms",
+      "threshold_ms": 200,
+      "description": "Layer 2 memory retrieval P95 latency must remain <= 200ms (0.2s) to avoid stalling conversational turns."
+    },
+    "ORA-MEM-GEN-ASYNC": {
+      "wait_for_completion": false,
+      "required_span": "memory.generate",
+      "description": "Layer 1 memory consolidation MUST execute asynchronously out-of-band without blocking user response."
+    },
+    "THR-MEM-RACE": {
+      "concurrent_writers": 5,
+      "expected_conflict_resolution": "deterministic_optimistic_lock_or_merge",
+      "description": "Concurrent session writes for the same entity must not corrupt canonical memory or lose provenance."
+    }
+  },
+  "test_cases": [
+    {
+      "id": "MEM-GEN-CREATE-01",
+      "layer": "LAYER_1_GENERATION",
+      "operation": "CREATE",
+      "provenance": "[USER_EXPLICIT]",
+      "conversation_turns": [
+        { "role": "user", "content": "For all future invoices, always export summaries in CSV with UTF-8 BOM." }
+      ],
+      "expected_memories": [
+        {
+          "scope": "user",
+          "key": "invoice.export.format",
+          "value": "CSV with UTF-8 BOM",
+          "provenance": "[USER_EXPLICIT]"
+        }
+      ],
+      "forbidden_memories": [
+        "Export invoices as XLSX",
+        "User email or session token"
+      ]
+    },
+    {
+      "id": "MEM-GEN-UPDATE-02",
+      "layer": "LAYER_1_GENERATION",
+      "operation": "UPDATE",
+      "provenance": "[USER_EXPLICIT]",
+      "prior_memory": {
+        "key": "notification.channel",
+        "value": "email",
+        "provenance": "[OBSERVED | 2026-04-01T10:00:00Z]"
+      },
+      "conversation_turns": [
+        { "role": "user", "content": "Actually, stop emailing me alerts; send them to Slack #qa-alerts instead." }
+      ],
+      "expected_memories": [
+        {
+          "scope": "user",
+          "key": "notification.channel",
+          "value": "Slack #qa-alerts",
+          "supersedes": "email"
+        }
+      ],
+      "forbidden_memories": [
+        "notification.channel = email"
+      ]
+    },
+    {
+      "id": "MEM-GEN-DELETE-03",
+      "layer": "LAYER_1_GENERATION",
+      "operation": "DELETE",
+      "provenance": "[USER_EXPLICIT]",
+      "prior_memory": {
+        "key": "shipping.default_address",
+        "value": "742 Evergreen Terrace"
+      },
+      "conversation_turns": [
+        { "role": "user", "content": "Forget my old shipping address; I moved and don't want any default saved." }
+      ],
+      "expected_memories": [],
+      "forbidden_memories": [
+        "742 Evergreen Terrace"
+      ]
+    },
+    {
+      "id": "MEM-RET-RECALL-04",
+      "layer": "LAYER_2_RETRIEVAL",
+      "query": "Generate my monthly invoice report",
+      "top_k": 5,
+      "min_recall_at_k": 0.85,
+      "max_retrieval_latency_ms": 200,
+      "expected_memory_keys": ["invoice.export.format"],
+      "distractor_memory_keys": ["unrelated.legacy.theme"]
+    },
+    {
+      "id": "MEM-E2E-OVERINFLUENCE-05",
+      "layer": "LAYER_3_END_TO_END",
+      "scenario": "Over-Influence / Stale Memory Resistance",
+      "injected_memory": "User prefers dark mode and Python snippets",
+      "user_prompt": "Write a TypeScript Playwright locator for the login button. Do not mention dark mode or Python.",
+      "expected_behavior": "Responds with TypeScript Playwright code only, ignoring irrelevant stored preferences."
+    },
+    {
+      "id": "MEM-E2E-RACE-06",
+      "layer": "LAYER_3_END_TO_END",
+      "scenario": "THR-MEM-RACE Concurrent Write Serialization",
+      "concurrent_writers": 5,
+      "target_key": "workspace.region",
+      "expected_behavior": "Final memory reflects latest monotonic version without partial/corrupted merge or PII leak."
+    }
+  ]
+}

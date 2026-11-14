@@ -4,14 +4,16 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { validateTarget } = require('./validator');
 const { auditTestSuite } = require('./auditor');
-
-/**
- * Approximates LLM token count (~4 characters per token for English text/code)
- */
-function estimateTokens(text) {
-  if (!text) return 0;
-  return Math.ceil(text.length / 4);
-}
+const {
+  estimateTokens,
+  ensureMemoryScaffold,
+  compactActiveSessions,
+  buildJitContextPack,
+  consolidateMemory,
+  runContextHygieneChecks,
+  listSessions,
+  isSessionExpired,
+} = require('./memory');
 
 function listFilesWithExt(dirPath, extFilter) {
   if (!fs.existsSync(dirPath)) return [];
@@ -32,7 +34,7 @@ function listFilesWithExt(dirPath, extFilter) {
  * Context Engineering Analyzer & Just-In-Time (JIT) Context Assembler
  * Implements the 4 Context Engineering Operations: Write, Select, Compress, Isolate.
  */
-function analyzeContextEngineering(targetDir = '.', moduleName = null) {
+function analyzeContextEngineering(targetDir = '.', moduleName = null, options = {}) {
   const resolved = path.resolve(targetDir);
   const mapPath = path.join(resolved, 'MATE-PROJECT-MAP.md');
   const hasMap = fs.existsSync(mapPath);
@@ -78,47 +80,46 @@ function analyzeContextEngineering(targetDir = '.', moduleName = null) {
   const tier1TokenBudget = 3000;
   const tier1Healthy = hasMap && mapTokens <= tier1TokenBudget;
 
-  // Optional: Assemble a compressed Just-In-Time (JIT) Context Pack for a specific module
+  // Optional: Session compaction, self-editing memory consolidation, and 3-Bucket / 7-Layer JIT Context Pack
+  let compactionResult = null;
+  let consolidationResult = null;
   let contextPackPath = null;
   let contextPackTokens = 0;
+  let packMeta = null;
 
-  if (moduleName) {
+  if (options.compact) {
+    compactionResult = compactActiveSessions(resolved);
+  }
+
+  if (options.consolidate) {
+    consolidationResult = consolidateMemory(resolved, moduleName || 'global', {
+      facts: options.facts || [],
+      dryRun: Boolean(options.dryRun),
+    });
+  }
+
+  if (moduleName && (!options.consolidate || !options.dryRun)) {
     const safeMod = moduleName.toLowerCase().replace(/[^a-z0-9-_]+/g, '-');
     const mateDir = path.join(resolved, '.mate');
     fs.mkdirSync(mateDir, { recursive: true });
     contextPackPath = path.join(mateDir, `context-pack-${safeMod}.md`);
-
-    const matchingSpecs = specFiles.filter((f) => path.basename(f).toLowerCase().includes(safeMod));
-    const matchingCases = caseFiles.filter((f) => path.basename(f).toLowerCase().includes(safeMod));
-    const matchingBugs = bugFiles.filter((f) => path.basename(f).toLowerCase().includes(safeMod));
-
-    const packSections = [
-      `# 🧠 M.A.T.E. Just-In-Time (JIT) Context Pack: ${moduleName}`,
-      `> Generated at ${new Date().toISOString()} | Context Engineering Mode: SELECT + COMPRESS + ISOLATE`,
-      '',
-      '## 1. Living Architecture Map Summary',
-      hasMap ? mapContent.slice(0, 2500) : '_No MATE-PROJECT-MAP.md found._',
-      '',
-      '## 2. Module Specification & Sacred Invariants',
-      matchingSpecs.length > 0
-        ? matchingSpecs.map((f) => fs.readFileSync(f, 'utf8')).join('\n\n')
-        : `_No spec found matching '${safeMod}'. Run \`mate-model\` to create \`specs/${safeMod}.mate-spec.md\`._`,
-      '',
-      '## 3. Active Test Case Matrix & Execution Rationale',
-      matchingCases.length > 0
-        ? matchingCases.map((f) => fs.readFileSync(f, 'utf8')).join('\n\n')
-        : `_No test case matrix found for '${safeMod}'. Run \`npx mate-sdt cases ${safeMod}\`._`,
-      '',
-      '## 4. Known Active Defects (`test.fail()` Anti-Greenwashing Guards)',
-      matchingBugs.length > 0
-        ? matchingBugs.map((f) => `- ${path.relative(resolved, f).replace(/\\/g, '/')}`).join('\n')
-        : '_Zero active bug reports for this module._',
-      '',
-    ].join('\n');
-
-    fs.writeFileSync(contextPackPath, packSections, 'utf8');
-    contextPackTokens = estimateTokens(packSections);
+    const built = buildJitContextPack(resolved, moduleName, {
+      phase: options.phase,
+      task: options.task,
+      flow: options.flow,
+    });
+    fs.writeFileSync(contextPackPath, built.markdown, 'utf8');
+    contextPackTokens = built.tokens;
+    packMeta = {
+      bucketStats: built.bucketTokens,
+      phase: built.phase,
+    };
   }
+
+  const sessions = listSessions(resolved);
+  const expiredSessionCount = sessions.filter((s) => isSessionExpired(s)).length;
+  const activeSessionCount = sessions.length - expiredSessionCount;
+  const hygiene = runContextHygieneChecks(resolved);
 
   return {
     targetDir: resolved,
@@ -138,6 +139,12 @@ function analyzeContextEngineering(targetDir = '.', moduleName = null) {
     },
     contextPackPath,
     contextPackTokens,
+    packMeta,
+    compactionResult,
+    consolidationResult,
+    activeSessionCount,
+    expiredSessionCount,
+    hygiene,
   };
 }
 
@@ -151,16 +158,20 @@ function runHarnessGate(targetDir = '.') {
   const gates = [];
   const selfCorrectionPrompts = [];
 
-  // Gate 1: Context Engineering & Living Map Integrity
+  // Gate 1: Context Engineering, Living Map Budget & Context Hygiene (Poisoning/Distraction/Confusion/Clash)
   const ctx = analyzeContextEngineering(resolved);
-  const gate1Passed = ctx.hasMap && ctx.tier1Healthy;
+  const hygiene = ctx.hygiene || runContextHygieneChecks(resolved);
+  const hygieneErrors = hygiene.errors || (hygiene.issues || []).filter((i) => i.severity === 'error');
+  const hygieneWarnings = hygiene.warnings || (hygiene.issues || []).filter((i) => i.severity === 'warn');
+  const hygienePassed = hygieneErrors.length === 0;
+  const gate1Passed = Boolean(ctx.hasMap && ctx.tier1Healthy && hygienePassed);
   gates.push({
     id: 'GATE-01-CONTEXT',
-    name: 'Context Engineering & Living Map Budget (< 3,000 tokens)',
+    name: 'Context Engineering, Living Map Budget (< 3,000 tokens) & Hygiene',
     passed: gate1Passed,
     details: !ctx.hasMap
       ? 'MATE-PROJECT-MAP.md is missing.'
-      : `MATE-PROJECT-MAP.md uses ~${ctx.mapTokens} tokens (${ctx.unindexedArtifacts.length} unindexed artifact(s)).`,
+      : `MATE-PROJECT-MAP.md uses ~${ctx.mapTokens} tokens (${ctx.unindexedArtifacts.length} unindexed artifact(s), ${hygieneErrors.length} hygiene error(s), ${hygieneWarnings.length} warning(s)).`,
   });
   if (!ctx.hasMap) {
     selfCorrectionPrompts.push(
@@ -169,6 +180,11 @@ function runHarnessGate(targetDir = '.') {
   } else if (!ctx.tier1Healthy) {
     selfCorrectionPrompts.push(
       `[SELF-CORRECTION GATE-01]: Compress \`MATE-PROJECT-MAP.md\` (~${ctx.mapTokens} tokens exceeds the 3,000-token Tier-1 RAM budget). Keep only index tables and move prose to \`docs/\` or \`specs/\`.`
+    );
+  }
+  for (const issue of hygieneErrors) {
+    selfCorrectionPrompts.push(
+      `[SELF-CORRECTION GATE-01/${issue.code}]: ${issue.message}${issue.file ? ` (${issue.file})` : ''}`
     );
   }
   if (ctx.unindexedArtifacts.length > 0) {
@@ -264,6 +280,11 @@ function runHarnessGate(targetDir = '.') {
       specCount: ctx.specCount,
       unindexedCount: ctx.unindexedArtifacts.length,
       epistemicStats: ctx.epistemicStats,
+      hygienePassed,
+      hygieneErrorCount: hygieneErrors.length,
+      hygieneWarningCount: hygieneWarnings.length,
+      activeSessions: ctx.activeSessionCount,
+      expiredSessions: ctx.expiredSessionCount,
     },
     gates,
     selfCorrectionPrompts,

@@ -50,6 +50,8 @@ Non-negotiable mathematical and business rules that must never be violated under
 
 ### ✅ Agents MUST Follow:
 - **Specs First:** Never generate test automation without an approved or reviewable `specs/[module].mate-spec.md`.
+- **Sessions vs. Memory:** Keep ephemeral flow logs in `.mate/sessions/` & `.mate/scratchpad-*.md`; promote verified facts via `npx mate-sdt context <module> --consolidate`.
+- **Provenance Hierarchy:** Enforce `[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO-timestamp] > [INFERRED] / [TBD]`. Never place `[INFERRED]` or `[TBD]` inside `<invariants>` or Page/Component Objects.
 - **Dependency Inversion (DIP):** Inject Page Objects and API clients via fixtures (`test.extend()`).
 - **Semantic Locators:** Prioritize `getByRole`, `getByLabel`, `getByTestId`.
 - **Handling Uncertainty:** Never guess SLAs, auth flows, or undocumented business rules. Ask the user or mark `[TBD: needs clarification on X]` with confidence level (`Observed` vs. `Inferred`).
@@ -65,6 +67,8 @@ Non-negotiable mathematical and business rules that must never be violated under
 
 | Operation | Command |
 | :--- | :--- |
+| **Assemble 3-Bucket JIT Context Pack** | `npx mate-sdt context <module> [--compact] [--consolidate]` |
+| **Manage Session & Black-Box Handoffs** | `npx mate-sdt session <start|event|advance|list|prune>` |
 | **Validate M.A.T.E. Specs** | `npx mate-sdt validate` |
 | **Audit Test Suite Health (A–F)** | `npx mate-sdt audit` |
 | **Run E2E & API Tests** | `npx playwright test` |
@@ -85,3 +89,7 @@ Non-negotiable mathematical and business rules that must never be violated under
 - **Active Release Waivers:** `None` (`./specs/waivers/`)
 - **Identified Gaps & Flakiness Radar:**
   - *None recorded yet. (`mate-triage` and `mate-maintenance` append discovered gaps here).*
+
+<!-- MATE-MEMORY:global:START -->
+<!-- Canonical consolidated memory entries promoted via `npx mate-sdt context --consolidate` -->
+<!-- MATE-MEMORY:global:END -->

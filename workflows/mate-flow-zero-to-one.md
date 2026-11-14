@@ -61,3 +61,12 @@ Once Wave 1 (`npm run test:smoke`) is active, iterate through each module in pri
    - **Anti-Greenwashing Enforcement:** Any pre-existing bug discovered in the live app is **automated with its real expected assertion**, marked with `test.fail(true, 'BUG-XXX: ...')`, and documented via `npx mate-sdt bug <module>`.
 4. **Black-Box Pillar T & E (`mate-threat` + `mate-performance-k6` + `mate-explore`):**
    - Execute multi-actor concurrency checks (`playwright-cli -s=actor1`, `-s=actor2`), k6 SLA scripts (`npx mate-sdt k6`), and 30-min human exploratory charters (`npx mate-sdt charter <module>`).
+
+---
+
+## 🧵 Session Workbench & Black-Box Handoff Protocol
+
+1. **Start Isolated Session:** `npx mate-sdt session start <flow-id> --module=<module> --stage=<initial-stage>`
+2. **Record Raw Events (Window $K=5$):** `npx mate-sdt session event <flow-id> "[OBSERVED | ISO] ..."`
+3. **Stage Transition (Auto-Compaction + `mate.handoff/v1`):** `npx mate-sdt session advance <flow-id> --stage=<next> --to=<next-skill> --digest="..."`
+4. **JIT Context & Consolidation:** Run `npx mate-sdt context <module>` before each stage and `npx mate-sdt context <module> --consolidate` + `npx mate-sdt gate` at completion.

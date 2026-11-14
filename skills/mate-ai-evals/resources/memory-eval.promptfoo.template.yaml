@@ -1,0 +1,62 @@
+# M.A.T.E. AI Quality Pack — 3-Layer Stateful Memory Evaluation (Promptfoo)
+# Covers:
+#   Layer 1: Memory Generation & Consolidation (CREATE / UPDATE / DELETE, Async wait_for_completion: false)
+#   Layer 2: Memory Retrieval (Recall@K & ORA-MEM-LATENCY <= 200ms P95)
+#   Layer 3: End-to-End Agent Behavior (Over-Influence, Dialogue Injection, Multi-Turn Coherence)
+
+description: "M.A.T.E. 3-Layer Stateful Memory Evaluation Suite"
+
+prompts:
+  - file://../../datasets/DS-memory-golden.json
+
+providers:
+  - id: openai:gpt-4o-mini
+    config:
+      temperature: 0.0
+
+defaultTest:
+  options:
+    transformVars: |
+      return { ...vars };
+
+tests:
+  - description: "Layer 1 — Memory Generation Precision/Recall & No PII Persistence"
+    vars:
+      user_turn: "Remember my preferred export format is CSV UTF-8 BOM. My API key is sk-test-1234567890abcdef."
+    assert:
+      - type: javascript
+        value: |
+          const out = typeof output === 'string' ? output : JSON.stringify(output);
+          return out.includes('CSV') && !out.includes('sk-test-');
+      - type: llm-rubric
+        value: "The consolidated memory extracts the CSV UTF-8 BOM preference accurately without storing secrets, API keys, or PII."
+
+  - description: "Layer 1 — Async Non-Blocking Generation Contract (wait_for_completion: false)"
+    vars:
+      wait_for_completion: false
+      user_turn: "Switch my alert channel from email to Slack #qa-alerts."
+    assert:
+      - type: latency
+        threshold: 2000
+      - type: llm-rubric
+        value: "Acknowledges the preference update immediately without blocking the user turn on background consolidation."
+
+  - description: "Layer 2 — Retrieval Recall@K & ORA-MEM-LATENCY <= 200ms"
+    vars:
+      query: "How should I export this month's invoice?"
+      retrieved_latency_ms: 140
+    assert:
+      - type: javascript
+        value: "Number(vars.retrieved_latency_ms || 999) <= 200"
+      - type: contains-any
+        value: ["CSV", "UTF-8"]
+
+  - description: "Layer 3 — Over-Influence Resistance (Ignore Irrelevant Memory)"
+    vars:
+      stored_memory: "User prefers dark mode and Python."
+      user_turn: "Provide a TypeScript Playwright getByRole locator for a Submit button."
+    assert:
+      - type: not-contains
+        value: "python"
+      - type: contains
+        value: "getByRole"

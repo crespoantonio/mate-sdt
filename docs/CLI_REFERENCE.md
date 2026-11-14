@@ -203,3 +203,28 @@ Audits the repository and prints a full report of M.A.T.E. artifacts, installed 
 ```bash
 npx mate-sdt status
 ```
+
+---
+
+### 11. `context [module]` (Context Engineering, Compaction & Consolidation)
+Audits Tier-1 (`MATE-PROJECT-MAP.md <= 3,000 tokens`), checks the 4 Context Failure Modes, compacts stale sessions (`--compact`), consolidates verified `[OBSERVED]` facts into canonical memory (`--consolidate`), and builds the **3-Bucket / 7-Layer JIT Context Pack** in `.mate/context-pack-<module>.md`.
+
+```bash
+npx mate-sdt context checkout --phase=model --task="Define INV-01"
+npx mate-sdt context checkout --compact
+npx mate-sdt context checkout --consolidate --fact="[OBSERVED | 2026-11-13T12:00:00Z] checkout: INV-01 requires total > 0"
+npx mate-sdt context checkout --consolidate --dry-run --json
+```
+
+---
+
+### 12. `session <start|event|advance|show|list|prune>` (Session Workbench & Black-Box Handoffs)
+Manages ephemeral per-flow sessions in `.mate/sessions/<flow-id>.json` (24h TTL, $K=5$ raw event window) and emits `mate.handoff/v1` Black-Box Handoffs on stage transitions.
+
+```bash
+npx mate-sdt session start flow-checkout --module=checkout --stage=recon
+npx mate-sdt session event flow-checkout "[OBSERVED | 2026-11-13T12:00:00Z] Submit button disabled until email valid"
+npx mate-sdt session advance flow-checkout --stage=model --to=mate-model --digest="Recon complete for checkout"
+npx mate-sdt session list
+npx mate-sdt session prune
+```

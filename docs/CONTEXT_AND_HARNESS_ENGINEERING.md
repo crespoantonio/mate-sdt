@@ -95,3 +95,26 @@ npx mate-sdt gate
 # Emit machine-readable JSON with self-correction prompts for automated agent loops
 npx mate-sdt gate --json
 ```
+
+---
+
+## 3. Sessions vs. Memory Architecture (May 2026 Standard)
+
+`mate-sdt` separates ephemeral execution state from canonical long-term memory so heterogeneous AI runtimes (`Antigravity`, `Claude Code`, `Cursor`, `Windsurf`, `GitHub Copilot`, `Codex`) share one deterministic, framework-agnostic substrate:
+
+1. **Session Workbench (`.mate/sessions/<flow-id>.json`, `.mate/scratchpad-<module>.md`, `.mate/handoffs/*.json`, `.mate/harness-state.json`):**
+   - Stores chronological events, active workflow stage, and the last $K=5$ raw findings.
+   - Enforces a **24h TTL** (`npx mate-sdt session prune`) and **rolling + event-based compaction** (automatically folds raw events into 3-line summaries when `events.length > 5` or on `npx mate-sdt session advance`).
+   - Emits **`mate.handoff/v1` Black-Box Handoffs** ("Separate Individual Histories") between skills.
+2. **Memory Filing Cabinet (`MATE-PROJECT-MAP.md`, `specs/*.mate-spec.md`, `.mate/memory/procedural-playbooks.md`):**
+   - Stores **Declarative Memory** (*"Knowing What"*) and **Procedural Memory** (*"Knowing How"*).
+   - **Self-Editing Consolidation (`npx mate-sdt context <module> --consolidate`):** Evaluates `[OBSERVED]` findings from scratchpads/sessions/CLI `--facts` and applies deterministic `CREATE`, `UPDATE`, `DELETE`, `CONFLICT`, or `NOOP` operations into `MATE-PROJECT-MAP.md` (`<!-- MATE-MEMORY:<module>:START/END -->`) and `.mate/memory/consolidation-log.jsonl`.
+3. **3-Bucket / 7-Layer JIT Context Pack (`npx mate-sdt context <module>`):**
+   - **Bucket 1 (System & Guardrails):** Phase-scoped role/rules, tool whitelist, and relevant few-shot examples.
+   - **Bucket 2 (Memory & State):** `MATE-PROJECT-MAP.md` summary, blended memory slice (`0.5·Relevance + 0.2·Recency + 0.3·Importance`), upstream `mate.handoff/v1` digest, 3-line rolling summary + last $K=5$ findings, compressed ARIA snapshots (`<= 800` tokens), HAR/OpenAPI slices, and targeted spec XML blocks.
+   - **Bucket 3 (Immediate Task & Output Contract):** Current goal and strict output schema.
+4. **Eliminating the 4 Context Failure Modes (Enforced in `GATE-01`):**
+   - **Poisoning:** Provenance hierarchy (`[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO-timestamp] > [INFERRED] / [TBD]`); blocks `[INFERRED]`/`[TBD]` from `<invariants>` and `src/pages|components`; redacts PII/secrets and blocks indirect prompt injections.
+   - **Distraction:** Rolling compaction + $K=5$ cap + ARIA compression (`<= 800` tokens).
+   - **Confusion:** Phase-scoped tool/spec slicing via `--phase`.
+   - **Clash:** Self-editing consolidation (`UPDATE`/`DELETE`/`CONFLICT`) and Black-Box Handoffs.

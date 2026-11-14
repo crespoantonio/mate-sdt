@@ -76,3 +76,11 @@ In M.A.T.E., known product defects are NEVER swept under the rug with `test.skip
 *   **Generate Bug Report via CLI:** `npx mate-sdt bug <module-name>`
 *   **Bug Report Template:** [`resources/bug-report.template.md`](./resources/bug-report.template.md)
 *   **Test Results Triage Report Template:** [`resources/triage-report.template.md`](./resources/triage-report.template.md)
+
+---
+
+## 🔄 Black-Box Handoff & Session Isolation
+
+- **Separate Individual Histories:** Never pass raw multi-turn scratchpads or verbose upstream tool logs into this skill or out to downstream skills.
+- **Consume & Emit `mate.handoff/v1`:** Read only the compressed upstream handoff digest + `npx mate-sdt context <module>` JIT pack, and advance stages via `npx mate-sdt session advance <flow-id> --stage=<next> --to=<skill> --digest="..."`.
+- **Provenance & Hygiene:** Tag findings with `[BOOTSTRAPPED]`, `[USER_EXPLICIT]`, `[OBSERVED | ISO]`, `[INFERRED]`, or `[TBD]`; promote verified facts via `npx mate-sdt context <module> --consolidate`.

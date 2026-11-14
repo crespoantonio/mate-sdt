@@ -34,3 +34,12 @@ Choose the appropriate reconnaissance path (or combine both):
 1. Audit any existing test suite for flaky anti-patterns (`npx mate-sdt audit`).
 2. Automate and lock the P0 business invariants (`tests/e2e/` and `tests/api/`) so legacy refactoring cannot silently break production behavior.
 3. Run `npx mate-sdt context [module]` and `npx mate-sdt gate` to verify all 5 Harness Engineering gates (`GATE-01-CONTEXT` through `GATE-04-SOLID-AUDIT` + `.mate/harness-state.json`).
+
+---
+
+## 🧵 Session Workbench & Black-Box Handoff Protocol
+
+1. **Start Isolated Session:** `npx mate-sdt session start <flow-id> --module=<module> --stage=<initial-stage>`
+2. **Record Raw Events (Window $K=5$):** `npx mate-sdt session event <flow-id> "[OBSERVED | ISO] ..."`
+3. **Stage Transition (Auto-Compaction + `mate.handoff/v1`):** `npx mate-sdt session advance <flow-id> --stage=<next> --to=<next-skill> --digest="..."`
+4. **JIT Context & Consolidation:** Run `npx mate-sdt context <module>` before each stage and `npx mate-sdt context <module> --consolidate` + `npx mate-sdt gate` at completion.

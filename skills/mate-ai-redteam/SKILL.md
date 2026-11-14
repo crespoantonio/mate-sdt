@@ -56,3 +56,14 @@ Whenever a red-team probe succeeds (`PASS = false` in security scan):
 1. Capture the exact adversarial input, intermediate tool calls, and raw output.
 2. Promote the exploit prompt into `tests/ai-evals/datasets/DS-<module>.json` with `category: "ADVERSARIAL"` and `provenance: "[OBSERVED]"` so it runs on every future CI build.
 3. Generate a formal M.A.T.E. Bug Report via `npx mate-sdt bug <module>` referencing the violated `THR-AI-XX` and `INV-AI-XX` codes.
+
+---
+
+## 4. Stateful Memory Red-Teaming (`memory-redteam.promptfoo.yaml`)
+
+For agents with persistent memory, execute `memory-redteam.promptfoo.yaml` targeting 4 mandatory vectors:
+- **Memory Poisoning & Indirect Dialogue Injection:** Untrusted user/RAG text attempting to plant permanent policy overrides.
+- **Cross-User / Cross-Tenant ACL Exfiltration:** Verifying declarative isolation + strict anonymization of shared procedural playbooks.
+- **Pre-Persistence PII Redaction:** Secrets, JWTs, API keys, and payment cards scrubbed *before* storage.
+- **`THR-MEM-RACE` Concurrent Write Manipulation:** Parallel session writes to the same entity must serialize deterministically.
+- **Black-Box Handoff:** Operate from `mate.handoff/v1` digests; never inherit raw upstream discovery transcripts.

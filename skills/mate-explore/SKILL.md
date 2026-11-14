@@ -48,3 +48,11 @@ This skill is responsible for **Pillar E (Explore)** of the M.A.T.E. Method. Its
 *   **Generate Release Waiver via CLI:** `npx mate-sdt waiver <module-name>`
 *   **Exploratory Charter Template (SBTM):** [`resources/charter.template.md`](./resources/charter.template.md)
 *   **Formal Release Waiver Template:** [`resources/release-waiver.template.md`](./resources/release-waiver.template.md)
+
+---
+
+## 🔄 Black-Box Handoff & Session Isolation
+
+- **Separate Individual Histories:** Never pass raw multi-turn scratchpads or verbose upstream tool logs into this skill or out to downstream skills.
+- **Consume & Emit `mate.handoff/v1`:** Read only the compressed upstream handoff digest + `npx mate-sdt context <module>` JIT pack, and advance stages via `npx mate-sdt session advance <flow-id> --stage=<next> --to=<skill> --digest="..."`.
+- **Provenance & Hygiene:** Tag findings with `[BOOTSTRAPPED]`, `[USER_EXPLICIT]`, `[OBSERVED | ISO]`, `[INFERRED]`, or `[TBD]`; promote verified facts via `npx mate-sdt context <module> --consolidate`.

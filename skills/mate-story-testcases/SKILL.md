@@ -84,3 +84,11 @@ Whenever you analyze a User Story, generate **both** files in `docs/test-cases/`
    - **Section 4:** **Tailored Exploratory Testing Recommendations & Border-Case Heuristics** (explaining *what* to explore, *why* automation cannot replace it, and concrete edge-case prompts based on the User Story).
    - **Section 5:** **Discovered Bugs & Anti-Greenwashing Log** (tracking any automated or manual test that failed due to a real application defect).
 2. **`docs/test-cases/TC-[module].csv`** (Template: [`resources/test-cases.template.csv`](./resources/test-cases.template.csv)) — Ready for one-click import into **Excel, Google Sheets, Jira (Xray / Zephyr), TestRail, or Notion**.
+
+---
+
+## 🔄 Black-Box Handoff & Session Isolation
+
+- **Separate Individual Histories:** Never pass raw multi-turn scratchpads or verbose upstream tool logs into this skill or out to downstream skills.
+- **Consume & Emit `mate.handoff/v1`:** Read only the compressed upstream handoff digest + `npx mate-sdt context <module>` JIT pack, and advance stages via `npx mate-sdt session advance <flow-id> --stage=<next> --to=<skill> --digest="..."`.
+- **Provenance & Hygiene:** Tag findings with `[BOOTSTRAPPED]`, `[USER_EXPLICIT]`, `[OBSERVED | ISO]`, `[INFERRED]`, or `[TBD]`; promote verified facts via `npx mate-sdt context <module> --consolidate`.

@@ -229,6 +229,19 @@ sequenceDiagram
 
 ---
 
+## 🧠 Context Engineering: Sessions, Memory & Epistemic Hygiene
+
+In the Agentic AI Era, **the LLM context window is scarce working memory**. Dumping raw multi-turn chat transcripts, unredacted DOM trees, or speculative assumptions directly into prompts causes the **4 Context Failure Modes**:
+- **Poisoning:** Unverified assumptions (`[INFERRED]` / `[TBD]`) or prompt injections entering canonical invariants.
+- **Distraction:** Snowballing tool logs and retries drowning out the current objective.
+- **Confusion:** Exposing every tool and specification simultaneously instead of phase-scoped JIT context.
+- **Clash:** Contradictory facts coexisting without deterministic consolidation.
+
+`mate-sdt` solves this by strictly separating the ephemeral **Session Workbench** (`.mate/sessions/`, `.mate/scratchpad-*.md`, `.mate/handoffs/` with TTL, $K=5$ rolling compaction, and Black-Box `mate.handoff/v1` stage handoffs) from the canonical **Memory Filing Cabinet** (`MATE-PROJECT-MAP.md`, `specs/*.mate-spec.md`, `.mate/memory/`), governed by a strict provenance trust hierarchy:
+`[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO-timestamp] > [INFERRED] / [TBD]`.
+
+---
+
 ## ✍️ Authorship & Open Source Community
 
 The **M.A.T.E. Method** was conceived and created by **Antonio "Tony" Crespo** as the foundational Spec-Driven Testing framework of the **Un Junior En Apuros** engineering community.

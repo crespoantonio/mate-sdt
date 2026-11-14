@@ -37,3 +37,12 @@ Execute this workflow to establish comprehensive API and service-level quality g
 1. Generate concurrency and duplicate `Idempotency-Key` replay tests in `tests/threats/[service]-threats.spec.ts`.
 2. Inject malformed UTF-8, oversized payloads, and SQLi/XSS strings, asserting clean `422` responses and zero `500` stack-trace leaks.
 3. Run `npx mate-sdt audit` to verify suite health.
+
+---
+
+## 🧵 Session Workbench & Black-Box Handoff Protocol
+
+1. **Start Isolated Session:** `npx mate-sdt session start <flow-id> --module=<module> --stage=<initial-stage>`
+2. **Record Raw Events (Window $K=5$):** `npx mate-sdt session event <flow-id> "[OBSERVED | ISO] ..."`
+3. **Stage Transition (Auto-Compaction + `mate.handoff/v1`):** `npx mate-sdt session advance <flow-id> --stage=<next> --to=<next-skill> --digest="..."`
+4. **JIT Context & Consolidation:** Run `npx mate-sdt context <module>` before each stage and `npx mate-sdt context <module> --consolidate` + `npx mate-sdt gate` at completion.
