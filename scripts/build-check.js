@@ -20,6 +20,7 @@ const REQUIRED_FILES = [
   'src/cli/harness.js',
   'src/cli/memory.js',
   'src/cli/gc.js',
+  'src/cli/heal.js',
   'src/cli/installer.js',
   'docs/CONTEXT_AND_HARNESS_ENGINEERING.md',
   'docs/AI_AGENT_AND_RAG_TESTING.md',

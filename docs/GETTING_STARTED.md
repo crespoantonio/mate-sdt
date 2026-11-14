@@ -82,6 +82,7 @@ M.A.T.E. enforces the two foundational disciplines of modern AI Agent systems:
 2.  **Harness Engineering (`npx mate-sdt gate --loop` & `npx mate-sdt gc`):**
     *   Executes the **5-Gate Closed Verification Loop** (`GATE-01-CONTEXT`, `GATE-02-SPEC-MODEL`, `GATE-03-ANTI-GREENWASHING`, `GATE-04-SOLID-AUDIT` with **Forward-Only 6-Layer** static analysis, and `GATE-05` State Persistence in `.mate/harness-state.json`).
     *   Run `npx mate-sdt gc` to execute Doc-Gardening, update `docs/QUALITY_SCORE.md`, and track atomic cleanup tasks in `.mate/exec-plans/tech-debt-tracker.md`.
+    *   Paste any stack trace or run `npx mate-sdt heal [target]` to compress crashes (`<= 400` tokens) and execute the 5-Class Heal vs. Quarantine loop.
     *   Always run `npx mate-sdt gate --loop` before completing a task or opening a Pull Request.
 
 > 📖 Read the full deep-dive in [`docs/CONTEXT_AND_HARNESS_ENGINEERING.md`](./CONTEXT_AND_HARNESS_ENGINEERING.md).

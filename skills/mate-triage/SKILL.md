@@ -2,10 +2,11 @@
 name: mate-triage
 description: >-
   Specialist in Day-2 QA Operations (Failure Triage, Known-Failure Tracking & Bug Reporting) of the M.A.T.E. Method.
-  USE WHEN: A test fails during live `@playwright/cli` verification (`mate-pw-recon`), automated Playwright/API
-  execution (`mate-assert-playwright` / `mate-pw-codegen`), or CI runs, and you need to classify the root cause,
-  generate a spec-linked Bug Report (`npx mate-sdt bug`), sync with Jira/Notion/GitHub Issues, and track known
-  defects marked with `test.fail()`.
+  USE WHEN: The user pastes a raw stack trace, terminal error output, Playwright `TimeoutError` / `StrictModeViolation`,
+  assertion mismatch, HTTP `4xx/5xx` contract error, TS compiler error in `src/`/`tests/`, or k6/Stryker/Podman crash,
+  OR says "fix this", "heal this test", "why did this fail?", OR invokes `/mate-flow-triage` / `npx mate-sdt heal`.
+  Compresses the noisy crash into `<error_digest>` (<= 400 tokens), diagnoses via live forensics, and applies the
+  5-Class "Heal vs. Quarantine" Decision Matrix without ever greenwashing a broken requirement.
   SYNERGY: Pairs with `mate-pw-forensics` (for traces, screenshots & video evidence), `mate-assert-playwright`
   (to mark real bugs with `test.fail()`), and `mate-maintenance` (to fix flaky tests or locator drift).
 ---
@@ -84,3 +85,17 @@ In M.A.T.E., known product defects are NEVER swept under the rug with `test.skip
 - **Separate Individual Histories:** Never pass raw multi-turn scratchpads or verbose upstream tool logs into this skill or out to downstream skills.
 - **Consume & Emit `mate.handoff/v1`:** Read only the compressed upstream handoff digest + `npx mate-sdt context <module>` JIT pack, and advance stages via `npx mate-sdt session advance <flow-id> --stage=<next> --to=<skill> --digest="..."`.
 - **Provenance & Hygiene:** Tag findings with `[BOOTSTRAPPED]`, `[USER_EXPLICIT]`, `[OBSERVED | ISO]`, `[INFERRED]`, or `[TBD]`; promote verified facts via `npx mate-sdt context <module> --consolidate`.
+
+---
+
+## 🩹 Spec-Guarded Self-Healing (`npx mate-sdt heal`) & 5-Class Decision Matrix
+
+1. **Compress & Select (`npx mate-sdt heal [target]`):** Strip ANSI/node_modules noise into `<error_digest>` (`<= 400` tokens), extract `+-25` lines around failing project frames + `<intent_model>`/`<invariants>`, and write `.mate/scratchpad-heal-<module>.md` (max 3 attempts).
+2. **3-Stage Black-Box Isolation:** Stage 1 (`mate-pw-forensics` live recon) -> Stage 2 (`mate-triage` root-cause verdict) -> Stage 3 (surgical code patch or `test.fail()` quarantine).
+3. **5-Class "Heal vs. Quarantine" Decision Matrix:**
+   - **`UI_LOCATOR_DRIFT`:** Live ARIA snapshot (`<= 800`t) proves invariants pass; update locator strictly in `src/pages/` or `src/components/`, run `npx mate-sdt context <module> --consolidate`.
+   - **`SYNC_OR_FLAKY_RACE`:** Add deterministic web-first assertions (`expect(locator).toBeVisible()`, `waitForResponse()`) in Page/Component Object. Zero `waitForTimeout()`/`sleep()`.
+   - **`HARNESS_OR_TYPING_DRIFT`:** Fix DIP fixture (`src/fixtures/`), mock (`src/mocks/`), or model (`src/models/`) preserving Forward-Only layers (`GATE-04`).
+   - **`SPEC_EVOLUTION_DRIFT`:** HALT & confirm with human; update `specs/<module>.mate-spec.md` (`GATE-02`) before tests.
+   - **`REAL_PRODUCT_BUG`:** STRICT QUARANTINE (`GATE-03`): Keep true assertion, mark `test.fail(true, "BUG-XXX")`, and run `npx mate-sdt bug <module>`.
+4. **Verify & Consolidate:** Finish with `npx mate-sdt heal [target] --verify --consolidate` (and `npx mate-sdt gate --loop`) to record root-cause playbooks in `.mate/memory/procedural-playbooks.md`.

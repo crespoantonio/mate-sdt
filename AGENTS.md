@@ -17,6 +17,7 @@
 | **CLI Commands & Flags Reference** | [`docs/CLI_REFERENCE.md`](./docs/CLI_REFERENCE.md) |
 | **Spec Standard & Provenance Hierarchy** | [`docs/SPEC_STANDARD.md`](./docs/SPEC_STANDARD.md) |
 | **Active Execution Plans & Tech Debt** | [`.mate/exec-plans/tech-debt-tracker.md`](./.mate/exec-plans/tech-debt-tracker.md) |
+| **Pasted Stack Trace / Test Failure / "Fix this"** | Route immediately to `mate-triage` + `npx mate-sdt heal` (`/mate-flow-triage`) |
 
 ---
 
@@ -37,6 +38,7 @@
 npm run build        # Integrity, LF endings & spec check (scripts/build-check.js)
 npm test             # Native Node integration suite (tests/cli.test.js)
 npm run gc           # Doc-gardening, AI slop GC, docs/QUALITY_SCORE.md & tech-debt-tracker.md
+npx mate-sdt heal [target]        # Compress stack trace (<error_digest>) & 5-Class Heal vs. Quarantine
 npx mate-sdt gate --loop --json   # Closed-loop 5-gate verification (max 5 iterations)
 ```
 

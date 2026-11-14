@@ -44,6 +44,7 @@ const {
 } = require('../src/cli/memory');
 const { runHarnessLoop } = require('../src/cli/harness');
 const { runGarbageCollection, blockDestructiveCommands } = require('../src/cli/gc');
+const { runHeal } = require('../src/cli/heal');
 
 function parseFlags(args) {
   const flags = {
@@ -77,6 +78,9 @@ function parseFlags(args) {
     gc: false,
     maxIterations: 5,
     checkCommand: null,
+    last: false,
+    verify: false,
+    trace: null,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -107,6 +111,14 @@ function parseFlags(args) {
       flags.loop = true;
     } else if (arg === '--gc') {
       flags.gc = true;
+    } else if (arg === '--last') {
+      flags.last = true;
+    } else if (arg === '--verify') {
+      flags.verify = true;
+    } else if (arg === '--trace' && args[i + 1]) {
+      flags.trace = args[++i];
+    } else if (arg.startsWith('--trace=')) {
+      flags.trace = arg.slice('--trace='.length);
     } else if (arg === '--max-iterations' && args[i + 1]) {
       flags.maxIterations = Number(args[++i]) || 5;
     } else if (arg.startsWith('--max-iterations=')) {
@@ -225,6 +237,9 @@ function printHelp() {
   );
   console.log(
     `    ${color('gc [dir]', COLORS.brightGreen, COLORS.bold)}             Run Doc-Gardening, AI Slop GC, update docs/QUALITY_SCORE.md & tech-debt-tracker.md`
+  );
+  console.log(
+    `    ${color('heal [target]', COLORS.brightGreen, COLORS.bold)}        Compress stack trace (<error_digest>), map spec & guide 5-Class Heal vs. Quarantine`
   );
   console.log(
     `    ${color('cases <module>', COLORS.brightGreen, COLORS.bold)}       Create a 4-Quadrant Test Case Matrix (.md & .csv) in docs/test-cases/`
@@ -826,6 +841,55 @@ function handleAudit(flags) {
   }
 }
 
+function handleHeal(flags) {
+  const targetDir = flags.dir || '.';
+  const targetArg = flags.positional[1] || (flags.last ? '--last' : null);
+  const res = runHeal(targetDir, targetArg, {
+    last: flags.last,
+    verify: flags.verify,
+    trace: flags.trace,
+    consolidate: flags.consolidate,
+    module: flags.module,
+  });
+
+  if (flags.json) {
+    console.log(JSON.stringify(res, null, 2));
+    if (res.verification && !res.verification.allGatesPassed) process.exit(1);
+    return;
+  }
+
+  console.log(
+    color(
+      `\n🩹 M.A.T.E. Spec-Guarded Self-Healing & Triage: ${res.moduleName} (attempt ${res.attempt}/3)`,
+      COLORS.bold,
+      COLORS.cyan
+    )
+  );
+  console.log(`   Scratchpad: ${res.scratchpadPath}`);
+  console.log(`   Spec:       ${res.surgical.specPath || 'None matched'}`);
+  console.log(`   Digest:     ${res.digest.failure_signature} (~${res.digest.tokens} tokens)\n`);
+  console.log(res.digest.xml);
+  console.log(color('\n🔎 Live Forensic Recon Commands:', COLORS.bold, COLORS.yellow));
+  for (const cmd of res.forensicCommands) {
+    console.log(`   • ${cmd}`);
+  }
+  console.log(color('\n⚖️  5-Class "Heal vs. Quarantine" Decision Matrix:', COLORS.bold, COLORS.cyan));
+  for (const row of res.decisionMatrix) {
+    console.log(`   • ${color(row.class, COLORS.brightGreen, COLORS.bold)}: ${row.action}`);
+  }
+  if (res.verification) {
+    console.log(
+      color(
+        `\n🔁 Closed-Loop Verification (--verify): ${res.verification.allGatesPassed ? 'PASSED' : 'FAILED'}`,
+        res.verification.allGatesPassed ? COLORS.brightGreen : COLORS.red,
+        COLORS.bold
+      )
+    );
+    if (!res.verification.allGatesPassed) process.exit(1);
+  }
+  console.log('');
+}
+
 function handleGc(flags) {
   const targetDir = flags.dir || flags.positional[1] || '.';
   const gc = runGarbageCollection(targetDir);
@@ -1052,6 +1116,10 @@ async function main() {
     case 'gc':
     case 'garbage-collect':
       handleGc(flags);
+      break;
+    case 'heal':
+    case 'triage':
+      handleHeal(flags);
       break;
     case 'mutate':
       process.exit(runPodmanMutation(flags.dir || flags.positional[1] || '.', flags.config));

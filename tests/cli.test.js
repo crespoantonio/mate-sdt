@@ -11,6 +11,7 @@ const { validateSpecFile } = require('../src/cli/validator');
 const { auditTestSuite } = require('../src/cli/auditor');
 const { runHarnessLoop } = require('../src/cli/harness');
 const { blockDestructiveCommands, runGarbageCollection } = require('../src/cli/gc');
+const { compressErrorTrace, runHeal } = require('../src/cli/heal');
 const {
   startSession,
   loadSession,
@@ -675,6 +676,64 @@ describe('M.A.T.E. Harness Engineering (Forward-Only Layers, GC & Closed-Loop)',
       const gcRes = runGarbageCollection(tmpDir);
       assert.ok(fs.existsSync(gcRes.scorecardPath));
       assert.ok(fs.existsSync(gcRes.trackerPath));
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('M.A.T.E. Stack-Trace Entry Point & Spec-Guarded Self-Healing', () => {
+  test('compressErrorTrace strips ANSI/node_modules and caps <error_digest> <= 400 tokens', () => {
+    const noisy = [
+      '\x1B[31mTimeoutError: locator.click: Timeout 30000ms exceeded.\x1B[39m',
+      'waiting for locator(\'button[type="submit"]\')',
+      '    at CheckoutPage.submit (src/pages/checkout.page.ts:42:18)',
+      '    at tests/e2e/checkout.spec.ts:15:5',
+      ...Array.from({ length: 40 }, (_, i) => `    at node_modules/playwright-core/lib/client/frame.js:${100 + i}:12`),
+    ].join('\n');
+
+    const digest = compressErrorTrace(noisy, process.cwd());
+    assert.equal(digest.failure_signature, 'LOCATOR_TIMEOUT');
+    assert.ok(digest.tokens <= 400, `Expected <= 400 tokens, got ${digest.tokens}`);
+    assert.ok(digest.call_chain.some((c) => c.file.includes('checkout.page.ts') && c.layer === 'L3:pages'));
+    assert.ok(!digest.xml.includes('node_modules'));
+  });
+
+  test('runHeal writes .mate/scratchpad-heal-<mod>.md and GATE-03 blocks assertion weakening during heal', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mate-heal-'));
+    try {
+      installMate({ targetDir: tmpDir, mode: 'greenfield', ides: ['antigravity'], includeStarterFiles: true });
+      const errLog = path.join(tmpDir, '.mate', 'last-error.log');
+      fs.mkdirSync(path.dirname(errLog), { recursive: true });
+      fs.writeFileSync(
+        errLog,
+        'StrictModeViolation: strict mode violation: getByRole("button") resolved to 2 elements\n    at tests/e2e/sample-order-lifecycle.spec.ts:12:5',
+        'utf8'
+      );
+
+      const healRes = runHeal(tmpDir, errLog);
+      assert.equal(healRes.digest.failure_signature, 'STRICT_MODE_VIOLATION');
+      assert.ok(fs.existsSync(healRes.scratchpadPath));
+
+      // Weakened assertion during active heal scratchpad must fail GATE-03
+      fs.writeFileSync(
+        path.join(tmpDir, 'tests', 'e2e', 'weakened.spec.ts'),
+        `test('weak', async ({ orderPage }) => { expect(orderPage).toBeDefined(); });\n`,
+        'utf8'
+      );
+      const gateReport = runHarnessLoop(tmpDir, { maxIterations: 1 });
+      const gate3 = gateReport.gates.find((g) => g.id === 'GATE-03-ANTI-GREENWASHING');
+      assert.equal(gate3.passed, false);
+      assert.ok(gateReport.selfCorrectionPrompts.some((p) => p.includes('WEAKENED_ASSERTION')));
+
+      // CLI `npx mate-sdt heal --last --json` works cleanly
+      const cliPath = path.resolve(__dirname, '..', 'bin', 'mate-sdt.js');
+      const cliHeal = spawnSync(process.execPath, [cliPath, 'heal', '--last', `--dir=${tmpDir}`, '--json'], {
+        encoding: 'utf8',
+      });
+      assert.equal(cliHeal.status, 0);
+      const parsed = JSON.parse(cliHeal.stdout);
+      assert.equal(parsed.attempt, 2);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }

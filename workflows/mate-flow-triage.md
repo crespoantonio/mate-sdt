@@ -50,3 +50,13 @@ Append newly discovered coverage gaps, flaky test patterns, and the updated Test
 1. **Persist Execution Plan:** Create/update `.mate/exec-plans/active/<flow-id>.md` (move to `.mate/exec-plans/completed/` upon completion).
 2. **Closed-Loop Verification:** Run `npx mate-sdt gate --loop` (max 5 iterations) and `npx mate-sdt gc` to refresh `docs/QUALITY_SCORE.md`.
 3. **Independent Agent Review Pass:** Trigger an independent reviewer pass (`mate-core` / `mate-maintenance`) to audit the diff against `specs/<module>.mate-spec.md` and `docs/QUALITY_SCORE.md`.
+
+---
+
+## 🩹 End-to-End Self-Healing & Quarantine Pipeline (`npx mate-sdt heal`)
+
+1. **Pasted Stack Trace or CI Log** -> **Crash Compression (`npx mate-sdt heal [target]`):** Generates `<error_digest>` (`<= 400` tokens) and `.mate/scratchpad-heal-<module>.md`.
+2. **Live Forensic Recon (`mate-pw-forensics`):** Capture targeted ARIA snapshot (`<= 800` tokens) and network trace.
+3. **5-Class Verdict (`mate-triage`):** Classify into `UI_LOCATOR_DRIFT`, `SYNC_OR_FLAKY_RACE`, `HARNESS_OR_TYPING_DRIFT`, `SPEC_EVOLUTION_DRIFT`, or `REAL_PRODUCT_BUG`.
+4. **Surgical Auto-Heal OR Anti-Greenwashing Quarantine:** Patch Page/Component/Fixture (`GATE-04`), OR keep true assertion with `test.fail(true, "BUG-XXX")` + `npx mate-sdt bug <module>`.
+5. **5-Gate Verification & Memory Consolidation:** Run `npx mate-sdt heal [target] --verify --consolidate` + `npx mate-sdt gate --loop` (max 3 heal attempts).

@@ -175,6 +175,7 @@ your-project/
 | `npx mate-sdt session <action>` | Manage the ephemeral Session Workbench (`start\|event\|advance\|show\|list\|prune`) with TTL, $K=5$ rolling compaction, and `mate.handoff/v1` Black-Box Handoffs. |
 | `npx mate-sdt gate [dir] [--loop]` | Execute the **5-Gate Harness Engineering Closed Verification Loop** (`--loop` runs up to 5 iterations, persisting `.mate/harness-state.json`). |
 | `npx mate-sdt gc [dir]` | Run Continuous Entropy & Doc-Gardening GC, generate `docs/QUALITY_SCORE.md`, and update `.mate/exec-plans/tech-debt-tracker.md`. |
+| `npx mate-sdt heal [target]` | Compress raw stack traces (`<error_digest> <= 400t`), map governing spec, and guide the 5-Class Heal vs. Quarantine loop. |
 | `npx mate-sdt cases <module>` | Generate a 4-Quadrant QA Companion Test Case Matrix (`docs/test-cases/TC-<module>.md` & `.csv` with Automated, Manual & Exploratory sections). |
 | `npx mate-sdt audit [dir]` | Scan test codebase for M.A.T.E. anti-patterns (`waitForTimeout`, `sleep`, `.only`, DIP violations) and compute Health Score (`A`–`F`). |
 | `npx mate-sdt mutate [dir]` | Execute Stryker Mutator inside an isolated, rootless **Podman** container enforcing the `>= 85%` mutation score threshold. |

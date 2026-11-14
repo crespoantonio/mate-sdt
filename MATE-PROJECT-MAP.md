@@ -20,6 +20,7 @@ This Living Architecture Map indexes the **`mate-sdt`** repository itself (`< 3,
 | **Memory & Sessions** | `src/cli/memory.js` | Session Workbench (`.mate/sessions/`, TTL, $K=5$ compaction, `mate.handoff/v1`), 3-Bucket / 7-Layer JIT Context Pack, self-editing consolidation (`CREATE`/`UPDATE`/`DELETE`), PII & injection hygiene |
 | **Harness Gate** | `src/cli/harness.js` | `analyzeContextEngineering`, 5-Gate Verification Loop (`GATE-01`..`GATE-05`), and `runHarnessLoop` (`--loop`) |
 | **Garbage Collector** | `src/cli/gc.js` | `runGarbageCollection` (`npx mate-sdt gc`), `blockDestructiveCommands`, `docs/QUALITY_SCORE.md`, `.mate/exec-plans/` |
+| **Self-Healing Engine** | `src/cli/heal.js` | `compressErrorTrace` (`<error_digest> <= 400t`), surgical spec/code slice, 5-Class Heal vs. Quarantine (`npx mate-sdt heal`) |
 | **Multi-IDE Installer** | `src/cli/installer.js` | Scaffolds Antigravity, Claude Code, Cursor, Windsurf, Copilot, Codex, `AGENTS.md`, `MATE-PROJECT-MAP.md`, and AI Quality Pack |
 | **Spec Linter** | `src/cli/validator.js` | Validates `specs/*.mate-spec.md` with Remediation-Injecting `[SELF-CORRECTION][GATE-02]` errors |
 | **Health Auditor** | `src/cli/auditor.js` | Forward-Only 6-Layer Dependency Analyzer, Taste Invariants (`<= 300` lines), `MATE-ANTI-01..08`, `[SELF-CORRECTION][GATE-04]` |

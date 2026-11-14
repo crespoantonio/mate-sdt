@@ -131,3 +131,9 @@ project-root/
   - [`resources/MATE-PROJECT-MAP.template.md`](./resources/MATE-PROJECT-MAP.template.md)
   - [`references/handling-uncertainty.md`](./references/handling-uncertainty.md)
   - [`references/polyglot-stacks-java-python.md`](./references/polyglot-stacks-java-python.md)
+
+---
+
+## 🚨 Automatic Stack-Trace & Failure Entry Point
+
+- Whenever the user pastes a raw stack trace, `TimeoutError`, `StrictModeViolation`, HTTP `4xx/5xx` mismatch, or says *"fix this"* / *"heal this test"* / *"why did this fail?"*, **route immediately to `mate-triage` + `npx mate-sdt heal` (`/mate-flow-triage`)**.

@@ -248,3 +248,14 @@ Runs all 5 deterministic gates (`GATE-01`..`GATE-05`). With `--loop`, executes u
 npx mate-sdt gate --loop
 npx mate-sdt gate --check-command="git push --force"
 ```
+
+---
+
+### 15. `heal [target]` (Stack-Trace Compressor & Spec-Guarded Self-Healing)
+Compresses noisy stack traces or CI logs into an `<error_digest>` (`<= 400` tokens), maps the governing `specs/<module>.mate-spec.md`, writes `.mate/scratchpad-heal-<module>.md`, and guides the **5-Class "Heal vs. Quarantine" Decision Matrix**.
+
+```bash
+npx mate-sdt heal tests/e2e/checkout.spec.ts
+npx mate-sdt heal --last
+npx mate-sdt heal tests/e2e/checkout.spec.ts --verify --consolidate
+```

@@ -136,3 +136,13 @@ npx mate-sdt gate --json
    - Scans for unindexed artifacts, broken cross-links, unmapped `INV-XX` invariants, duplicated test helpers, bloated Page Objects (`> 300` lines), stale `test.fail()` markers, and expired sessions.
    - Generates `docs/QUALITY_SCORE.md` (`A`–`F` per module) and updates `.mate/exec-plans/tech-debt-tracker.md`.
    - Execution plans for multi-step workflows live in `.mate/exec-plans/active/` and move to `.mate/exec-plans/completed/` upon completion.
+
+---
+
+## 5. Stack-Trace Entry Point & Spec-Guarded Self-Healing (`npx mate-sdt heal`)
+
+When a user pastes a raw stack trace, Playwright `TimeoutError` / `StrictModeViolation`, HTTP `4xx/5xx` mismatch, or runs `npx mate-sdt heal [target]`:
+1. **COMPRESS (`<error_digest> <= 400` tokens):** Strips ANSI codes and `node_modules/` frames, classifies `failure_signature`, maps `call_chain` across Forward-Only layers, and extracts the `delta`.
+2. **SELECT & WRITE:** Maps the module to `specs/<module>.mate-spec.md` (`<intent_model>` + `<invariants>`), extracts `±25` lines around project frames, and writes `.mate/scratchpad-heal-<module>.md` (capped at 3 attempts).
+3. **ISOLATE (3-Stage Black-Box Handoff):** `forensic-recon` $\rightarrow$ `root-cause-verdict` $\rightarrow$ `surgical-patch-or-quarantine`.
+4. **5-Class Decision Matrix:** Auto-heals `UI_LOCATOR_DRIFT`, `SYNC_OR_FLAKY_RACE`, and `HARNESS_OR_TYPING_DRIFT`; halts for human confirmation on `SPEC_EVOLUTION_DRIFT`; and strictly quarantines `REAL_PRODUCT_BUG` with `test.fail(true, "BUG-XXX")` + `npx mate-sdt bug <module>` (`GATE-03` blocks assertion weakening).

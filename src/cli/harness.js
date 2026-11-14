@@ -231,16 +231,45 @@ function runHarnessGate(targetDir = '.') {
     ...listFilesWithExt(path.join(resolved, 'docs', 'bugs'), '.md'),
     ...listFilesWithExt(path.join(resolved, 'tests', 'bugs'), '.md'),
   ];
+  const bugReportNamesAndText = bugReports
+    .map((f) => `${path.basename(f)}\n${fs.readFileSync(f, 'utf8')}`)
+    .join('\n');
 
   let greenwashingViolation = false;
   let greenwashingDetail = 'Anti-Greenwashing traceability intact.';
   if (hasTestFailAnnotations && bugReports.length === 0) {
     greenwashingViolation = true;
     greenwashingDetail =
-      'Found `test.fail()` / `test.fixme()` in test specs without a corresponding Bug Report in `docs/bugs/BUG-*.md`.';
+      'Found `test.fail()` / `test.fixme()` in test specs without a corresponding Bug Report in `docs/bugs/BUG-*.md` or `tests/bugs/BUG-*.md`.';
     selfCorrectionPrompts.push(
-      '[SELF-CORRECTION GATE-03]: Every `test.fail()` / `test.fixme()` annotation must have a corresponding spec-linked Bug Report in `docs/bugs/`. Run `npx mate-sdt bug <module>`.'
+      '[SELF-CORRECTION][GATE-03][ANTI_GREENWASHING]: Every `test.fail()` / `test.fixme()` annotation must have a corresponding spec-linked Bug Report. Run `npx mate-sdt bug <module>`.'
     );
+  } else if (hasTestFailAnnotations) {
+    const referencedBugs = [...new Set((allTestCode.match(/test\.(?:fail|fixme)\s*\([^)]*(BUG-[A-Za-z0-9-]+)/g) || []).map((m) => m.match(/BUG-[A-Za-z0-9-]+/)[0]))];
+    const missingBugs = referencedBugs.filter((id) => !bugReportNamesAndText.includes(id));
+    if (missingBugs.length > 0) {
+      greenwashingViolation = true;
+      greenwashingDetail = `Missing Bug Report file(s) for quarantined test annotation(s): ${missingBugs.join(', ')}.`;
+      selfCorrectionPrompts.push(
+        `[SELF-CORRECTION][GATE-03][MISSING_BUG_REPORT]: Create formal Bug Report(s) for ${missingBugs.join(', ')} via \`npx mate-sdt bug <module>\`.`
+      );
+    }
+  }
+
+  // Detect assertion weakening during an active heal session
+  const mateDirPath = path.join(resolved, '.mate');
+  const hasActiveHealScratchpad =
+    fs.existsSync(mateDirPath) &&
+    fs.readdirSync(mateDirPath).some((f) => f.startsWith('scratchpad-heal-'));
+  if (hasActiveHealScratchpad) {
+    const weakenedMatch = allTestCode.match(/expect\s*\([^)]+\)\s*\.(?:toBeDefined|toBeTruthy)\s*\(\s*\)/);
+    if (weakenedMatch) {
+      greenwashingViolation = true;
+      greenwashingDetail = `Detected trivial/weakened assertion \`${weakenedMatch[0]}\` during active heal session.`;
+      selfCorrectionPrompts.push(
+        '[SELF-CORRECTION][GATE-03][WEAKENED_ASSERTION]: Never weaken assertions to `toBeDefined()`/`toBeTruthy()` during self-healing. Assert concrete <invariants> or quarantine with `test.fail(true, "BUG-XXX")`.'
+      );
+    }
   }
 
   gates.push({

@@ -96,3 +96,9 @@ Synthesize the discussion into an immediate, actionable output using the format 
 - **Separate Individual Histories:** Never pass raw multi-turn scratchpads or verbose upstream tool logs into this skill or out to downstream skills.
 - **Consume & Emit `mate.handoff/v1`:** Read only the compressed upstream handoff digest + `npx mate-sdt context <module>` JIT pack, and advance stages via `npx mate-sdt session advance <flow-id> --stage=<next> --to=<skill> --digest="..."`.
 - **Provenance & Hygiene:** Tag findings with `[BOOTSTRAPPED]`, `[USER_EXPLICIT]`, `[OBSERVED | ISO]`, `[INFERRED]`, or `[TBD]`; promote verified facts via `npx mate-sdt context <module> --consolidate`.
+
+---
+
+## 🚨 Automatic Stack-Trace & Failure Entry Point
+
+- Whenever the user pastes a raw stack trace, `TimeoutError`, `StrictModeViolation`, HTTP `4xx/5xx` mismatch, or says *"fix this"* / *"heal this test"* / *"why did this fail?"*, **route immediately to `mate-triage` + `npx mate-sdt heal` (`/mate-flow-triage`)**.

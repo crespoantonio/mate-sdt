@@ -240,6 +240,8 @@ In the Agentic AI Era, **the LLM context window is scarce working memory**. Dump
 `mate-sdt` solves this by strictly separating the ephemeral **Session Workbench** (`.mate/sessions/`, `.mate/scratchpad-*.md`, `.mate/handoffs/` with TTL, $K=5$ rolling compaction, and Black-Box `mate.handoff/v1` stage handoffs) from the canonical **Memory Filing Cabinet** (`MATE-PROJECT-MAP.md`, `specs/*.mate-spec.md`, `.mate/memory/`), governed by a strict provenance trust hierarchy:
 `[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED | ISO-timestamp] > [INFERRED] / [TBD]`.
 
+When tests fail, `npx mate-sdt heal` enforces **Spec-Guarded Self-Healing**: genuine locator, sync, or typing drift is surgically repaired inside `src/pages/`, `src/components/`, or `src/fixtures/`, while real product defects violating `<invariants>` are quarantined with `test.fail(true, "BUG-XXX")`—never greenwashed.
+
 ---
 
 ## ✍️ Authorship & Open Source Community
