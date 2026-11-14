@@ -1,0 +1,50 @@
+# ==============================================================================
+# M.A.T.E. Method — Standard .gitignore
+# Spec-Driven Testing (SDT), Playwright Harness & AI Agent Operations
+# ==============================================================================
+
+# Dependencies & Package Managers
+node_modules/
+.pnp/
+.pnp.js
+
+# Environment Variables & Secrets (NEVER commit secrets or real credentials)
+.env
+.env.local
+.env.*.local
+!.env.example
+*.pem
+*.key
+
+# Playwright Test Artifacts, Traces, Videos & HTML Reports
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+.playwright-cli/
+playwright/.auth/
+*.auth-state.json
+
+# M.A.T.E. Ephemeral Sessions, Handoffs, Scratchpads & Traces
+.mate/sessions/
+.mate/handoffs/
+.mate/scratchpad-*.md
+.mate/snapshots/
+.mate/harness-state.json
+.mate/context-pack-*.md
+.mate/*.har
+
+# Mutation, Coverage & AI Evals Temp Files
+stryker-tmp/
+coverage/
+.nyc_output/
+.promptfoo/
+promptfoo-output.json
+
+# Operating System & Editor Files
+.DS_Store
+Thumbs.db
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

@@ -28,7 +28,10 @@ const {
   AI_WORKFLOW_NAMES,
   normalizeIdeName,
   detectExistingMate,
+  initMateProject,
   installMate,
+  ensureGitignore,
+  ensurePlaywrightGitignore,
   setupAiQualityPack,
   generateAiDataset,
   generateTestStrategy,
@@ -121,7 +124,14 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
       assert.ok(fs.readFileSync(path.join(tmpDir, 'package.json'), 'utf8').includes('test:smoke'));
       assert.ok(fs.existsSync(path.join(tmpDir, '.github', 'workflows', 'mate-qa.yml')));
       assert.ok(fs.existsSync(path.join(tmpDir, '.gitignore')));
-      assert.ok(fs.readFileSync(path.join(tmpDir, '.gitignore'), 'utf8').includes('.playwright-cli/'));
+      const gitignore = fs.readFileSync(path.join(tmpDir, '.gitignore'), 'utf8');
+      assert.ok(gitignore.includes('node_modules/'));
+      assert.ok(gitignore.includes('.env'));
+      assert.ok(gitignore.includes('test-results/'));
+      assert.ok(gitignore.includes('playwright-report/'));
+      assert.ok(gitignore.includes('.playwright-cli/'));
+      assert.ok(gitignore.includes('*.auth-state.json'));
+      assert.ok(gitignore.includes('.mate/sessions/'));
       assert.ok(fs.existsSync(path.join(tmpDir, 'specs', 'TEMPLATE_MATE_SPEC.md')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'specs', 'sample-order-lifecycle.mate-spec.md')));
       assert.ok(fs.existsSync(path.join(tmpDir, 'stryker.config.json')));
@@ -833,6 +843,49 @@ describe('M.A.T.E. Stack-Trace Entry Point & Spec-Guarded Self-Healing', () => {
 
       // Assert GitHub Copilot prompts exist
       assert.ok(fs.existsSync(path.join(tmpDir, '.github', 'prompts', 'mate-flow-user-story.prompt.md')));
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  test('14. ensureGitignore and initMateProject scaffold complete .gitignore (node_modules, .env, Playwright & M.A.T.E.)', () => {
+    const tmpDir = createTempDir();
+    try {
+      // 1. initMateProject creates .gitignore with essential entries
+      initMateProject(tmpDir, { mode: 'greenfield', includeStarterFiles: true });
+      const gitignorePath = path.join(tmpDir, '.gitignore');
+      assert.ok(fs.existsSync(gitignorePath));
+      let content = fs.readFileSync(gitignorePath, 'utf8');
+      assert.ok(content.includes('node_modules/'));
+      assert.ok(content.includes('.env'));
+      assert.ok(content.includes('!.env.example'));
+      assert.ok(content.includes('test-results/'));
+      assert.ok(content.includes('playwright-report/'));
+      assert.ok(content.includes('.playwright-cli/'));
+      assert.ok(content.includes('*.auth-state.json'));
+      assert.ok(content.includes('.mate/sessions/'));
+      assert.ok(content.includes('stryker-tmp/'));
+      assert.ok(content.includes('.promptfoo/'));
+
+      // 2. Existing .gitignore with custom user entries gets missing entries appended cleanly
+      const customTmpDir = createTempDir();
+      const customGitignorePath = path.join(customTmpDir, '.gitignore');
+      fs.writeFileSync(customGitignorePath, '# Custom Team Rule\nbuild/\ndist/\n', 'utf8');
+
+      const appended = ensureGitignore(customTmpDir);
+      assert.equal(appended, true);
+      const updatedContent = fs.readFileSync(customGitignorePath, 'utf8');
+      assert.ok(updatedContent.includes('# Custom Team Rule'));
+      assert.ok(updatedContent.includes('build/'));
+      assert.ok(updatedContent.includes('dist/'));
+      assert.ok(updatedContent.includes('node_modules/'));
+      assert.ok(updatedContent.includes('.env'));
+      assert.ok(updatedContent.includes('.mate/sessions/'));
+
+      // 3. Re-running ensureGitignore when all entries are present returns false without duplicating
+      const recheck = ensureGitignore(customTmpDir);
+      assert.equal(recheck, false);
+      fs.rmSync(customTmpDir, { recursive: true, force: true });
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }

@@ -38,6 +38,7 @@ const REQUIRED_FILES = [
   'templates/standalone/playwright.config.template.ts',
   'templates/standalone/tsconfig.template.json',
   'templates/standalone/env.example.template',
+  'templates/standalone/gitignore.template',
   'templates/standalone/github-workflow.template.yml',
   // 16 Synergistic M.A.T.E. Skills
   'skills/mate-core/SKILL.md',

@@ -746,6 +746,11 @@ function initMateProject(targetDir, options = {}) {
       }
     }
 
+    // Ensure .gitignore has node_modules, .env, Playwright & M.A.T.E. entries
+    if (ensureGitignore(resolved) && !created.includes('.gitignore')) {
+      created.push('.gitignore');
+    }
+
     // Ensure package.json has standard M.A.T.E. & Playwright scripts in standalone/target QA folders
     const pkgPath = path.join(resolved, 'package.json');
     const qaScripts = {
@@ -800,11 +805,73 @@ function initMateProject(targetDir, options = {}) {
 }
 
 /**
- * Ensures .gitignore has standard M.A.T.E. and @playwright/cli ignore entries
+ * Ensures .gitignore has standard M.A.T.E., Node, environment, and Playwright ignore entries
  */
-function ensurePlaywrightGitignore(targetDir) {
+function ensureGitignore(targetDir) {
   const gitignorePath = path.join(targetDir, '.gitignore');
+  const templatePath = path.join(PACKAGE_ROOT, 'templates', 'standalone', 'gitignore.template');
+
+  if (!fs.existsSync(gitignorePath)) {
+    if (fs.existsSync(templatePath)) {
+      fs.copyFileSync(templatePath, gitignorePath);
+    } else {
+      const fallback = [
+        '# Dependencies',
+        'node_modules/',
+        '',
+        '# Environment & Secrets',
+        '.env',
+        '.env.local',
+        '.env.*.local',
+        '!.env.example',
+        '*.pem',
+        '*.key',
+        '',
+        '# Playwright Test Artifacts & Reports',
+        'test-results/',
+        'playwright-report/',
+        'blob-report/',
+        'playwright/.cache/',
+        '.playwright-cli/',
+        'playwright/.auth/',
+        '*.auth-state.json',
+        '',
+        '# M.A.T.E. Ephemeral Sessions, Handoffs & Scratchpads',
+        '.mate/sessions/',
+        '.mate/handoffs/',
+        '.mate/scratchpad-*.md',
+        '.mate/snapshots/',
+        '.mate/harness-state.json',
+        '.mate/context-pack-*.md',
+        '.mate/*.har',
+        '',
+        '# Temp Files',
+        'stryker-tmp/',
+        'coverage/',
+        '.promptfoo/',
+        '',
+        '# OS Files',
+        '.DS_Store',
+        'Thumbs.db',
+        '',
+      ].join('\n');
+      fs.writeFileSync(gitignorePath, fallback, 'utf8');
+    }
+    return true;
+  }
+
+  const existing = fs.readFileSync(gitignorePath, 'utf8');
+  const hasBroadMateIgnore = /(^|\r?\n)\.mate\/?\s*(\r?\n|$)/.test(existing);
+
   const requiredEntries = [
+    'node_modules/',
+    '.env',
+    'test-results/',
+    'playwright-report/',
+    'blob-report/',
+    '.playwright-cli/',
+    'playwright/.auth/',
+    '*.auth-state.json',
     '.mate/sessions/',
     '.mate/handoffs/',
     '.mate/scratchpad-*.md',
@@ -812,26 +879,19 @@ function ensurePlaywrightGitignore(targetDir) {
     '.mate/harness-state.json',
     '.mate/context-pack-*.md',
     '.mate/*.har',
-    '.playwright-cli/',
-    'playwright/.auth/',
-    '*.auth-state.json',
+    'stryker-tmp/',
+    '.promptfoo/',
   ];
 
-  let existing = '';
-  if (fs.existsSync(gitignorePath)) {
-    existing = fs.readFileSync(gitignorePath, 'utf8');
-  }
-
-  // If legacy '.mate/' exists, don't force duplicate sub-entries unless missing
-  const hasBroadMateIgnore = /(^|\r?\n)\.mate\/?\s*(\r?\n|$)/.test(existing);
   const missing = requiredEntries.filter((entry) => {
     if (hasBroadMateIgnore && entry.startsWith('.mate/')) return false;
     return !existing.includes(entry);
   });
+
   if (missing.length > 0) {
     const block = [
       '',
-      '# M.A.T.E. & @playwright/cli artifacts and auth states',
+      '# M.A.T.E., Playwright & Security ignore rules',
       ...missing,
       '',
     ].join('\n');
@@ -839,6 +899,13 @@ function ensurePlaywrightGitignore(targetDir) {
     return true;
   }
   return false;
+}
+
+/**
+ * Backward-compatible alias for ensureGitignore
+ */
+function ensurePlaywrightGitignore(targetDir) {
+  return ensureGitignore(targetDir);
 }
 
 /**
@@ -894,8 +961,10 @@ function installMate(options = {}) {
   const installPlaywrightCli = Boolean(options.installPlaywrightCli);
 
   const scaffolded = initMateProject(targetDir, { mode, includeStarterFiles });
-  if (ensurePlaywrightGitignore(targetDir)) {
-    scaffolded.push('.gitignore (added .playwright-cli/ & *.auth-state.json)');
+  if (ensureGitignore(targetDir)) {
+    if (!scaffolded.includes('.gitignore') && !scaffolded.some((s) => s.startsWith('.gitignore'))) {
+      scaffolded.push('.gitignore (configured ignore rules for node_modules, .env, Playwright & M.A.T.E.)');
+    }
   }
   const ideFiles = [];
 
@@ -1279,6 +1348,9 @@ function setupAiQualityPack(targetDir = '.', options = {}) {
       // Ignore malformed package.json
     }
   }
+
+  // Ensure AI Evals & temporary outputs are ignored in .gitignore
+  ensureGitignore(resolved);
 
   return { targetDir: resolved, created };
 }
@@ -1776,6 +1848,8 @@ module.exports = {
   detectExistingMate,
   initMateProject,
   installMate,
+  ensureGitignore,
+  ensurePlaywrightGitignore,
   installPlaywrightCliPackages,
   installUniversalAgents,
   installCodex,
