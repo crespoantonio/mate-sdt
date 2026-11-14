@@ -29,16 +29,28 @@ This skill governs the long-term architectural health of the test automation cod
 
 ## 🔍 M.A.T.E. Anti-Pattern & Smell Detection Rules
 
-When auditing `tests/` and `src/` (or executing `npx mate-sdt audit`), scan for these six violation categories:
+When auditing `tests/` and `src/` (or executing `npx mate-sdt audit`), scan for these core architectural violations:
 
 | Violation Code | Anti-Pattern | Detection Heuristic | Severity |
 | :--- | :--- | :--- | :---: |
 | **`MATE-ANTI-01`** | **Arbitrary Sleeps (Commandment #4)** | `waitForTimeout(`, `Thread.sleep(`, `time.sleep(`, `.pause(` | 🔴 **Critical** |
 | **`MATE-ANTI-02`** | **Committed Focus/Skip Locks** | `test.only(`, `describe.only(`, `it.only(` left in test files | 🔴 **Critical** |
-| **`MATE-ANTI-03`** | **DIP Violation (Hard Instantiation)** | `new [A-Z]\w*Page\(` inside `*.spec.ts` instead of fixture injection | 🟡 **High** |
-| **`MATE-ANTI-04`** | **Cosmetic / Weak Assertions** | `toBeDefined()`, `not.toBeNull()` as the sole oracle without value/schema checks | 🟡 **High** |
+| **`MATE-ANTI-03`** | **DIP Violation (Hard Instantiation)** | `new [A-Z]\w*Page\(` inside `*.spec.ts` instead of fixture injection | 🔴 **Critical** |
+| **`MATE-ANTI-04`** | **Cosmetic / Weak Assertions** | `toBeDefined()`, `not.toBeNull()` as the sole oracle without value/schema checks | 🟡 **Medium** |
 | **`MATE-ANTI-05`** | **Fragile DOM Selectors** | Deep XPath (`//div/div[3]`), `:nth-child`, or dynamic CSS class chains inside specs | 🟡 **Medium** |
-| **`MATE-ANTI-06`** | **Hardcoded Secrets / Credentials** | Literal passwords, bearer tokens, or API keys inside test files | 🔴 **Critical** |
+| **`MATE-ANTI-06`** | **Permissive Discrepancy Regex (Silent Greenwashing)** | `toContainText(/A\|B/)`, `toHaveURL(/A\|B/)` to mask copy/behavior drift | 🟡 **High** |
+| **`MATE-ANTI-07`** | **Bloated Page Object (Single-Case Assertions)** | `assertDuplicateEmailStrict()`, `assertMissingField()` hardcoding expectations | 🟡 **Medium** |
+| **`MATE-ANTI-08`** | **Direct Locators & Actions in Specs (POM & SRP Violation)** | `page.locator()`, `page.getBy*()`, `page.goto()`, `page.fill/click()` in specs | 🔴 **Critical** |
+
+---
+
+## 🧹 Continuous Entropy & Doc-Gardening GC (`npx mate-sdt gc`)
+
+Run `npx mate-sdt gc` regularly to eliminate codebase entropy and technical debt:
+1. **Tech Debt & Entropy Tracker:** Reads and updates `.mate/exec-plans/tech-debt-tracker.md`. Agents must review and resolve any unchecked `- [ ]` tasks before concluding their turn.
+2. **Quality Scorecard:** Automatically computes and writes `docs/QUALITY_SCORE.md` with grades (`A` to `F`), mutation scores, and unmapped invariants.
+3. **Unindexed Artifact Detection:** Flags any newly created Page Objects, Component Objects, or Specs that are missing from `MATE-PROJECT-MAP.md`.
+4. **Session Pruning:** Automatically prunes expired sessions in `.mate/sessions/` past their 24h TTL.
 
 ---
 

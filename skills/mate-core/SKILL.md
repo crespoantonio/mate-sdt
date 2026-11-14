@@ -20,6 +20,7 @@ Its purpose is to ensure that any software project implements a quality architec
 ## 🎯 The 6 Core Operational Mandates of `mate-core`
 
 1. **Context Engineering — Sessions, Memory & Failure-Mode Guardrails (*Write, Select, Compress, Isolate*):**  
+   - **Active Execution Plan Mandate:** Never perform multi-phase work (greenfield scaffolding, user story coverage, or test suite refactoring) directly in chat scratchpads. **MUST persist plans in `.mate/exec-plans/active/<name>.md`** with actionable `- [ ]` tasks, check them off as each phase is completed, and move the plan to `.mate/exec-plans/completed/` once verified with `npx mate-sdt gate --loop`.
    - **Separate Session Workbench from Memory Filing Cabinet:** Store ephemeral per-flow working state (last $K=5$ raw findings, active stage, scratchpad) in `.mate/sessions/<flow-id>.json`, `.mate/scratchpad-<module>.md`, and `.mate/handoffs/` (24h TTL, rolling + event-based compaction on stage transitions via `npx mate-sdt session`). Store canonical, cross-session knowledge in `MATE-PROJECT-MAP.md` (`< 3,000 tokens` Tier-1 RAM), `specs/*.mate-spec.md`, and `.mate/memory/procedural-playbooks.md`.
    - **Select (3-Bucket / 7-Layer JIT Context Pack):** Run `npx mate-sdt context <module>` to build a phase-scoped JIT pack instead of dumping raw repository files.
    - **Compress & Consolidate:** Compress `@playwright/cli` YAML ARIA snapshots (`<= 800 tokens`) and HAR logs; fold stale sessions with `--compact` and promote `[OBSERVED]` findings into canonical memory (`CREATE`/`UPDATE`/`DELETE`) with `--consolidate`.
@@ -33,7 +34,8 @@ Its purpose is to ensure that any software project implements a quality architec
    - **Open/Closed (OCP):** Extensible base classes and fixtures that allow extending behavior without modifying existing code.
    - **Liskov Substitution (LSP):** Base page abstractions and API clients must be substitutable by their derivatives without breaking test contracts.
    - **Interface Segregation (ISP):** Lean, specific interfaces for test data and contract models (zero `any` types).
-   - **Dependency Inversion (DIP):** Dependency injection via Playwright fixtures (`test.extend()`) rather than hard-coupled `new PageObject(page)` instantiation inside test files.
+   - **Dependency Inversion (DIP):** Dependency injection via Playwright fixtures (`test.extend()`) rather than hard-coupled `new PageObject(page)` instantiation inside test files (`MATE-ANTI-03` CRITICAL).
+   - **Zero Direct Locators & Actions in Test Specs (`MATE-ANTI-08` CRITICAL):** Test specs (`tests/**/*.spec.ts`) must NEVER contain `page.locator()`, `page.getBy*()`, `page.goto()`, or direct `page.fill/click/selectOption()`. Every UI interaction must be encapsulated inside Page Objects (`src/pages/*.page.ts`) extending `BasePage` or Component Objects (`src/components/*.component.ts`) extending `BaseComponent`, injected via `src/fixtures/mate.fixtures.ts`. If a screen or modal lacks a Page Object, scaffold it first!
    - **Anti-Bloated Page Objects (`MATE-ANTI-07`):** Never bloat Page Objects with dozens of single-case assertion methods (`assertInvalidEmail()`, `assertMissingHouseNumber()`). Parametrize assertions (`assertAlertMessage(expected)`), expose public `readonly Locator`s for `expect.soft()` flexibility, keep synchronization Guards private inside actions, and extract stateful/shared widgets into dedicated `BaseComponent` objects.
 5. **The Anti-Greenwashing Mandate (Never Only Write Tests That Pass):**  
    - **Specification Over Implementation:** The User Story and `*.mate-spec.md` are the source of truth—never the potentially buggy application.
@@ -84,11 +86,17 @@ Its purpose is to ensure that any software project implements a quality architec
 ```text
 project-root/
 ├── MATE-PROJECT-MAP.md          <-- [CRITICAL] Living architecture & QA context index
+├── .mate/                       <-- M.A.T.E. Context & Session Workbench (auto-gitignored)
+│   ├── exec-plans/              <-- Multi-step plans (active/ -> completed/) & tech-debt-tracker.md
+│   ├── memory/                  <-- Procedural playbooks (procedural-playbooks.md)
+│   ├── sessions/                <-- Ephemeral flow sessions (24h TTL)
+│   └── harness-state.json       <-- State persisted by closed-loop gate
 ├── docs/                        <-- QA Documentation & Strategy
 │   ├── TEST-STRATEGY.md
 │   ├── test-plans/              <-- Sprint / Release Test Plans (TP-*.md)
 │   ├── test-cases/              <-- Test Case Matrices (TC-[module].md & .csv for Jira/Xray/Excel/Notion)
-│   └── bugs/                    <-- Structured bug reports linked to invariants (BUG-*.md)
+│   ├── bugs/                    <-- Structured bug reports linked to invariants (BUG-*.md)
+│   └── QUALITY_SCORE.md         <-- Codebase health score updated by npx mate-sdt gc
 ├── specs/                       <-- M.A.T.E. specifications & release waivers
 │   ├── TEMPLATE_MATE_SPEC.md
 │   ├── waivers/                 <-- Formal Release Waivers (WVR-*.md)

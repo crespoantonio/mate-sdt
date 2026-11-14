@@ -90,6 +90,10 @@ In M.A.T.E., known product defects are NEVER swept under the rug with `test.skip
 
 ## 🩹 Spec-Guarded Self-Healing (`npx mate-sdt heal`) & 5-Class Decision Matrix
 
+> [!IMPORTANT]
+> **Token-Friendly Triage Directive:**  
+> Never dump 200+ lines of raw console logs or terminal stack traces into the chat conversation. Always run `npx mate-sdt heal [target]` first. This sanitizes ANSI codes, isolates failing project frames against `<invariants>`, and writes a token-budgeted `<error_digest>` (`<= 400` tokens) directly into `.mate/scratchpad-heal-<module>.md`.
+
 1. **Compress & Select (`npx mate-sdt heal [target]`):** Strip ANSI/node_modules noise into `<error_digest>` (`<= 400` tokens), extract `+-25` lines around failing project frames + `<intent_model>`/`<invariants>`, and write `.mate/scratchpad-heal-<module>.md` (max 3 attempts).
 2. **3-Stage Black-Box Isolation:** Stage 1 (`mate-pw-forensics` live recon) -> Stage 2 (`mate-triage` root-cause verdict) -> Stage 3 (surgical code patch or `test.fail()` quarantine).
 3. **5-Class "Heal vs. Quarantine" Decision Matrix:**
