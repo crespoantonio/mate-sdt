@@ -973,8 +973,17 @@ function buildJitContextPack(resolved, moduleName, options = {}) {
 
   const header = [
     `# 🧠 M.A.T.E. Just-In-Time (JIT) Context Pack: ${moduleName}`,
-    `> Generated ${new Date().toISOString()} | 3-Bucket / 7-Layer payload | Phase: \`${phaseKey}\` | Loop: WRITE + SELECT + COMPRESS + ISOLATE`,
+    `> Generated ${new Date().toISOString()} | 3-Bucket / 7-Layer payload | Phase: \`${phaseKey}\`${options.subagent ? ` | Sub-Agent: \`${options.subagent}\`` : ''} | Loop: WRITE + SELECT + COMPRESS + ISOLATE`,
     `> Precedence (Anti-Clash): 1. Approved specs (*.mate-spec.md [BOOTSTRAPPED]) > 2. Fresh [OBSERVED | ts] > 3. MATE-PROJECT-MAP.md > 4. Legacy code.`,
+    ...(options.subagent
+      ? [
+          '',
+          `## 🤖 Sub-Agent Delegation & Isolation Contract (\`--subagent ${options.subagent}\`)`,
+          `- **Target Sub-Agent Skill:** \`${options.subagent}\` (operates with Separate Individual History — never inherit parent scratchpad noise).`,
+          `- **Zero-Assumption Escalation:** Never guess undocumented business rules. Tag unknowns as \`[TBD: <question>]\` under \`## Open Questions for Human QA\` and return \`STATUS: BLOCKED_ON_USER_INPUT\`.`,
+          `- **Required Return Digest:** Persist output artifact to disk and emit a compact \`mate.handoff/v1\` digest via \`npx mate-sdt session advance\`.`,
+        ]
+      : []),
     '',
   ].join('\n');
 

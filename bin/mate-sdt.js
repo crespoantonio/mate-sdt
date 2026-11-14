@@ -81,6 +81,7 @@ function parseFlags(args) {
     last: false,
     verify: false,
     trace: null,
+    subagent: null,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -119,6 +120,10 @@ function parseFlags(args) {
       flags.trace = args[++i];
     } else if (arg.startsWith('--trace=')) {
       flags.trace = arg.slice('--trace='.length);
+    } else if (arg === '--subagent' && args[i + 1]) {
+      flags.subagent = args[++i];
+    } else if (arg.startsWith('--subagent=')) {
+      flags.subagent = arg.slice('--subagent='.length);
     } else if (arg === '--max-iterations' && args[i + 1]) {
       flags.maxIterations = Number(args[++i]) || 5;
     } else if (arg.startsWith('--max-iterations=')) {
@@ -522,6 +527,7 @@ function handleContext(flags) {
     phase: flags.phase,
     task: flags.task,
     flow: flags.flow,
+    subagent: flags.subagent,
   });
 
   if (flags.json) {
@@ -595,6 +601,11 @@ function handleContext(flags) {
       const b = ctx.packMeta.bucketStats;
       console.log(
         `     Buckets -> System+Guardrails+FewShots: ~${b.bucket1 || 0}t | Memory+State+Handoff+Specs: ~${b.bucket2 || 0}t | Immediate Task+Schema: ~${b.bucket3 || 0}t`
+      );
+    }
+    if (ctx.subagentPromptPath) {
+      console.log(
+        color(`     🤖 Sub-Agent Scoped Prompt (${flags.subagent}): ${ctx.subagentPromptPath}`, COLORS.cyan, COLORS.bold)
       );
     }
   }
@@ -759,6 +770,22 @@ function handleGate(flags) {
     for (const p of report.selfCorrectionPrompts) {
       console.log(`  • ${p}`);
     }
+  }
+
+  if (report.blockedOnUserInput) {
+    console.error(
+      color(
+        '\n⏸️  STATUS: BLOCKED_ON_USER_INPUT — Unresolved [TBD] or [INFERRED] tags detected in <invariants> or <intent_model>.',
+        COLORS.yellow,
+        COLORS.bold
+      )
+    );
+    console.error(
+      color(
+        '   Ask the human QA/PO to resolve ## Open Questions for Human QA before resuming automation (Ask, Never Guess!).',
+        COLORS.yellow
+      )
+    );
   }
 
   console.log('');

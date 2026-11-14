@@ -60,3 +60,8 @@ Append newly discovered coverage gaps, flaky test patterns, and the updated Test
 3. **5-Class Verdict (`mate-triage`):** Classify into `UI_LOCATOR_DRIFT`, `SYNC_OR_FLAKY_RACE`, `HARNESS_OR_TYPING_DRIFT`, `SPEC_EVOLUTION_DRIFT`, or `REAL_PRODUCT_BUG`.
 4. **Surgical Auto-Heal OR Anti-Greenwashing Quarantine:** Patch Page/Component/Fixture (`GATE-04`), OR keep true assertion with `test.fail(true, "BUG-XXX")` + `npx mate-sdt bug <module>`.
 5. **5-Gate Verification & Memory Consolidation:** Run `npx mate-sdt heal [target] --verify --consolidate` + `npx mate-sdt gate --loop` (max 3 heal attempts).
+
+## Zero-Assumption Escalation & Sub-Agent Isolation Protocol
+
+- **Ask, Never Guess (`STATUS: BLOCKED_ON_USER_INPUT`):** Inspect local context (`MATE-PROJECT-MAP.md`, `specs/`, code) and live browser/API responses first. Never invent business thresholds, auth boundaries, or SLA numbers. Tag any genuine requirement gap as `[TBD: <exact question for PO/Dev/QA>]` inside `## Open Questions for Human QA`, finish all unblocked work, and halt when `npx mate-sdt validate` or `npx mate-sdt gate` returns `STATUS: BLOCKED_ON_USER_INPUT` to ask the human.
+- **Sub-Agent Context Isolation (`--subagent` & `mate.handoff/v1`):** When delegating to a sub-agent or running a multi-stage pipeline (Reader/Extractor -> Spec Scorer -> Code Writer -> Independent Reviewer), build a scoped prompt via `npx mate-sdt context <module> --subagent <skill-name>` (`.mate/subagent-prompt-<module>-<skill>.md`). Pass only the structured `mate.handoff/v1` digest between stages (or run `--compact` in single-agent IDEs) so raw exploratory noise never pollutes downstream context windows.

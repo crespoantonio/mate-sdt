@@ -206,11 +206,12 @@ npx mate-sdt status
 
 ---
 
-### 11. `context [module]` (Context Engineering, Compaction & Consolidation)
-Audits Tier-1 (`MATE-PROJECT-MAP.md <= 3,000 tokens`), checks the 4 Context Failure Modes, compacts stale sessions (`--compact`), consolidates verified `[OBSERVED]` facts into canonical memory (`--consolidate`), and builds the **3-Bucket / 7-Layer JIT Context Pack** in `.mate/context-pack-<module>.md`.
+### 11. `context [module]` (Context Engineering, Sub-Agent Scoping, Compaction & Consolidation)
+Audits Tier-1 (`MATE-PROJECT-MAP.md <= 3,000 tokens`), checks the 4 Context Failure Modes, compacts stale sessions (`--compact`), consolidates verified `[OBSERVED]` facts into canonical memory (`--consolidate`), builds the **3-Bucket / 7-Layer JIT Context Pack** in `.mate/context-pack-<module>.md`, and generates isolated sub-agent prompts via `--subagent <skill-name>` in `.mate/subagent-prompt-<module>-<skill>.md`.
 
 ```bash
 npx mate-sdt context checkout --phase=model --task="Define INV-01"
+npx mate-sdt context checkout --subagent mate-pw-codegen
 npx mate-sdt context checkout --compact
 npx mate-sdt context checkout --consolidate --fact="[OBSERVED | 2026-11-13T12:00:00Z] checkout: INV-01 requires total > 0"
 npx mate-sdt context checkout --consolidate --dry-run --json
@@ -242,7 +243,7 @@ npx mate-sdt audit --gc
 ---
 
 ### 14. `gate [dir] [--loop]` (Closed-Loop Verification Harness & Safety Guard)
-Runs all 5 deterministic gates (`GATE-01`..`GATE-05`). With `--loop`, executes up to `--max-iterations=5` persisting `[SELF-CORRECTION]` payloads to `.mate/harness-state.json`. Also supports `--check-command="<cmd>"` to validate against `blockDestructiveCommands`.
+Runs all 5 deterministic gates (`GATE-01`..`GATE-05`). With `--loop`, executes up to `--max-iterations=5` persisting `[SELF-CORRECTION]` payloads to `.mate/harness-state.json`. If any specification contains unresolved `[TBD]` or `[INFERRED]` tags inside `<invariants>` or `<intent_model>`, returns `STATUS: BLOCKED_ON_USER_INPUT` and immediately halts `--loop` on iteration 1 so the agent asks the human QA/PO instead of guessing. Also supports `--check-command="<cmd>"` to validate against `blockDestructiveCommands`.
 
 ```bash
 npx mate-sdt gate --loop

@@ -2,7 +2,7 @@
 name: mate-ai-redteam
 description: >-
   AI Quality Pack — Pillar T Adversarial Red Teaming for AI Agents, Chatbots & RAGs (OWASP LLM Top 10).
-  USE WHEN running automated security penetration testing and adversarial probes against AI systems
+  USE WHEN: running automated security penetration testing and adversarial probes against AI systems
   using `promptfoo redteam` or DeepEval red-teaming plugins (Prompt Injection, Indirect RAG Poisoning,
   Tool RBAC/BOLA bypasses, Excessive Agency, PII/Secret Leakage, System Prompt Extraction, and Multi-Turn Jailbreaks).
   DO NOT USE WHEN testing standard functional RAG accuracy (use `mate-ai-evals`) or synthesizing initial
@@ -67,3 +67,8 @@ For agents with persistent memory, execute `memory-redteam.promptfoo.yaml` targe
 - **Pre-Persistence PII Redaction:** Secrets, JWTs, API keys, and payment cards scrubbed *before* storage.
 - **`THR-MEM-RACE` Concurrent Write Manipulation:** Parallel session writes to the same entity must serialize deterministically.
 - **Black-Box Handoff:** Operate from `mate.handoff/v1` digests; never inherit raw upstream discovery transcripts.
+
+## Zero-Assumption Escalation & Sub-Agent Isolation Protocol
+
+- **Ask, Never Guess (`STATUS: BLOCKED_ON_USER_INPUT`):** Inspect local context (`MATE-PROJECT-MAP.md`, `specs/`, code) and live browser/API responses first. Never invent business thresholds, auth boundaries, or SLA numbers. Tag any genuine requirement gap as `[TBD: <exact question for PO/Dev/QA>]` inside `## Open Questions for Human QA`, finish all unblocked work, and halt when `npx mate-sdt validate` or `npx mate-sdt gate` returns `STATUS: BLOCKED_ON_USER_INPUT` to ask the human.
+- **Sub-Agent Context Isolation (`--subagent` & `mate.handoff/v1`):** When delegating to a sub-agent or running a multi-stage pipeline (Reader/Extractor -> Spec Scorer -> Code Writer -> Independent Reviewer), build a scoped prompt via `npx mate-sdt context <module> --subagent <skill-name>` (`.mate/subagent-prompt-<module>-<skill>.md`). Pass only the structured `mate.handoff/v1` digest between stages (or run `--compact` in single-agent IDEs) so raw exploratory noise never pollutes downstream context windows.

@@ -2,7 +2,7 @@
 name: mate-ai-dataset
 description: >-
   AI Quality Pack — Socratic Dataset Discovery & Synthetic Golden Dataset Engineering.
-  USE WHEN starting to test an AI Agent, Chatbot, or RAG system that has no evaluation dataset
+  USE WHEN: starting to test an AI Agent, Chatbot, or RAG system that has no evaluation dataset
   (or an incomplete one), when interviewing the user/tester to extract ground-truth expectations,
   tool boundaries, and RAG knowledge sources, or when synthesizing Golden & Adversarial Datasets
   (for Promptfoo and DeepEval).
@@ -106,3 +106,8 @@ For stateful agents with persistent memory, generate a companion Golden Memory S
 - **Layer 2 (`ORA-MEM-LATENCY <= 200ms`):** Retrieval `top_k`, `min_recall_at_k`, and `distractor_memory_keys`.
 - **Layer 3 (`Over-Influence` & `THR-MEM-RACE`):** Concurrent writer scenarios and irrelevant-memory resistance.
 - **Black-Box Handoff:** Emit only `mate.handoff/v1` digests (`npx mate-sdt session advance`) to `mate-ai-evals` and `mate-ai-redteam`.
+
+## Zero-Assumption Escalation & Sub-Agent Isolation Protocol
+
+- **Ask, Never Guess (`STATUS: BLOCKED_ON_USER_INPUT`):** Inspect local context (`MATE-PROJECT-MAP.md`, `specs/`, code) and live browser/API responses first. Never invent business thresholds, auth boundaries, or SLA numbers. Tag any genuine requirement gap as `[TBD: <exact question for PO/Dev/QA>]` inside `## Open Questions for Human QA`, finish all unblocked work, and halt when `npx mate-sdt validate` or `npx mate-sdt gate` returns `STATUS: BLOCKED_ON_USER_INPUT` to ask the human.
+- **Sub-Agent Context Isolation (`--subagent` & `mate.handoff/v1`):** When delegating to a sub-agent or running a multi-stage pipeline (Reader/Extractor -> Spec Scorer -> Code Writer -> Independent Reviewer), build a scoped prompt via `npx mate-sdt context <module> --subagent <skill-name>` (`.mate/subagent-prompt-<module>-<skill>.md`). Pass only the structured `mate.handoff/v1` digest between stages (or run `--compact` in single-agent IDEs) so raw exploratory noise never pollutes downstream context windows.

@@ -84,6 +84,8 @@ function validateSpecFile(filePath) {
   }
 
   // 4. Pillar A Rule: Check Invariant IDs in <invariants>
+  let blockedOnUserInput = false;
+  const isTemplateFile = path.basename(resolved).toUpperCase().includes('TEMPLATE_MATE_SPEC');
   if (content.includes('<invariants>') && content.includes('</invariants>')) {
     const invText = content.split('<invariants>')[1].split('</invariants>')[0];
     if (!/INV-\d+/i.test(invText)) {
@@ -91,11 +93,28 @@ function validateSpecFile(filePath) {
         'No standard invariant IDs (e.g., INV-01, INV-02) detected inside <invariants> block.'
       );
     }
+    if (!isTemplateFile && /\[(?:TBD|INFERRED)\b/i.test(invText)) {
+      blockedOnUserInput = true;
+      errors.push(
+        'STATUS: BLOCKED_ON_USER_INPUT — Unresolved [TBD] or [INFERRED] tag inside <invariants>. Resolve open questions with the human user before generating tests.'
+      );
+    }
+  }
+  if (!isTemplateFile && content.includes('<intent_model>') && content.includes('</intent_model>')) {
+    const intentText = content.split('<intent_model>')[1].split('</intent_model>')[0];
+    if (/\[(?:TBD|INFERRED)\b/i.test(intentText)) {
+      blockedOnUserInput = true;
+      errors.push(
+        'STATUS: BLOCKED_ON_USER_INPUT — Unresolved [TBD] or [INFERRED] tag inside <intent_model>. Resolve open questions with the human user before generating tests.'
+      );
+    }
   }
 
   const remediations = errors.map((err) => {
     let hint = 'Ensure the specification follows `templates/TEMPLATE_MATE_SPEC.md` and `docs/SPEC_STANDARD.md`.';
-    if (err.includes('YAML frontmatter')) {
+    if (err.includes('BLOCKED_ON_USER_INPUT')) {
+      hint = 'HALT code generation and ask the human user to clarify the [TBD]/[INFERRED] requirement, then promote to [USER_EXPLICIT] or [BOOTSTRAPPED].';
+    } else if (err.includes('YAML frontmatter')) {
       hint = 'Add YAML frontmatter (`---\\nmodule: <name>\\nversion: 1.0.0\\nstatus: DRAFT\\n---`) at line 1.';
     } else if (err.includes('Forbidden Transitions')) {
       hint = 'Add an explicit `Forbidden Transitions` subsection inside `<intent_model>` listing illegal state jumps.';
@@ -114,6 +133,7 @@ function validateSpecFile(filePath) {
 
   return {
     valid: errors.length === 0,
+    blockedOnUserInput,
     filePath: resolved,
     errors,
     warnings,

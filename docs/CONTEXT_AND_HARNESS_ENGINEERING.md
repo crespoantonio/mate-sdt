@@ -31,9 +31,9 @@ flowchart LR
 | Operation | M.A.T.E. Architectural Mechanism | How It Protects the Context Window |
 | :--- | :--- | :--- |
 | **1. WRITE**<br>*(Externalized Memory)* | **`MATE-PROJECT-MAP.md`**, `specs/*.mate-spec.md`, `docs/test-cases/TC-*.md`, and `.mate/harness-state.json`. | Persists the repository's module map, reusable Page/Component Objects, fixtures, and known bugs outside the volatile chat window so agents never scan the full repo. |
-| **2. SELECT**<br>*(Just-In-Time Routing)* | **3-Tier Progressive Context Disclosure** across 15 granular skills with strict `USE WHEN:` and `SYNERGY:` triggers + `npx mate-sdt context <module>`. | **Tier 1 (`< 3,000 tokens`):** `MATE-PROJECT-MAP.md` + `mate-core`.<br>**Tier 2:** Only the active phase skill (e.g., `mate-pw-recon` *or* `mate-pw-codegen`).<br>**Tier 3:** Lazy-loaded `references/*.md` fetched only when needed. |
+| **2. SELECT**<br>*(Just-In-Time Routing)* | **3-Tier Progressive Context Disclosure** across 20 granular skills (16 core + 4 AI pack) with strict `USE WHEN:` and `SYNERGY:` triggers + `npx mate-sdt context <module> [--subagent <skill>]`. | **Tier 1 (`< 3,000 tokens`):** `MATE-PROJECT-MAP.md` + `mate-core`.<br>**Tier 2:** Only the active phase skill (e.g., `mate-pw-recon` *or* `mate-pw-codegen`).<br>**Tier 3:** Lazy-loaded `references/*.md` fetched only when needed. |
 | **3. COMPRESS**<br>*(Signal-to-Noise)* | **`@playwright/cli` YAML ARIA Snapshots** (`e1`, `e2` refs) + XML-delimited spec blocks (`<intent_model>`, `<invariants>`). | Replaces 80k-token raw DOM dumps with `< 800-token` semantic ARIA trees; promotes discovered locators immediately into `src/pages/*.page.ts` and clears raw tool outputs. |
-| **4. ISOLATE**<br>*(Anti-Poisoning)* | **Epistemic Provenance Tags (`[OBSERVED]`, `[INFERRED]`, `[TBD]`)** enforced by the Handling Uncertainty Protocol. | Strictly separates verified facts (`[OBSERVED]` in live browser/code) from assumptions (`[INFERRED]`) and missing knowledge (`[TBD]`), preventing Context Poisoning. |
+| **4. ISOLATE**<br>*(Anti-Poisoning & Sub-Agents)* | **Epistemic Provenance Tags (`[BOOTSTRAPPED] > [USER_EXPLICIT] > [OBSERVED] > [INFERRED] / [TBD]`)**, `STATUS: BLOCKED_ON_USER_INPUT` gate, and **3-Phase Sub-Agent Pipeline Isolation (`--subagent <skill>` & `mate.handoff/v1`)**. | Strictly separates verified facts from assumptions/gaps, halts automation when `[TBD]`/`[INFERRED]` appears in `<invariants>`, and scopes sub-agent contexts so raw exploratory noise never leaks across phases. |
 
 ### CLI Tooling for Context Engineering:
 Run the **M.A.T.E. Context Analyzer & JIT Pack Assembler** at any time:
@@ -43,6 +43,9 @@ npx mate-sdt context
 
 # Generate a compressed Just-In-Time (JIT) Context Pack (.mate/context-pack-<module>.md) for a specific module
 npx mate-sdt context checkout
+
+# Generate a scoped sub-agent prompt (.mate/subagent-prompt-<module>-<skill>.md) for isolated delegation
+npx mate-sdt context checkout --subagent mate-pw-codegen
 ```
 
 ---

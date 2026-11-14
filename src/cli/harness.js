@@ -85,6 +85,7 @@ function analyzeContextEngineering(targetDir = '.', moduleName = null, options =
   let consolidationResult = null;
   let contextPackPath = null;
   let contextPackTokens = 0;
+  let subagentPromptPath = null;
   let packMeta = null;
 
   if (options.compact) {
@@ -107,12 +108,19 @@ function analyzeContextEngineering(targetDir = '.', moduleName = null, options =
       phase: options.phase,
       task: options.task,
       flow: options.flow,
+      subagent: options.subagent,
     });
     fs.writeFileSync(contextPackPath, built.markdown, 'utf8');
     contextPackTokens = built.tokens;
+    if (options.subagent) {
+      const safeSkill = String(options.subagent).toLowerCase().replace(/[^a-z0-9-_]+/g, '-');
+      subagentPromptPath = path.join(mateDir, `subagent-prompt-${safeMod}-${safeSkill}.md`);
+      fs.writeFileSync(subagentPromptPath, built.markdown, 'utf8');
+    }
     packMeta = {
       bucketStats: built.bucketTokens,
       phase: built.phase,
+      subagent: options.subagent || null,
     };
   }
 
@@ -139,6 +147,7 @@ function analyzeContextEngineering(targetDir = '.', moduleName = null, options =
     },
     contextPackPath,
     contextPackTokens,
+    subagentPromptPath,
     packMeta,
     compactionResult,
     consolidationResult,
@@ -299,6 +308,10 @@ function runHarnessGate(targetDir = '.') {
   }
 
   const allPassed = gates.every((g) => g.passed);
+  const blockedOnUserInput = Boolean(
+    specRes.results.some((r) => r.blockedOnUserInput) ||
+      hygieneErrors.some((i) => i.code && i.code.includes('POISONING'))
+  );
 
   // Gate 5: State Persistence (.mate/harness-state.json)
   const mateStateDir = path.join(resolved, '.mate');
@@ -306,6 +319,8 @@ function runHarnessGate(targetDir = '.') {
   const stateFilePath = path.join(mateStateDir, 'harness-state.json');
   const statePayload = {
     timestamp: new Date().toISOString(),
+    status: blockedOnUserInput ? 'BLOCKED_ON_USER_INPUT' : allPassed ? 'PASS' : 'FAIL',
+    blockedOnUserInput,
     allGatesPassed: allPassed,
     healthGrade: audit.grade,
     healthScore: audit.score,
@@ -347,7 +362,7 @@ function runHarnessLoop(targetDir = '.', options = {}) {
       healthScore: finalReport.healthScore,
       promptCount: finalReport.selfCorrectionPrompts.length,
     });
-    if (finalReport.allGatesPassed) {
+    if (finalReport.allGatesPassed || finalReport.blockedOnUserInput) {
       break;
     }
     if (typeof options.onIteration === 'function') {
@@ -366,6 +381,8 @@ function runHarnessLoop(targetDir = '.', options = {}) {
       mode: 'closed-loop',
       maxIterations,
       iterationsExecuted: history.length,
+      iterationsRun: history.length,
+      pausedOnBlockedInput: Boolean(finalReport && finalReport.blockedOnUserInput),
       converged: Boolean(finalReport && finalReport.allGatesPassed),
       history,
     },

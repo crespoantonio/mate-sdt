@@ -99,3 +99,8 @@ In M.A.T.E., known product defects are NEVER swept under the rug with `test.skip
    - **`SPEC_EVOLUTION_DRIFT`:** HALT & confirm with human; update `specs/<module>.mate-spec.md` (`GATE-02`) before tests.
    - **`REAL_PRODUCT_BUG`:** STRICT QUARANTINE (`GATE-03`): Keep true assertion, mark `test.fail(true, "BUG-XXX")`, and run `npx mate-sdt bug <module>`.
 4. **Verify & Consolidate:** Finish with `npx mate-sdt heal [target] --verify --consolidate` (and `npx mate-sdt gate --loop`) to record root-cause playbooks in `.mate/memory/procedural-playbooks.md`.
+
+## Zero-Assumption Escalation & Sub-Agent Isolation Protocol
+
+- **Ask, Never Guess (`STATUS: BLOCKED_ON_USER_INPUT`):** Inspect local context (`MATE-PROJECT-MAP.md`, `specs/`, code) and live browser/API responses first. Never invent business thresholds, auth boundaries, or SLA numbers. Tag any genuine requirement gap as `[TBD: <exact question for PO/Dev/QA>]` inside `## Open Questions for Human QA`, finish all unblocked work, and halt when `npx mate-sdt validate` or `npx mate-sdt gate` returns `STATUS: BLOCKED_ON_USER_INPUT` to ask the human.
+- **Sub-Agent Context Isolation (`--subagent` & `mate.handoff/v1`):** When delegating to a sub-agent or running a multi-stage pipeline (Reader/Extractor -> Spec Scorer -> Code Writer -> Independent Reviewer), build a scoped prompt via `npx mate-sdt context <module> --subagent <skill-name>` (`.mate/subagent-prompt-<module>-<skill>.md`). Pass only the structured `mate.handoff/v1` digest between stages (or run `--compact` in single-agent IDEs) so raw exploratory noise never pollutes downstream context windows.

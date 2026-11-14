@@ -2,7 +2,7 @@
 name: mate-ai-observability
 description: >-
   AI Quality Pack — AI Agent Observability, OpenTelemetry/OpenInference Trace Forensics & Production-to-Dataset Loop.
-  USE WHEN instrumenting or auditing AI Agent execution traces (OpenTelemetry GenAI conventions,
+  USE WHEN: instrumenting or auditing AI Agent execution traces (OpenTelemetry GenAI conventions,
   OpenInference spans, Langfuse, Arize Phoenix), diagnosing why an agent or RAG pipeline failed
   (Retriever vs. Generator vs. Tool Loop), enforcing token/step/latency budgets, or converting
   failed production traces into new Golden Dataset test cases.
@@ -69,3 +69,8 @@ Run `node tests/ai-evals/traces/memory_trace_auditor.js` to enforce:
 - **Layer 1 Async Contract (`ORA-MEM-GEN-ASYNC`):** `memory.generate` executes with `wait_for_completion: false` and zero unredacted PII.
 - **Span-Level Fault Isolation Tags:** Classify every failure cleanly as `[RETRIEVER_DEFECT]`, `[MEMORY_ETL_DEFECT]`, `[COMPACTION_DEFECT]`, or `[GENERATOR_DEFECT]`.
 - **Black-Box Handoff:** Emit sanitized regression digests via `npx mate-sdt session advance` back to `mate-ai-dataset` / `mate-triage`.
+
+## Zero-Assumption Escalation & Sub-Agent Isolation Protocol
+
+- **Ask, Never Guess (`STATUS: BLOCKED_ON_USER_INPUT`):** Inspect local context (`MATE-PROJECT-MAP.md`, `specs/`, code) and live browser/API responses first. Never invent business thresholds, auth boundaries, or SLA numbers. Tag any genuine requirement gap as `[TBD: <exact question for PO/Dev/QA>]` inside `## Open Questions for Human QA`, finish all unblocked work, and halt when `npx mate-sdt validate` or `npx mate-sdt gate` returns `STATUS: BLOCKED_ON_USER_INPUT` to ask the human.
+- **Sub-Agent Context Isolation (`--subagent` & `mate.handoff/v1`):** When delegating to a sub-agent or running a multi-stage pipeline (Reader/Extractor -> Spec Scorer -> Code Writer -> Independent Reviewer), build a scoped prompt via `npx mate-sdt context <module> --subagent <skill-name>` (`.mate/subagent-prompt-<module>-<skill>.md`). Pass only the structured `mate.handoff/v1` digest between stages (or run `--compact` in single-agent IDEs) so raw exploratory noise never pollutes downstream context windows.

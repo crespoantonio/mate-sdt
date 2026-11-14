@@ -738,4 +738,43 @@ describe('M.A.T.E. Stack-Trace Entry Point & Spec-Guarded Self-Healing', () => {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
+
+  test('Pillar 4 & 5: BLOCKED_ON_USER_INPUT on [TBD] in <invariants> and --subagent scoped prompt generation', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mate-p4p5-'));
+    try {
+      installMate({ targetDir: tmpDir, mode: 'greenfield', ides: ['antigravity'], includeStarterFiles: true });
+
+      // 1. Sub-agent scoped prompt generation (--subagent mate-pw-codegen)
+      const ctx = analyzeContextEngineering(tmpDir, 'sample-order-lifecycle', {
+        subagent: 'mate-pw-codegen',
+        task: 'Implement SOLID Page Object for order checkout',
+      });
+      assert.ok(ctx.subagentPromptPath && fs.existsSync(ctx.subagentPromptPath));
+      const subPrompt = fs.readFileSync(ctx.subagentPromptPath, 'utf8');
+      assert.ok(subPrompt.includes('Sub-Agent Delegation & Isolation Contract (`--subagent mate-pw-codegen`)'));
+      assert.ok(subPrompt.includes('mate.handoff/v1'));
+
+      // 2. Inject [TBD] inside <invariants> of sample-order-lifecycle.mate-spec.md
+      const specPath = path.join(tmpDir, 'specs', 'sample-order-lifecycle.mate-spec.md');
+      const origSpec = fs.readFileSync(specPath, 'utf8');
+      const blockedSpec = origSpec.replace(
+        '<invariants>',
+        '<invariants>\n- **INV-99:** [TBD: What is the maximum refund window in days?]'
+      );
+      fs.writeFileSync(specPath, blockedSpec, 'utf8');
+
+      const valRes = validateSpecFile(specPath);
+      assert.equal(valRes.valid, false);
+      assert.equal(valRes.blockedOnUserInput, true);
+      assert.ok(valRes.errors.some((e) => e.includes('STATUS: BLOCKED_ON_USER_INPUT')));
+
+      const loopRes = runHarnessLoop(tmpDir, { maxIterations: 5 });
+      assert.equal(loopRes.blockedOnUserInput, true);
+      assert.equal(loopRes.status, 'BLOCKED_ON_USER_INPUT');
+      assert.equal(loopRes.loop.iterationsRun, 1);
+      assert.equal(loopRes.loop.pausedOnBlockedInput, true);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
 });

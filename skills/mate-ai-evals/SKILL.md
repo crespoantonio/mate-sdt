@@ -2,7 +2,7 @@
 name: mate-ai-evals
 description: >-
   AI Quality Pack — Dual-Engine Functional, RAG Triad & Agent Trajectory Evaluation (Promptfoo + DeepEval).
-  USE WHEN configuring or running automated evaluations for AI Agents, Chatbots, or RAG pipelines
+  USE WHEN: configuring or running automated evaluations for AI Agents, Chatbots, or RAG pipelines
   using Promptfoo (`promptfooconfig.yaml`) or DeepEval (`test_*.py`), asserting tool-call accuracy
   (`trajectory:tool-args-match`, `ToolCorrectnessMetric`), task completion (`TaskCompletionMetric`),
   or the RAG Triad (Faithfulness, Answer Relevancy, Contextual Precision/Recall).
@@ -74,3 +74,8 @@ When testing agents with persistent memory, run `memory-eval.promptfoo.yaml` and
 - **Layer 2 (Retrieval):** `Recall@K >= 0.85` and P95 retrieval latency **`<= 200ms`** (`ORA-MEM-LATENCY`).
 - **Layer 3 (End-to-End):** Over-Influence resistance, Dialogue Injection resistance, and multi-turn memory coherence.
 - **Black-Box Handoff:** Consume `mate.handoff/v1` from `mate-ai-dataset` and hand off failures to `mate-ai-observability` via `npx mate-sdt session advance`.
+
+## Zero-Assumption Escalation & Sub-Agent Isolation Protocol
+
+- **Ask, Never Guess (`STATUS: BLOCKED_ON_USER_INPUT`):** Inspect local context (`MATE-PROJECT-MAP.md`, `specs/`, code) and live browser/API responses first. Never invent business thresholds, auth boundaries, or SLA numbers. Tag any genuine requirement gap as `[TBD: <exact question for PO/Dev/QA>]` inside `## Open Questions for Human QA`, finish all unblocked work, and halt when `npx mate-sdt validate` or `npx mate-sdt gate` returns `STATUS: BLOCKED_ON_USER_INPUT` to ask the human.
+- **Sub-Agent Context Isolation (`--subagent` & `mate.handoff/v1`):** When delegating to a sub-agent or running a multi-stage pipeline (Reader/Extractor -> Spec Scorer -> Code Writer -> Independent Reviewer), build a scoped prompt via `npx mate-sdt context <module> --subagent <skill-name>` (`.mate/subagent-prompt-<module>-<skill>.md`). Pass only the structured `mate.handoff/v1` digest between stages (or run `--compact` in single-agent IDEs) so raw exploratory noise never pollutes downstream context windows.
