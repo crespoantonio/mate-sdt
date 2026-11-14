@@ -32,7 +32,8 @@ npx mate-sdt install [options]
 **Options:**
 *   `-y, --yes`: Skip interactive prompts and use defaults.
 *   `--mode <standalone-qa|greenfield|brownfield|skills-only>`: Specify lifecycle mode.
-*   `--ide <list>`: Comma-separated list of IDEs (`antigravity`, `claude`, `cursor`, `windsurf`, `copilot`, `codex`, or `all`).
+*   `--ide <list>`: Comma-separated list of IDEs (`antigravity` [aliases: `antigravity-ide`, `antigravity-cli`, `agy`], `claude` [alias: `claude-code`], `cursor`, `windsurf` [alias: `cascade`], `copilot` [alias: `github-copilot`], `codex` [aliases: `openai-codex`, `universal`, `agents`], or `all`).
+    *   *Google Antigravity Note:* Installs skills into `.agents/skills/<name>/SKILL.md` and installs all E2E workflows as first-class skills into `.agents/skills/<workflow>/SKILL.md`, enabling native slash commands (e.g., `/mate-flow-user-story`, `/mate-flow-triage`, `/mate-flow-zero-to-one`) in both Antigravity IDE and the `agy` CLI (with legacy fallback preserved in `.agent/workflows/mate/`).
 *   `--dir <path>`: Target directory (defaults to `.`).
 *   `--with-playwright-cli`: Automatically install `@playwright/cli@latest` and `@playwright/test@latest` via npm.
 *   `--with-ai-evals`: Install the on-demand **AI Agent, Chatbot & RAG Quality Pack** (4 AI Skills, `/mate-flow-ai-agent`, Promptfoo, DeepEval & OTel Trace Auditor).

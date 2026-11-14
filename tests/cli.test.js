@@ -26,6 +26,7 @@ const {
   WORKFLOW_NAMES,
   AI_SKILL_NAMES,
   AI_WORKFLOW_NAMES,
+  normalizeIdeName,
   detectExistingMate,
   installMate,
   setupAiQualityPack,
@@ -169,8 +170,10 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
         )
       );
 
-      // Verify all 5 workflows installed in Antigravity, Claude, Windsurf, Copilot
+      // Verify all 7 workflows installed as first-class Antigravity skills (.agents/skills/<wf>/SKILL.md)
+      // plus fallback in .agent/workflows/mate/, and commands/prompts in Claude, Windsurf, Copilot
       for (const wf of WORKFLOW_NAMES) {
+        assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'skills', wf, 'SKILL.md')));
         assert.ok(fs.existsSync(path.join(tmpDir, '.agent', 'workflows', 'mate', `${wf}.md`)));
         assert.ok(fs.existsSync(path.join(tmpDir, '.claude', 'commands', `${wf}.md`)));
         assert.ok(fs.existsSync(path.join(tmpDir, '.windsurf', 'workflows', `${wf}.md`)));
@@ -366,7 +369,7 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
       installMate({
         targetDir: tmpDir,
         mode: 'standalone-qa',
-        ides: ['antigravity', 'claude', 'cursor'],
+        ides: ['antigravity', 'claude', 'cursor', 'copilot'],
         includeStarterFiles: true,
         installAiEvals: true,
       });
@@ -376,9 +379,16 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
         assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'skills', aiSkill, 'SKILL.md')));
         assert.ok(fs.existsSync(path.join(tmpDir, '.claude', 'commands', `${aiSkill}.md`)));
         assert.ok(fs.existsSync(path.join(tmpDir, '.cursor', 'rules', `${aiSkill}.mdc`)));
+        assert.ok(fs.existsSync(path.join(tmpDir, '.github', 'prompts', `${aiSkill}.prompt.md`)));
       }
       assert.ok(
+        fs.existsSync(path.join(tmpDir, '.agents', 'skills', 'mate-flow-ai-agent', 'SKILL.md'))
+      );
+      assert.ok(
         fs.existsSync(path.join(tmpDir, '.agent', 'workflows', 'mate', 'mate-flow-ai-agent.md'))
+      );
+      assert.ok(
+        fs.existsSync(path.join(tmpDir, '.github', 'prompts', 'mate-flow-ai-agent.prompt.md'))
       );
 
       // Verify Promptfoo, RedTeam, DeepEval, and OTel Trace Auditor files exist
@@ -446,12 +456,12 @@ describe('M.A.T.E. SDT Framework CLI, 9 Skills, 5 Workflows & Auditor Suite', ()
         includeStarterFiles: false,
       });
 
-      // 3. Re-detect existing installation
+      // 3. Re-detect existing installation (16 core skills + 7 workflows as first-class skills = 23)
       const detected = detectExistingMate(tmpDir);
       assert.equal(detected.isInstalled, true);
       assert.ok(detected.detectedIdes.includes('antigravity'));
       assert.ok(detected.detectedIdes.includes('claude'));
-      assert.equal(detected.installedSkillsCount, 16);
+      assert.equal(detected.installedSkillsCount, 23);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
@@ -773,6 +783,56 @@ describe('M.A.T.E. Stack-Trace Entry Point & Spec-Guarded Self-Healing', () => {
       assert.equal(loopRes.status, 'BLOCKED_ON_USER_INPUT');
       assert.equal(loopRes.loop.iterationsRun, 1);
       assert.equal(loopRes.loop.pausedOnBlockedInput, true);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  test('13. normalizeIdeName maps aliases and supports modern Antigravity IDE & agy CLI installation', () => {
+    // 1. Unit tests for normalizeIdeName mapping
+    assert.equal(normalizeIdeName('antigravity'), 'antigravity');
+    assert.equal(normalizeIdeName('antigravity-ide'), 'antigravity');
+    assert.equal(normalizeIdeName('antigravity-cli'), 'antigravity');
+    assert.equal(normalizeIdeName('agy'), 'antigravity');
+    assert.equal(normalizeIdeName('gemini'), 'antigravity');
+
+    assert.equal(normalizeIdeName('claude'), 'claude');
+    assert.equal(normalizeIdeName('claude-code'), 'claude');
+    assert.equal(normalizeIdeName('claudecode'), 'claude');
+
+    assert.equal(normalizeIdeName('cursor'), 'cursor');
+    assert.equal(normalizeIdeName('cursor-ide'), 'cursor');
+
+    assert.equal(normalizeIdeName('windsurf'), 'windsurf');
+    assert.equal(normalizeIdeName('cascade'), 'windsurf');
+
+    assert.equal(normalizeIdeName('copilot'), 'copilot');
+    assert.equal(normalizeIdeName('github-copilot'), 'copilot');
+
+    assert.equal(normalizeIdeName('codex'), 'codex');
+    assert.equal(normalizeIdeName('openai-codex'), 'codex');
+    assert.equal(normalizeIdeName('universal'), 'codex');
+    assert.equal(normalizeIdeName('agents'), 'codex');
+
+    // 2. Integration test: installMate with aliased IDE names
+    const tmpDir = createTempDir();
+    try {
+      installMate({
+        targetDir: tmpDir,
+        mode: 'standalone-qa',
+        ides: ['antigravity-ide', 'agy', 'cascade', 'github-copilot'],
+        includeStarterFiles: true,
+      });
+
+      // Assert Antigravity skills and workflows exist as first-class skills
+      assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'skills', 'mate-core', 'SKILL.md')));
+      assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'skills', 'mate-flow-user-story', 'SKILL.md')));
+
+      // Assert Windsurf workflows exist
+      assert.ok(fs.existsSync(path.join(tmpDir, '.windsurf', 'workflows', 'mate-flow-user-story.md')));
+
+      // Assert GitHub Copilot prompts exist
+      assert.ok(fs.existsSync(path.join(tmpDir, '.github', 'prompts', 'mate-flow-user-story.prompt.md')));
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }

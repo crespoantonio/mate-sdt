@@ -18,6 +18,7 @@ const {
   detectExistingMate,
   initMateProject,
   installMate,
+  normalizeIdeName,
   installPlaywrightCliPackages,
   setupAiQualityPack,
   generateAiDataset,
@@ -297,7 +298,7 @@ async function handleInstall(flags) {
 
   let mode = flags.mode || (existing.hasProjectMap ? 'skills-only' : 'greenfield');
   let ides = flags.ide
-    ? flags.ide.split(',').map((s) => s.trim().toLowerCase())
+    ? flags.ide.split(',').map((s) => normalizeIdeName(s.trim()))
     : existing.detectedIdes;
   let includeStarterFiles = flags.starter;
   let installPlaywrightCli = flags.playwrightCli;
@@ -311,7 +312,7 @@ async function handleInstall(flags) {
         console.log(`     • Living Map (MATE-PROJECT-MAP.md): ${existing.hasProjectMap ? color('Found', COLORS.brightGreen) : color('Not found', COLORS.gray)}`);
         console.log(`     • Configured IDEs: ${color(existing.detectedIdes.join(', '), COLORS.brightGreen)}`);
         if (existing.installedSkillsCount > 0) {
-          console.log(`     • Installed Skills: ${color(`${existing.installedSkillsCount} skills`, COLORS.yellow)} (Framework v${pkg.version} provides 16 core skills + 4 on-demand AI skills; 20 total)`);
+          console.log(`     • Installed Skills: ${color(`${existing.installedSkillsCount} skills/workflows`, COLORS.yellow)} (Framework v${pkg.version} provides 16 core skills + 7 workflows as skills + 4 on-demand AI skills; 27 total)`);
         }
         console.log('');
 
@@ -329,7 +330,7 @@ async function handleInstall(flags) {
             rl,
             'Which AI Coding Agents / IDEs do you want to update/configure?',
             [
-              { label: 'Google Antigravity IDE & agy CLI (.agents/skills + .agent/workflows/mate)', value: 'antigravity' },
+              { label: 'Google Antigravity IDE & agy CLI (.agents/skills/ + Slash Commands /mate-flow-*)', value: 'antigravity' },
               { label: 'Claude Code (.claude/skills + .claude/commands + CLAUDE.md)', value: 'claude' },
               { label: 'Cursor (.cursor/rules/*.mdc + AGENTS.md)', value: 'cursor' },
               { label: 'Windsurf (.windsurf/rules/*.md + .windsurf/workflows)', value: 'windsurf' },
@@ -387,7 +388,7 @@ async function handleInstall(flags) {
           rl,
           'Which AI Coding Agents / IDEs do you want to configure?',
           [
-            { label: 'Google Antigravity IDE & agy CLI (.agents/skills + .agent/workflows/mate)', value: 'antigravity' },
+            { label: 'Google Antigravity IDE & agy CLI (.agents/skills/ + Slash Commands /mate-flow-*)', value: 'antigravity' },
             { label: 'Claude Code (.claude/skills + .claude/commands + CLAUDE.md)', value: 'claude' },
             { label: 'Cursor (.cursor/rules/*.mdc + AGENTS.md)', value: 'cursor' },
             { label: 'Windsurf (.windsurf/rules/*.md + .windsurf/workflows)', value: 'windsurf' },

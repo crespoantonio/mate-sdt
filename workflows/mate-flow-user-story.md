@@ -1,5 +1,7 @@
 ---
-description: End-to-End Daily QA Workflow — From User Story (Atlassian/Jira MCP, Notion MCP, Excel/CSV, or Text) to Spec, 4-Quadrant Test Cases (.md/.csv), Live @playwright/cli Verification, SOLID Automation, and Anti-Greenwashing Bug Reporting.
+name: mate-flow-user-story
+description: >-
+  End-to-End Daily QA Workflow — From User Story (Atlassian/Jira MCP, Notion MCP, Excel/CSV, or Text) to Spec, 4-Quadrant Test Cases (.md/.csv), Live @playwright/cli Verification, SOLID Automation, and Anti-Greenwashing Bug Reporting.
 ---
 
 # 📋 Workflow: `/mate-flow-user-story` (User Story to E2E Automation & Triage)

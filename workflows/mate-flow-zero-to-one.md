@@ -1,5 +1,7 @@
 ---
-description: Zero-to-One QA Onboarding Workflow — For QA teams starting with ZERO testing (often in a standalone QA repo) on an application that is already live in production/staging with real users.
+name: mate-flow-zero-to-one
+description: >-
+  Zero-to-One QA Onboarding Workflow — For QA teams starting with ZERO testing (often in a standalone QA repo) on an application that is already live in production/staging with real users.
 ---
 
 # 🚀 Workflow: `/mate-flow-zero-to-one` (Zero Testing to Production Protection)

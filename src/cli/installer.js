@@ -94,6 +94,33 @@ function writeFileIfMissing(targetPath, content, overwrite = false) {
 }
 
 /**
+ * Normalizes an IDE identifier to standard internal keys:
+ * 'antigravity', 'claude', 'cursor', 'windsurf', 'copilot', 'codex', 'all'
+ */
+function normalizeIdeName(raw) {
+  const s = String(raw || '').trim().toLowerCase();
+  if (['antigravity', 'antigravity-ide', 'antigravity-cli', 'agy', 'gemini'].includes(s)) {
+    return 'antigravity';
+  }
+  if (['claude', 'claude-code', 'claudecode'].includes(s)) {
+    return 'claude';
+  }
+  if (['cursor', 'cursor-ide'].includes(s)) {
+    return 'cursor';
+  }
+  if (['windsurf', 'cascade'].includes(s)) {
+    return 'windsurf';
+  }
+  if (['copilot', 'github-copilot'].includes(s)) {
+    return 'copilot';
+  }
+  if (['codex', 'openai-codex', 'agents', 'universal'].includes(s)) {
+    return 'codex';
+  }
+  return s;
+}
+
+/**
  * Installs M.A.T.E. skills, workflows, and configurations for Google Antigravity IDE / agy CLI
  */
 function installAntigravity(targetDir) {
@@ -101,6 +128,7 @@ function installAntigravity(targetDir) {
   fs.mkdirSync(skillsDestRoot, { recursive: true });
   const installed = [];
 
+  // 1. Install Core 16 Skills into .agents/skills/<skillName>/
   for (const skillName of SKILL_NAMES) {
     const srcSkillDir = path.join(PACKAGE_ROOT, 'skills', skillName);
     const destSkillDir = path.join(skillsDestRoot, skillName);
@@ -110,7 +138,19 @@ function installAntigravity(targetDir) {
     }
   }
 
-  // Install E2E Workflows into .agent/workflows/mate/
+  // 2. Install E2E Workflows as First-Class Antigravity Skills (.agents/skills/<wfName>/SKILL.md)
+  // for native slash command support (/<wfName>) and semantic agent discovery (Modern Antigravity Standard)
+  for (const wfName of WORKFLOW_NAMES) {
+    const wfSrc = path.join(PACKAGE_ROOT, 'workflows', `${wfName}.md`);
+    if (fs.existsSync(wfSrc)) {
+      const destWfSkillDir = path.join(skillsDestRoot, wfName);
+      fs.mkdirSync(destWfSkillDir, { recursive: true });
+      fs.copyFileSync(wfSrc, path.join(destWfSkillDir, 'SKILL.md'));
+      installed.push(`.agents/skills/${wfName}`);
+    }
+  }
+
+  // 3. Backward-compatible fallback: also install into .agent/workflows/mate/
   const workflowsDest = path.join(targetDir, '.agent', 'workflows', 'mate');
   fs.mkdirSync(workflowsDest, { recursive: true });
   for (const wfName of WORKFLOW_NAMES) {
@@ -121,7 +161,7 @@ function installAntigravity(targetDir) {
     }
   }
 
-  // Ensure .agent/skills.json registers .agents/skills
+  // 4. Ensure .agent/skills.json registers .agents/skills
   const agentConfigPath = path.join(targetDir, '.agent', 'skills.json');
   fs.mkdirSync(path.dirname(agentConfigPath), { recursive: true });
 
@@ -847,7 +887,8 @@ function installPlaywrightCliPackages(targetDir = '.') {
 function installMate(options = {}) {
   const targetDir = path.resolve(options.targetDir || '.');
   const mode = options.mode || 'greenfield';
-  const ides = options.ides || ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'];
+  const rawIdes = options.ides || ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'];
+  const ides = rawIdes.map(normalizeIdeName);
   const includeStarterFiles =
     options.includeStarterFiles !== undefined ? options.includeStarterFiles : true;
   const installPlaywrightCli = Boolean(options.installPlaywrightCli);
@@ -966,7 +1007,8 @@ function generateAiDataset(moduleName = 'agent', targetDir = '.') {
  */
 function setupAiQualityPack(targetDir = '.', options = {}) {
   const resolved = path.resolve(targetDir);
-  const ides = options.ides || ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'];
+  const rawIdes = options.ides || ['antigravity', 'claude', 'cursor', 'windsurf', 'copilot'];
+  const ides = rawIdes.map(normalizeIdeName);
   const created = [];
 
   // 1. Create AI Evaluation Directory Structure
@@ -992,6 +1034,17 @@ function setupAiQualityPack(targetDir = '.', options = {}) {
         created.push(`.agents/skills/${sName}`);
       }
     }
+    // Install AI workflow as first-class Antigravity skill (.agents/skills/mate-flow-ai-agent/SKILL.md)
+    for (const wf of AI_WORKFLOW_NAMES) {
+      const wfSrc = path.join(PACKAGE_ROOT, 'workflows', `${wf}.md`);
+      if (fs.existsSync(wfSrc)) {
+        const destWfSkillDir = path.join(skillsDestRoot, wf);
+        fs.mkdirSync(destWfSkillDir, { recursive: true });
+        fs.copyFileSync(wfSrc, path.join(destWfSkillDir, 'SKILL.md'));
+        created.push(`.agents/skills/${wf}`);
+      }
+    }
+    // Backward-compatible fallback: .agent/workflows/mate/
     const wfDest = path.join(resolved, '.agent', 'workflows', 'mate');
     fs.mkdirSync(wfDest, { recursive: true });
     for (const wf of AI_WORKFLOW_NAMES) {
@@ -1021,6 +1074,10 @@ function setupAiQualityPack(targetDir = '.', options = {}) {
         fs.copyFileSync(wfSrc, path.join(commandsDir, `${wf}.md`));
         created.push(`.claude/commands/${wf}.md`);
       }
+      const wfSkillDir = path.join(resolved, '.claude', 'skills', wf);
+      fs.mkdirSync(wfSkillDir, { recursive: true });
+      fs.copyFileSync(wfSrc, path.join(wfSkillDir, 'SKILL.md'));
+      created.push(`.claude/skills/${wf}`);
     }
   }
 
@@ -1075,6 +1132,27 @@ function setupAiQualityPack(targetDir = '.', options = {}) {
       if (fs.existsSync(wfSrc)) {
         fs.copyFileSync(wfSrc, path.join(workflowsDir, `${wf}.md`));
         created.push(`.windsurf/workflows/${wf}.md`);
+      }
+    }
+  }
+
+  if (ides.includes('copilot') || ides.includes('all')) {
+    const promptsDir = path.join(resolved, '.github', 'prompts');
+    fs.mkdirSync(promptsDir, { recursive: true });
+    for (const sName of AI_SKILL_NAMES) {
+      const skillMd = path.join(PACKAGE_ROOT, 'skills', sName, 'SKILL.md');
+      if (fs.existsSync(skillMd)) {
+        const body = fs.readFileSync(skillMd, 'utf8').replace(/^---[\s\S]*?---\r?\n/, '').trim();
+        fs.writeFileSync(path.join(promptsDir, `${sName}.prompt.md`), body + '\n', 'utf8');
+        created.push(`.github/prompts/${sName}.prompt.md`);
+      }
+    }
+    for (const wf of AI_WORKFLOW_NAMES) {
+      const wfSrc = path.join(PACKAGE_ROOT, 'workflows', `${wf}.md`);
+      if (fs.existsSync(wfSrc)) {
+        const body = fs.readFileSync(wfSrc, 'utf8').replace(/^---[\s\S]*?---\r?\n/, '').trim();
+        fs.writeFileSync(path.join(promptsDir, `${wf}.prompt.md`), body + '\n', 'utf8');
+        created.push(`.github/prompts/${wf}.prompt.md`);
       }
     }
   }
@@ -1694,6 +1772,7 @@ module.exports = {
   WORKFLOW_NAMES,
   AI_SKILL_NAMES,
   AI_WORKFLOW_NAMES,
+  normalizeIdeName,
   detectExistingMate,
   initMateProject,
   installMate,
